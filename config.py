@@ -60,6 +60,7 @@ _C.TEST.DATA_DIR = ""
 _C.TEST.DATASET_LIST = ["roxford5k"]
 _C.TEST.SCALE_LIST = 3
 _C.TEST.TOPK_LIST = [400]
+_C.TEST.CUSTOM = False
 
 # ------------------------------------------------------------------------------------ #
 # Common train/test data loader options

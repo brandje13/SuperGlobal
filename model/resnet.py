@@ -25,6 +25,7 @@ BN_EPS = 1e-5
 BN_MOM = 0.1
 RELU_INPLACE = True
 
+
 def get_trans_fun(name):
     """Retrieves the transformation function by name."""
     trans_funs = {
@@ -34,6 +35,8 @@ def get_trans_fun(name):
     err_str = "Transformation function '{}' not supported"
     assert name in trans_funs.keys(), err_str.format(name)
     return trans_funs[name]
+
+
 class GeneralizedMeanPooling(nn.Module):
     r"""Applies a 2D power-average adaptive pooling over an input signal composed of several input planes.
     The function computed is: :math:`f(X) = pow(sum(pow(X, p)), 1/p)`
@@ -79,11 +82,11 @@ class GlobalHead(nn.Module):
         super(GlobalHead, self).__init__()
         self.fc = nn.Linear(w_in, nc, bias=True)
         self.pool = GeneralizedMeanPoolingP(norm=pp)
+
     def forward(self, x):
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         return x
-
 
 
 class BasicTransform(nn.Module):
@@ -104,8 +107,6 @@ class BasicTransform(nn.Module):
         for layer in self.children():
             x = layer(x)
         return x
-
-
 
         
 class BottleneckTransform(nn.Module):
@@ -135,6 +136,7 @@ class BottleneckTransform(nn.Module):
         for layer in self.children():
             x = layer(x)
         return x
+
 
 class ResBlock(nn.Module):
     """Residual block: x + F(x)."""
@@ -167,6 +169,7 @@ class ResBlock(nn.Module):
         
         return x
 
+
 class ResStage(nn.Module):
     """Stage of ResNet."""
 
@@ -183,6 +186,7 @@ class ResStage(nn.Module):
         for block in self.children():
             x = block(x)
         return x
+
 
 class ResStage_basetransform(nn.Module):
     """Stage of ResNet."""
@@ -201,6 +205,7 @@ class ResStage_basetransform(nn.Module):
             x = block(x)
         return x
 
+
 class ResStemIN(nn.Module):
     """ResNet stem for ImageNet: 7x7, BN, ReLU, MaxPool."""
 
@@ -215,6 +220,7 @@ class ResStemIN(nn.Module):
         for layer in self.children():
             x = layer(x)
         return x
+
 
 class ResNet(nn.Module):
     """ResNet model."""
@@ -245,6 +251,7 @@ class ResNet(nn.Module):
         self.area = 5
         self.gemp = gemp()
         self.sgem = sgem()
+
     def _forward_singlescale(self, x, gemp = True, rgem = True):
         x = self.stem(x)
         x1 = self.s1(x)

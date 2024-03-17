@@ -1,0 +1,236 @@
+{
+    "imlist": [
+        "pitt_rivers_000000.jpg",
+        "pitt_rivers_000001.jpg",
+        "pitt_rivers_000002.jpg",
+        "pitt_rivers_000004.jpg",
+        "pitt_rivers_000005.jpg",
+        "pitt_rivers_000006.jpg",
+        "pitt_rivers_000007.jpg",
+        "pitt_rivers_000008.jpg",
+        "pitt_rivers_000009.jpg",
+        "pitt_rivers_000010.jpg",
+        "pitt_rivers_000011.jpg",
+        "pitt_rivers_000012.jpg",
+        "pitt_rivers_000013.jpg",
+        "pitt_rivers_000014.jpg",
+        "pitt_rivers_000015.jpg",
+        "pitt_rivers_000016.jpg",
+        "pitt_rivers_000017.jpg",
+        "pitt_rivers_000018.jpg",
+        "pitt_rivers_000027.jpg",
+        "pitt_rivers_000028.jpg",
+        "pitt_rivers_000030.jpg",
+        "pitt_rivers_000031.jpg",
+        "pitt_rivers_000032.jpg",
+        "pitt_rivers_000033.jpg",
+        "pitt_rivers_000035.jpg",
+        "pitt_rivers_000036.jpg",
+        "pitt_rivers_000037.jpg",
+        "pitt_rivers_000038.jpg",
+        "pitt_rivers_000040.jpg",
+        "pitt_rivers_000041.jpg",
+        "pitt_rivers_000042.jpg",
+        "pitt_rivers_000043.jpg",
+        "pitt_rivers_000044.jpg",
+        "pitt_rivers_000045.jpg",
+        "pitt_rivers_000046.jpg",
+        "pitt_rivers_000055.jpg",
+        "pitt_rivers_000056.jpg",
+        "pitt_rivers_000057.jpg",
+        "pitt_rivers_000058.jpg",
+        "pitt_rivers_000059.jpg",
+        "pitt_rivers_000060.jpg",
+        "pitt_rivers_000062.jpg",
+        "pitt_rivers_000063.jpg",
+        "pitt_rivers_000064.jpg",
+        "pitt_rivers_000065.jpg",
+        "pitt_rivers_000067.jpg",
+        "pitt_rivers_000071.jpg",
+        "pitt_rivers_000072.jpg",
+        "pitt_rivers_000073.jpg",
+        "pitt_rivers_000074.jpg",
+        "pitt_rivers_000075.jpg",
+        "pitt_rivers_000076.jpg",
+        "pitt_rivers_000077.jpg",
+        "pitt_rivers_000078.jpg",
+        "pitt_rivers_000086.jpg",
+        "pitt_rivers_000087.jpg",
+        "pitt_rivers_000096.jpg",
+        "pitt_rivers_000101.jpg",
+        "pitt_rivers_000102.jpg",
+        "pitt_rivers_000103.jpg",
+        "pitt_rivers_000105.jpg",
+        "pitt_rivers_000112.jpg",
+        "pitt_rivers_000113.jpg",
+        "pitt_rivers_000115.jpg",
+        "pitt_rivers_000117.jpg",
+        "pitt_rivers_000118.jpg",
+        "pitt_rivers_000119.jpg",
+        "pitt_rivers_000120.jpg",
+        "pitt_rivers_000122.jpg",
+        "pitt_rivers_000123.jpg",
+        "pitt_rivers_000124.jpg",
+        "pitt_rivers_000126.jpg",
+        "pitt_rivers_000127.jpg",
+        "pitt_rivers_000128.jpg",
+        "pitt_rivers_000129.jpg",
+        "pitt_rivers_000131.jpg",
+        "pitt_rivers_000132.jpg",
+        "pitt_rivers_000133.jpg",
+        "pitt_rivers_000134.jpg",
+        "pitt_rivers_000135.jpg",
+        "pitt_rivers_000136.jpg",
+        "pitt_rivers_000137.jpg",
+        "pitt_rivers_000138.jpg",
+        "pitt_rivers_000139.jpg",
+        "pitt_rivers_000140.jpg",
+        "pitt_rivers_000141.jpg",
+        "pitt_rivers_000142.jpg",
+        "pitt_rivers_000143.jpg",
+        "pitt_rivers_000144.jpg",
+        "pitt_rivers_000146.jpg",
+        "pitt_rivers_000148.jpg",
+        "pitt_rivers_000149.jpg",
+        "pitt_rivers_000153.jpg",
+        "pitt_rivers_000157.jpg",
+        "pitt_rivers_000163.jpg",
+        "pitt_rivers_000164.jpg",
+        "pitt_rivers_000166.jpg",
+        "pitt_rivers_000172.jpg",
+        "pitt_rivers_000174.jpg",
+        "pitt_rivers_000176.jpg",
+        "pitt_rivers_000189.jpg",
+        "pitt_rivers_000190.jpg",
+        "pitt_rivers_000194.jpg",
+        "pitt_rivers_000195.jpg",
+        "pitt_rivers_000196.jpg",
+        "pitt_rivers_000197.jpg",
+        "pitt_rivers_000198.jpg",
+        "pitt_rivers_000199.jpg"
+    ],
+    "qimlist": [
+        "pitt_rivers_000033.jpg",
+        "pitt_rivers_000119.jpg",
+        "pitt_rivers_000153.jpg",
+        "pitt_rivers_000087.jpg",
+        "pitt_rivers_000058.jpg"
+    ],
+    "gnd": [
+        {
+            "query": "pitt_rivers_000033.jpg",
+            "bbx": [
+                68.3,
+                51.2,
+                989.9,
+                682.7
+            ],
+            "ok": [
+                "pitt_rivers_000087.jpg",
+                "pitt_rivers_000115.jpg",
+                "pitt_rivers_000058.jpg"
+            ],
+            "good": [
+                "pitt_rivers_000119.jpg",
+                "pitt_rivers_000153.jpg",
+                "pitt_rivers_000033.jpg"
+            ],
+            "junk": [
+                "pitt_rivers_000055.jpg",
+                "pitt_rivers_000190.jpg"
+            ]
+        },
+        {
+            "query": "pitt_rivers_000119.jpg",
+            "bbx": [
+                2.0,
+                2.0,
+                1024.0,
+                759.0
+            ],
+            "ok": [
+                "pitt_rivers_000087.jpg",
+                "pitt_rivers_000115.jpg",
+                "pitt_rivers_000058.jpg"
+            ],
+            "good": [
+                "pitt_rivers_000119.jpg",
+                "pitt_rivers_000153.jpg",
+                "pitt_rivers_000033.jpg"
+            ],
+            "junk": [
+                "pitt_rivers_000055.jpg",
+                "pitt_rivers_000190.jpg"
+            ]
+        },
+        {
+            "query": "pitt_rivers_000153.jpg",
+            "bbx": [
+                4.0,
+                3.0,
+                1012.0,
+                628.0
+            ],
+            "ok": [
+                "pitt_rivers_000087.jpg",
+                "pitt_rivers_000115.jpg",
+                "pitt_rivers_000058.jpg"
+            ],
+            "good": [
+                "pitt_rivers_000119.jpg",
+                "pitt_rivers_000153.jpg",
+                "pitt_rivers_000033.jpg"
+            ],
+            "junk": [
+                "pitt_rivers_000055.jpg",
+                "pitt_rivers_000190.jpg"
+            ]
+        },
+        {
+            "query": "pitt_rivers_000087.jpg",
+            "bbx": [
+                123.0,
+                96.0,
+                768.0,
+                863.0
+            ],
+            "ok": [
+                "pitt_rivers_000087.jpg",
+                "pitt_rivers_000115.jpg",
+                "pitt_rivers_000058.jpg"
+            ],
+            "good": [
+                "pitt_rivers_000119.jpg",
+                "pitt_rivers_000153.jpg",
+                "pitt_rivers_000033.jpg"
+            ],
+            "junk": [
+                "pitt_rivers_000055.jpg",
+                "pitt_rivers_000190.jpg"
+            ]
+        },
+        {
+            "query": "pitt_rivers_000058.jpg",
+            "bbx": [
+                458.0,
+                5.0,
+                1021.0,
+                688.0
+            ],
+            "ok": [
+                "pitt_rivers_000087.jpg",
+                "pitt_rivers_000115.jpg",
+                "pitt_rivers_000058.jpg"
+            ],
+            "good": [
+                "pitt_rivers_000119.jpg",
+                "pitt_rivers_000153.jpg",
+                "pitt_rivers_000033.jpg"
+            ],
+            "junk": [
+                "pitt_rivers_000055.jpg",
+                "pitt_rivers_000190.jpg"
+            ]
+        }
+    ]
+}

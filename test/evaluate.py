@@ -2,6 +2,7 @@
 
 import numpy as np
 
+
 def compute_ap(ranks, nres):
     """
     Computes average precision for given ranked indexes.
@@ -38,7 +39,8 @@ def compute_ap(ranks, nres):
 
     return ap
 
-def compute_map(ranks, gnd, kappas=[]):
+
+def compute_map(ranks, gnd, cfg, kappas=[]):
     """
     Computes the mAP for a given set of returned results.
 
@@ -46,7 +48,7 @@ def compute_map(ranks, gnd, kappas=[]):
            map = compute_map (ranks, gnd) 
                  computes mean average precsion (map) only
         
-           map, aps, pr, prs = compute_map (ranks, gnd, kappas) 
+           map, aps, pr, prs = compute_map (ranks, gnd, kappas, cfg)
                  computes mean average precision (map), average precision (aps) for each query
                  computes mean precision at kappas (pr), precision at kappas (prs) for each query
         
@@ -57,7 +59,7 @@ def compute_map(ranks, gnd, kappas=[]):
     """
 
     map = 0.
-    nq = len(gnd) # number of queries
+    nq = len(gnd)  # number of queries
     aps = np.zeros(nq)
     pr = np.zeros(len(kappas))
     prs = np.zeros((nq, len(kappas)))
@@ -79,8 +81,11 @@ def compute_map(ranks, gnd, kappas=[]):
             qgndj = np.empty(0)
 
         # sorted positions of positive and junk images (0 based)
-        pos  = np.arange(ranks.shape[0])[np.in1d(ranks[:,i], qgnd)]
-        junk = np.arange(ranks.shape[0])[np.in1d(ranks[:,i], qgndj)]
+        #pos = np.arange(ranks.shape[0])[np.in1d(ranks[:, i], qgnd)]
+        #junk = np.arange(ranks.shape[0])[np.in1d(ranks[:, i], qgndj)]
+
+        pos = np.array([cfg['imlist'].index(i) for i in qgnd])
+        junk = np.array([cfg['imlist'].index(i) for i in qgndj])
 
         k = 0;
         ij = 0;
@@ -101,9 +106,9 @@ def compute_map(ranks, gnd, kappas=[]):
         aps[i] = ap
 
         # compute precision @ k
-        pos += 1 # get it to 1-based
+        pos += 1  # get it to 1-based
         for j in np.arange(len(kappas)):
-            kq = min(max(pos), kappas[j]); 
+            kq = min(max(pos), kappas[j]);
             prs[i, j] = (pos <= kq).sum() / kq
         pr = pr + prs[i, :]
 

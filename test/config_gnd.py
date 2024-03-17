@@ -5,7 +5,7 @@ import pickle
 
 DATASETS = ['roxford5k', 'rparis6k', 'revisitop1m']
 
-def config_gnd(dataset, dir_main):
+def config_gnd(dataset, dir_main, custom):
 
     dataset = dataset.lower()
 
@@ -14,7 +14,10 @@ def config_gnd(dataset, dir_main):
 
     if dataset == 'roxford5k' or dataset == 'rparis6k':
         # loading imlist, qimlist, and gnd, in cfg as a dict
-        gnd_fname = os.path.join(dir_main, dataset, 'gnd_{}.pkl'.format(dataset))
+        if custom:
+            gnd_fname = os.path.join(dir_main, dataset, 'custom.pkl'.format(dataset))
+        else:
+            gnd_fname = os.path.join(dir_main, dataset, 'gnd_{}.pkl'.format(dataset))
         with open(gnd_fname, 'rb') as f:
             cfg = pickle.load(f)
         cfg['gnd_fname'] = gnd_fname
@@ -44,10 +47,10 @@ def config_gnd(dataset, dir_main):
     return cfg
 
 def config_imname(cfg, i):
-    return os.path.join(cfg['dir_images'], cfg['imlist'][i] + cfg['ext'])
+    return os.path.join(cfg['dir_images'], cfg['imlist'][i]) #+ cfg['ext'])
 
 def config_qimname(cfg, i):
-    return os.path.join(cfg['dir_images'], cfg['qimlist'][i] + cfg['qext'])
+    return os.path.join(cfg['dir_images'], cfg['qimlist'][i]) #+ cfg['qext'])
 
 def read_imlist(imlist_fn):
     with open(imlist_fn, 'r') as file:
