@@ -31,6 +31,9 @@ _C.MODEL = CfgNode()
 # Model type
 _C.MODEL.TYPE = "RESNET"
 
+# Device to use
+_C.MODEL.DEVICE = 0
+
 # Number of weight layers
 _C.MODEL.DEPTH = 50
 
