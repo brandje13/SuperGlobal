@@ -271,6 +271,7 @@ class ResNet(nn.Module):
         x6 = F.normalize(x6, p=2, dim=-1)
         x7 = self.head.fc(x6)
         return x7
+
     def forward(self, x_, scale = 3, gemp = True, rgem = True, sgem = True):
 
         assert scale in [1, 3, 5], "scale must be in [1, 3, 5]"

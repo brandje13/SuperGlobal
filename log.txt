@@ -618,3 +618,22 @@ Start print log
 Start print log
 Start print log
 Retrieval results: mAP E: 4.49, M: 6.95, H: 3.32
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 4.49, M: 6.95, H: 3.32
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
