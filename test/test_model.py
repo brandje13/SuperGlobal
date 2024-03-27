@@ -66,9 +66,6 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
         print("perform global feature reranking")
         if onemeval:
             X_expand = torch.load(f"./feats_1m_RN{depth}.pth").cuda()
-            X = torch.cat([X,X_expand],0)
-        sim = torch.matmul(X, Q.T) # 6322 70
-        ranks = torch.argsort(-sim, axis=0) # 6322 70
             X = torch.cat([X, X_expand], 0)
         sim = torch.matmul(X, Q.T)  # 6322 70
         ranks = torch.argsort(-sim, dim=0)  # 6322 70
