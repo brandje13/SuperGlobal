@@ -8,10 +8,16 @@ import time
 
 from test.config_gnd import config_gnd
 from test.test_utils import extract_feature, test_revisitop, print_top_n, create_groundtruth
+from test.test_utils import extract_feature, test_revisitop, print_top_n, create_groundtruth, rerank_ranks_revisitop
+from test.dataset import DataSet
 
 from modules.reranking.MDescAug import MDescAug
 from modules.reranking.RerankwMDA import RerankwMDA
 import torch 
+import torch
+from tqdm import tqdm
+
+
 @torch.no_grad()
 def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rerank, gemp, rgem, sgem, onemeval, depth, logger):
     torch.backends.cudnn.benchmark = False
@@ -19,13 +25,10 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
     torch.cuda.set_device(device)
     
     state_dict = model.state_dict()
-    
 
     # initialize modules
     MDescAug_obj = MDescAug(M=600, K=9)
     RerankwMDA_obj = RerankwMDA(M=600, K=9)
-
-
 
     model.load_state_dict(state_dict)
     for dataset in dataset_list:
@@ -56,6 +59,7 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
         X = extract_feature(model, data_dir, dataset, gnd_fn, "db", [1.0], gemp, rgem, sgem, scale_list)
 
         cfg = config_gnd(dataset,data_dir,custom)
+        cfg = config_gnd(dataset, data_dir, custom)
         Q = torch.tensor(Q).cuda()
         X = torch.tensor(X).cuda()
 
@@ -65,6 +69,9 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
             X = torch.cat([X,X_expand],0)
         sim = torch.matmul(X, Q.T) # 6322 70
         ranks = torch.argsort(-sim, axis=0) # 6322 70
+            X = torch.cat([X, X_expand], 0)
+        sim = torch.matmul(X, Q.T)  # 6322 70
+        ranks = torch.argsort(-sim, dim=0)  # 6322 70
 
         if is_rerank:
             rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba = MDescAug_obj(X, Q, ranks)
@@ -81,3 +88,57 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
             print('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE*100, decimals=2), np.around(mapM*100, decimals=2), np.around(mapH*100, decimals=2)))
             logger.info('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE*100, decimals=2), np.around(mapM*100, decimals=2), np.around(mapH*100, decimals=2)))
         
+            print('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE * 100, decimals=2),
+                                                                      np.around(mapM * 100, decimals=2),
+                                                                      np.around(mapH * 100, decimals=2)))
+            logger.info('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE * 100, decimals=2),
+                                                                            np.around(mapM * 100, decimals=2),
+                                                                            np.around(mapH * 100, decimals=2)))
+
+        # print('>> {}: Reranking results with CVNet-Rerank'.format(dataset))
+        #
+        # gnd = cfg['gnd']
+        # query_dataset = DataSet(data_dir, dataset, gnd_fn, "query", [1.0])
+        # db_dataset = DataSet(data_dir, dataset, gnd_fn, "db", [1.0])
+        # sim_corr_dict = {}
+        # for topk in [100]:
+        #     print("current top-k value: ", topk)
+        #     for i in tqdm(range(int(cfg['nq']))):
+        #         im_q = query_dataset.__getitem__(i)[0]
+        #         im_q = torch.from_numpy(im_q).cuda().unsqueeze(0)
+        #         feat_q = model.extract_featuremap(im_q)
+        #
+        #         rerank_count = np.zeros(3, dtype=np.uint16)
+        #         for j in range(int(cfg['n'])):
+        #             if (rerank_count >= topk).sum() == 3:
+        #                 break
+        #
+        #             rank_j = ranks[j][i]
+        #
+        #             if rank_j in gnd[i]['junk']:
+        #                 continue
+        #             elif rank_j in gnd[i]['good']:
+        #                 append_j = np.asarray([True, True, False])
+        #             elif rank_j in gnd[i]['ok']:
+        #                 append_j = np.asarray([False, True, True])
+        #             else:  # negative
+        #                 append_j = np.asarray([True, True, True])
+        #
+        #             append_j *= (rerank_count < topk)
+        #
+        #             if append_j.sum() > 0:
+        #                 im_k = db_dataset.__getitem__(rank_j)[0]
+        #                 im_k = torch.from_numpy(im_k).cuda().unsqueeze(0)
+        #                 feat_k = model.extract_featuremap(im_k)
+        #
+        #                 score = model.extract_score_with_featuremap(feat_q, feat_k).cpu()
+        #                 sim_corr_dict[(rank_j, i)] = score
+        #                 rerank_count += append_j
+        #
+        #     mix_ratio = 0.5
+        #     ranks_corr_list = rerank_ranks_revisitop(cfg, topk, ranks, sim, sim_corr_dict, mix_ratio)
+        #     (mapE_r, apsE_r, mprE_r, prsE_r), (mapM_r, apsM_r, mprM_r, prsM_r), (
+        #     mapH_r, apsH_r, mprH_r, prsH_r) = test_revisitop(cfg, ks, ranks_corr_list)
+        #     print('Reranking results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE_r * 100, decimals=2),
+        #                                                               np.around(mapM_r * 100, decimals=2),
+        #                                                               np.around(mapH_r * 100, decimals=2)))
