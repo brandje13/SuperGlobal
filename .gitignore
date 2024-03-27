@@ -4,3 +4,8 @@
 *.tgz
 weights/CVPR2022_CVNet_R101.pyth
 weights/CVPR2022_CVNet_R50.pyth
+*.jpeg
+log.txt
+*.pyc
+.idea/misc.xml
+.idea/SuperGlobal.iml
