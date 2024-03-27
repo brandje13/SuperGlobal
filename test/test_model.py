@@ -22,8 +22,8 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
     
 
     # initialize modules
-    MDescAug_obj = MDescAug()
-    RerankwMDA_obj = RerankwMDA()
+    MDescAug_obj = MDescAug(M=600, K=9)
+    RerankwMDA_obj = RerankwMDA(M=600, K=9)
 
 
 
@@ -33,18 +33,19 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
         print(text)
         if custom:
             query_paths = askopenfilenames()
-            dir_path = askopendirname()
-            create_groundtruth(query_paths, dir_path)
+            data_dir = askopendirname()
+            create_groundtruth(query_paths, data_dir)
             gnd_fn = 'custom.pkl'
+            dataset = "custom"
         elif dataset == 'roxford5k':
             gnd_fn = 'gnd_roxford5k.pkl'
             file_path = 'revisitop/roxford5k/jpg/'
         elif dataset == 'rparis6k':
             gnd_fn = 'gnd_rparis6k.pkl'
         elif dataset == 'smartTrim':
-            query_paths = [i for i in os.listdir('D:\\smart-trim\\validation\\data\\queries\\')]
-            dir_path = 'D:\\smart-trim\\validation\\data\\'
-            create_groundtruth(query_paths, dir_path)
+            query_paths = [i for i in os.listdir(data_dir + 'queries/')]
+            #dir_path = '/home/nick/Downloads/data/'
+            create_groundtruth(query_paths, data_dir)
             gnd_fn = 'gnd_smartTrim.pkl'
         else:
             file_path = ''
@@ -70,7 +71,7 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
             ranks = RerankwMDA_obj(ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba)
         ranks = ranks.data.cpu().numpy()
 
-        print_top_n(cfg, ranks, 100, file_path)
+        print_top_n(cfg, ranks, 20, file_path)
 
         # revisited evaluation
         ks = [1, 5, 10]

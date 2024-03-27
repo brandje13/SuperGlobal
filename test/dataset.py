@@ -33,7 +33,7 @@ class DataSet(torch.utils.data.Dataset):
         """Constructs the db."""
         # Compile the split data path
         self._db = []
-        if self._dataset in ['oxford5k', 'roxford5k', 'paris6k', 'rparis6k']:
+        if self._dataset in ['oxford5k', 'roxford5k', 'paris6k', 'rparis6k', 'smartTrim']:
             with open(os.path.join(self._data_path, self._dataset, self._fn), 'rb') as fin:
                 gnd = pkl.load(fin)
                 if self._split == "query":

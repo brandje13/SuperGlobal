@@ -637,3 +637,39 @@ Start print log
 Start print log
 Start print log
 Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 1.25, M: 2.81, H: 1.15
+Start print log
+Retrieval results: mAP E: 1.25, M: 2.81, H: 1.15
+Start print log
+Start print log
+Start print log
+Start print log
+Retrieval results: mAP E: 1.25, M: 2.81, H: 1.15
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
+Start print log
