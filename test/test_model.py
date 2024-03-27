@@ -58,7 +58,6 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
         print("extract database features")
         X = extract_feature(model, data_dir, dataset, gnd_fn, "db", [1.0], gemp, rgem, sgem, scale_list)
 
-        cfg = config_gnd(dataset,data_dir,custom)
         cfg = config_gnd(dataset, data_dir, custom)
         Q = torch.tensor(Q).cuda()
         X = torch.tensor(X).cuda()
