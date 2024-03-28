@@ -18,7 +18,7 @@ handler.setLevel(logging.INFO)
 
 logger.addHandler(handler)
 
-logger.info("Start print log")
+#logger.info("Start print log")
 
 
 def setup_model(device):

@@ -63,13 +63,13 @@ class DataSet(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         # Load the image
+        im_list = []
         try:
             im = cv2.imread(self._db[index]["im_path"])
 
             if self._split == "query":
                 bbx = self._db[index]["bbox"]
                 im = im[int(bbx[1]):int(bbx[3]), int(bbx[0]):int(bbx[2])]
-            im_list = []
 
             for scale in self._scale_list:
                 if scale == 1.0:
