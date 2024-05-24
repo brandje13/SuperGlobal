@@ -7,15 +7,15 @@ from tkfilebrowser import askopenfilenames, askopendirname
 import time
 
 from test.config_gnd import config_gnd
-from test.test_utils import extract_feature, test_revisitop, print_top_n, create_groundtruth
 from test.test_utils import extract_feature, test_revisitop, print_top_n, create_groundtruth, rerank_ranks_revisitop
 from test.dataset import DataSet
 
 from modules.reranking.MDescAug import MDescAug
 from modules.reranking.RerankwMDA import RerankwMDA
-import torch 
 import torch
 from tqdm import tqdm
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.manifold import TSNE
 
 
 @torch.no_grad()
@@ -45,11 +45,11 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
             file_path = 'revisitop/roxford5k/jpg/'
         elif dataset == 'rparis6k':
             gnd_fn = 'gnd_rparis6k.pkl'
-        elif dataset == 'smartTrim':
+        elif dataset in ['smartTrim', 'catsndogs']:
             query_paths = [i for i in os.listdir(data_dir + 'queries/')]
             #dir_path = '/home/nick/Downloads/data/'
             create_groundtruth(query_paths, data_dir)
-            gnd_fn = 'gnd_smartTrim.pkl'
+            gnd_fn = 'gnd_' + dataset + '.pkl'
         else:
             file_path = ''
             assert dataset
@@ -57,6 +57,14 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
         Q = extract_feature(model, data_dir, dataset, gnd_fn, "query", [1.0], gemp, rgem, sgem, scale_list)
         print("extract database features")
         X = extract_feature(model, data_dir, dataset, gnd_fn, "db", [1.0], gemp, rgem, sgem, scale_list)
+
+        # nbrs = KNeighborsClassifier(n_neighbors=2, algorithm='ball_tree').fit(X, Q)
+        # distances, indices = nbrs.kneighbors(X)
+        # print(distances)
+        # graph = nbrs.kneighbors_graph(X).toarray()
+        # print(graph)
+
+
 
         cfg = config_gnd(dataset, data_dir, custom)
         Q = torch.tensor(Q).cuda()
@@ -74,7 +82,7 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
             ranks = RerankwMDA_obj(ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba)
         ranks = ranks.data.cpu().numpy()
 
-        print_top_n(cfg, ranks, 20, file_path)
+        print_top_n(cfg, ranks, 5, file_path)
 
         # revisited evaluation
         ks = [1, 5, 10]

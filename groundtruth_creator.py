@@ -1,6 +1,7 @@
 import os
 import pickle as pkl
 import json
+from PIL import Image
 
 
 def process_txt_files(folder_path_txt, folder_path_img):
@@ -38,6 +39,8 @@ def process_txt_files(folder_path_txt, folder_path_img):
                 # Check if the line indicates a query
                 if category == 'query':
                     query_info[query_name][category] = parts[0][5:] + '.jpg'
+                    #w, h = Image.open(folder_path_img + query_info[query_name][category]).size
+                    #query_info[query_name]['bbx'] = [0, 0, w, h]
                     query_info[query_name]['bbx'] = list(map(float, parts[1:]))
                     data['qimlist'].append(parts[0][5:] + '.jpg')
 
@@ -56,7 +59,7 @@ def process_txt_files(folder_path_txt, folder_path_img):
 
 
 # Specify the folder path containing the text files
-folder_path_txt = 'revisitop/roxford5k/groundtruth/'
+folder_path_txt = 'revisitop/roxford5k/groundtruth/test/'
 folder_path_img = 'revisitop/roxford5k/jpg/'
 
 # Process the text files and store the result in 'result'

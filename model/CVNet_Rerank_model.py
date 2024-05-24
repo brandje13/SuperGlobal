@@ -13,13 +13,17 @@ from model.resnet import ResNet
 from .base.feature import extract_feat_res_pycls
 from .base.correlation import Correlation
 from .CVlearner import CVLearner
+from .ViT import ViT
 import torch.nn as nn
 
 class CVNet_Rerank(nn.Module):
-    def __init__(self, RESNET_DEPTH, REDUCTION_DIM, relup):
+    def __init__(self, RESNET_DEPTH, REDUCTION_DIM, relup, encoder):
         super(CVNet_Rerank, self).__init__()
-
-        self.encoder_q = ResNet(RESNET_DEPTH, REDUCTION_DIM, relup)
+        if encoder[0] == "resnet":
+            self.encoder_q = torch.hub.load('pytorch/vision:v0.10.0', encoder[0] + encoder[1], pretrained=True)
+        else:
+            self.encoder_q = ResNet(RESNET_DEPTH, REDUCTION_DIM, relup)
+        #self.encoder_q = ViT()
         self.encoder_q.eval()
 
         self.scales = [0.25, 0.5, 1.0]
@@ -62,7 +66,8 @@ class CVNet_Rerank(nn.Module):
 
     def extract_global_descriptor(self, im_q, gemp, rgem, sgem, scale_list):
         # compute query features
-        res = self.encoder_q(im_q, scale_list, gemp, rgem, sgem)
+        res = self.encoder_q(im_q) #, scale_list, gemp, rgem, sgem)
+        #res = self.encoder_q(im_q)
         return res
     
     def extract_featuremap(self, img):

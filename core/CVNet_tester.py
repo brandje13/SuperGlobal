@@ -21,11 +21,11 @@ logger.addHandler(handler)
 #logger.info("Start print log")
 
 
-def setup_model(device):
+def setup_model(device, encoder):
     """Sets up a model for training or testing and log the results."""
     # Build the model
     print("=> creating CVNet_Rerank model")
-    model = CVNet_Rerank(cfg.MODEL.DEPTH, cfg.MODEL.HEADS.REDUCTION_DIM, cfg.SupG.relup)
+    model = CVNet_Rerank(cfg.MODEL.DEPTH, cfg.MODEL.HEADS.REDUCTION_DIM, cfg.SupG.relup, encoder)
     print(model)
     model = model.cuda(device=device)
 
@@ -38,8 +38,9 @@ def __main__():
         print("no test weights exist!!")
     else:
         # Construct the model
+        encoder = ["", ""]
         device = cfg.MODEL.DEVICE
-        model = setup_model(device)
+        model = setup_model(device, encoder)
         # Load checkpoint
         checkpoint.load_checkpoint(cfg.TEST.WEIGHTS, model)
         test_model(model, device, cfg.TEST.DATA_DIR, cfg.TEST.DATASET_LIST, cfg.TEST.SCALE_LIST, cfg.TEST.CUSTOM,
