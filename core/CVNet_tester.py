@@ -43,6 +43,6 @@ def __main__():
         model = setup_model(device, encoder)
         # Load checkpoint
         checkpoint.load_checkpoint(cfg.TEST.WEIGHTS, model)
-        test_model(model, device, cfg.TEST.DATA_DIR, cfg.TEST.DATASET_LIST, cfg.TEST.SCALE_LIST, cfg.TEST.CUSTOM,
+        test_model(model, device, cfg.TEST.DATA_DIR, cfg.TEST.DATASET, cfg.TEST.SCALE_LIST, cfg.TEST.CUSTOM,
                    cfg.SupG.rerank, cfg.SupG.gemp, cfg.SupG.rgem, cfg.SupG.sgem, cfg.SupG.onemeval, cfg.MODEL.DEPTH,
                    logger)

@@ -39,15 +39,25 @@ class DataSet(torch.utils.data.Dataset):
                 if self._split == "query":
                     for i in range(len(gnd["qimlist"])):
                         im_fn = gnd["qimlist"][i]
-                        im_path = os.path.join(
-                            self._data_path, self._dataset, "jpg", im_fn)#+".jpg")
+                        if self._dataset == "roxford5k":
+                            im_path = os.path.join(
+                                self._data_path, self._dataset, "jpg", im_fn)#+".jpg")
+                        else:
+                            im_path = os.path.join(
+                                self._data_path, self._dataset, "queries", im_fn)  # +".jpg")
+
                         self._db.append(
                             {"im_path": im_path, "bbox": gnd["gnd"][i]["bbx"]})
                 elif self._split == "db":
                     for i in range(len(gnd["imlist"])):
                         im_fn = gnd["imlist"][i]
-                        im_path = os.path.join(
-                            self._data_path, self._dataset, "jpg", im_fn) #+".jpg")
+                        if self._dataset == "roxford5k":
+                            im_path = os.path.join(
+                                self._data_path, self._dataset, "jpg", im_fn) #+".jpg")
+                        else:
+                            im_path = os.path.join(
+                                self._data_path, self._dataset, im_fn) #+".jpg")
+
                         self._db.append({"im_path": im_path})
         else:
             assert() # Unsupported dataset

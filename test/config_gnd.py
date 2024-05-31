@@ -15,7 +15,7 @@ def config_gnd(dataset, dir_main, custom):
     if dataset == 'roxford5k' or dataset == 'rparis6k':
         # loading imlist, qimlist, and gnd, in cfg as a dict
         if custom:
-            gnd_fname = os.path.join(dir_main, dataset, 'custom.pkl'.format(dataset))
+            gnd_fname = os.path.join(dir_main, dataset, 'custom.pkl')
         else:
             gnd_fname = os.path.join(dir_main, dataset, 'gnd_{}.pkl'.format(dataset))
         with open(gnd_fname, 'rb') as f:

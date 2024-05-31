@@ -31,7 +31,8 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
     RerankwMDA_obj = RerankwMDA(M=600, K=9)
 
     model.load_state_dict(state_dict)
-    for dataset in dataset_list:
+
+    for dataset in [dataset_list]:
         text = '>> {}: Global Retrieval for scale {} with CVNet-Global'.format(dataset, str(scale_list))
         print(text)
         if custom:
@@ -45,10 +46,11 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
             file_path = 'revisitop/roxford5k/jpg/'
         elif dataset == 'rparis6k':
             gnd_fn = 'gnd_rparis6k.pkl'
-        elif dataset in ['smartTrim', 'catsndogs']:
-            query_paths = [i for i in os.listdir(data_dir + 'queries/')]
+        elif dataset in ['smartTrim', 'catndogs']:
+            query_paths = [data_dir + "\\" + dataset + "\\queries\\" + i for i in os.listdir(data_dir + "\\" + dataset + "\\queries\\")]
             #dir_path = '/home/nick/Downloads/data/'
-            create_groundtruth(query_paths, data_dir)
+            create_groundtruth(query_paths, data_dir, dataset)
+            print("hey")
             gnd_fn = 'gnd_' + dataset + '.pkl'
         else:
             file_path = ''
@@ -82,7 +84,7 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
             ranks = RerankwMDA_obj(ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba)
         ranks = ranks.data.cpu().numpy()
 
-        print_top_n(cfg, ranks, 5, file_path)
+        print_top_n(cfg, ranks, 10, file_path)
 
         # revisited evaluation
         ks = [1, 5, 10]

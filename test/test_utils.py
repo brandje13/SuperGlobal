@@ -182,12 +182,13 @@ def print_top_n(cfg, ranks, n, file_path):
 
     for i in range(len(ranks)):
         query = cfg['qimlist'][i]
+        print(query)
         image = read_image(file_path + query)
         image = resize_transform(image)
         images.append(image)
 
         for j in range(n):
-            next_best = cfg['imlist'][np.where(ranks[i] == j)[0][0]]
+            next_best = cfg['imlist'][ranks[i][j]]  #[np.where(ranks[i] == j)[0][0]]
             image = read_image(file_path + next_best)
             image = resize_transform(image)
             images.append(image)
@@ -199,15 +200,15 @@ def print_top_n(cfg, ranks, n, file_path):
     img.show()
 
 
-def create_groundtruth(query_paths, dir_path):
+def create_groundtruth(query_paths, dir_path, dataset):
     cfg = {'imlist': [], 'qimlist': [], 'gnd': []}
     query_info = {}
 
     # Iterate through each file in the directory
-    for img in os.listdir(dir_path):
+    for img in os.listdir(os.path.join(dir_path, dataset)):
         # Check if the file ends with .jpg or .png
         # Leave extentions to handle multiple data types
-        if img.endswith(".jpg") or img.endswith(".png"):
+        if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg"):
             # Add the file to the list
             cfg['imlist'].append(img)
 
@@ -245,6 +246,8 @@ def create_groundtruth(query_paths, dir_path):
     for query_name, info in query_info.items():
         cfg['gnd'].append(info)
 
+    print(cfg)
+
     # Save the result as Pickle (pkl)
-    with open(dir_path[:-3] + 'custom.pkl', 'wb') as pkl_file:
+    with open(os.path.join(dir_path, dataset, 'gnd_{}.pkl'.format(dataset)), 'wb') as pkl_file:
         pkl.dump(cfg, pkl_file)
