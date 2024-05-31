@@ -183,13 +183,13 @@ def print_top_n(cfg, ranks, n, file_path):
     for i in range(len(ranks)):
         query = cfg['qimlist'][i]
         print(query)
-        image = read_image(file_path + query)
+        image = read_image(os.path.join(file_path, "queries", query))
         image = resize_transform(image)
         images.append(image)
 
         for j in range(n):
             next_best = cfg['imlist'][ranks[i][j]]  #[np.where(ranks[i] == j)[0][0]]
-            image = read_image(file_path + next_best)
+            image = read_image(os.path.join(file_path, next_best))
             image = resize_transform(image)
             images.append(image)
 

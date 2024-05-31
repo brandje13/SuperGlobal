@@ -3,21 +3,22 @@
 import os
 import pickle
 
-DATASETS = ['roxford5k', 'rparis6k', 'revisitop1m']
+DATASETS = ['roxford5k', 'rparis6k', 'revisitop1m', "smartTrim", "catndogs"]
 
 def config_gnd(dataset, dir_main, custom):
 
-    dataset = dataset.lower()
+    #dataset = dataset.lower()
 
     if dataset not in DATASETS:    
         raise ValueError('Unknown dataset: {}!'.format(dataset))
 
-    if dataset == 'roxford5k' or dataset == 'rparis6k':
+    if dataset == 'roxford5k' or dataset == 'rparis6k' or dataset == 'smartTrim':
         # loading imlist, qimlist, and gnd, in cfg as a dict
         if custom:
             gnd_fname = os.path.join(dir_main, dataset, 'custom.pkl')
         else:
             gnd_fname = os.path.join(dir_main, dataset, 'gnd_{}.pkl'.format(dataset))
+            print(gnd_fname)
         with open(gnd_fname, 'rb') as f:
             cfg = pickle.load(f)
         cfg['gnd_fname'] = gnd_fname

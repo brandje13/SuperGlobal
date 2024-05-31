@@ -50,6 +50,7 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
             query_paths = [data_dir + "\\" + dataset + "\\queries\\" + i for i in os.listdir(data_dir + "\\" + dataset + "\\queries\\")]
             #dir_path = '/home/nick/Downloads/data/'
             create_groundtruth(query_paths, data_dir, dataset)
+            file_path = os.path.join(data_dir, dataset)
             print("hey")
             gnd_fn = 'gnd_' + dataset + '.pkl'
         else:
