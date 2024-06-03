@@ -47,7 +47,9 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
         elif dataset == 'rparis6k':
             gnd_fn = 'gnd_rparis6k.pkl'
         elif dataset in ['smartTrim', 'catndogs']:
-            query_paths = [data_dir + "\\" + dataset + "\\queries\\" + i for i in os.listdir(data_dir + "\\" + dataset + "\\queries\\")]
+            query_paths = [os.path.join(data_dir, dataset, "queries", i) for i in os.listdir(os.path.join(data_dir, dataset, "queries"))]
+            #query_paths = [data_dir + "/" + dataset + "/queries/" + i for i in
+            #               os.listdir(data_dir + "/" + dataset + "/queries/")]
             #dir_path = '/home/nick/Downloads/data/'
             create_groundtruth(query_paths, data_dir, dataset)
             file_path = os.path.join(data_dir, dataset)

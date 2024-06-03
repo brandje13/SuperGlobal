@@ -12,7 +12,7 @@ def config_gnd(dataset, dir_main, custom):
     if dataset not in DATASETS:    
         raise ValueError('Unknown dataset: {}!'.format(dataset))
 
-    if dataset == 'roxford5k' or dataset == 'rparis6k' or dataset == 'smartTrim':
+    if not dataset == 'revisitop1m' :#dataset == 'roxford5k' or dataset == 'rparis6k' or dataset == 'smartTrim':
         # loading imlist, qimlist, and gnd, in cfg as a dict
         if custom:
             gnd_fname = os.path.join(dir_main, dataset, 'custom.pkl')

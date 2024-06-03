@@ -255,8 +255,6 @@ def create_groundtruth(query_paths, dir_path, dataset):
     for query_name, info in query_info.items():
         cfg['gnd'].append(info)
 
-    print(cfg)
-
     # Save the result as Pickle (pkl)
     with open(os.path.join(dir_path, dataset, 'gnd_{}.pkl'.format(dataset)), 'wb') as pkl_file:
         pkl.dump(cfg, pkl_file)
