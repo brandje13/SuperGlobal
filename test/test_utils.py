@@ -182,14 +182,23 @@ def print_top_n(cfg, ranks, n, file_path):
 
     for i in range(len(ranks)):
         query = cfg['qimlist'][i]
-        print(query)
         image = read_image(os.path.join(file_path, "queries", query))
         image = resize_transform(image)
         images.append(image)
 
+        # im = Image.open("Ba_b_do8mag_c6_big.png")
+        # rgb_im = im.convert('RGB')
+        # rgb_im.save('colors.jpg')
+
         for j in range(n):
             next_best = cfg['imlist'][ranks[i][j]]  #[np.where(ranks[i] == j)[0][0]]
+            # try:
             image = read_image(os.path.join(file_path, next_best))
+            # except:
+            #     im = Image.open(os.path.join(file_path, next_best))
+            #     rgb_im = im.convert('RGB')
+            #     rgb_im.save(next_best[:-3] + "jpg")
+            #     image = read_image(os.path.join(file_path, next_best))
             image = resize_transform(image)
             images.append(image)
 
