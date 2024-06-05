@@ -59,8 +59,8 @@ def process_txt_files(folder_path_txt, folder_path_img):
 
 
 # Specify the folder path containing the text files
-folder_path_txt = 'revisitop/roxford5k/groundtruth/test/custom'
-folder_path_img = 'revisitop/roxford5k/jpg/'
+folder_path_txt = 'revisitop/roxford5k/groundtruth/test'
+folder_path_img = 'revisitop/roxford5k/jpg/test'
 
 # Process the text files and store the result in 'result'
 result = process_txt_files(folder_path_txt, folder_path_img)

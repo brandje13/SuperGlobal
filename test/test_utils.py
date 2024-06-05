@@ -182,7 +182,10 @@ def print_top_n(cfg, ranks, n, file_path):
 
     for i in range(len(ranks)):
         query = cfg['qimlist'][i]
-        image = read_image(os.path.join(file_path, "queries", query))
+        if cfg['dataset'] == 'roxford5k':
+            image = read_image(os.path.join(file_path, "test", query))
+        else:
+            image = read_image(os.path.join(file_path, "queries", query))
         image = resize_transform(image)
         images.append(image)
 
@@ -193,7 +196,10 @@ def print_top_n(cfg, ranks, n, file_path):
         for j in range(n):
             next_best = cfg['imlist'][ranks[i][j]]  #[np.where(ranks[i] == j)[0][0]]
             # try:
-            image = read_image(os.path.join(file_path, next_best))
+            if cfg['dataset'] == 'roxford5k':
+                image = read_image(os.path.join(file_path, 'test', next_best))
+            else:
+                image = read_image(os.path.join(file_path, next_best))
             # except:
             #     im = Image.open(os.path.join(file_path, next_best))
             #     rgb_im = im.convert('RGB')

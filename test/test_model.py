@@ -57,6 +57,11 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
         else:
             file_path = ''
             assert dataset
+
+
+        cfg = config_gnd(dataset, data_dir, custom)
+        print(cfg)
+
         print("extract query features")
         Q = extract_feature(model, data_dir, dataset, gnd_fn, "query", [1.0], gemp, rgem, sgem, scale_list)
         print("extract database features")
@@ -70,7 +75,7 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
 
 
 
-        cfg = config_gnd(dataset, data_dir, custom)
+
         Q = torch.tensor(Q).cuda()
         X = torch.tensor(X).cuda()
 
