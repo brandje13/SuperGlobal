@@ -48,9 +48,6 @@ def process_txt_files(folder_path_txt, folder_path_img):
                 if category in ['ok', 'good', 'junk']:
                     query_info[query_name][category].append(parts[0] + '.jpg')
 
-                    # Add images to 'imlist'
-                    # data['imlist'].extend(parts)
-
     # Populate 'gnd' based on query info
     for query_name, info in query_info.items():
         data['gnd'].append(info)

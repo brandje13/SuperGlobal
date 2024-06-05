@@ -4,18 +4,13 @@ import os
 import torch
 import numpy as np
 from tkfilebrowser import askopenfilenames, askopendirname
-import time
 
 from test.config_gnd import config_gnd
-from test.test_utils import extract_feature, test_revisitop, print_top_n, create_groundtruth, rerank_ranks_revisitop
+from test.test_utils import extract_feature, test_revisitop, print_top_n, create_groundtruth, process_txt_files
 from test.dataset import DataSet
 
 from modules.reranking.MDescAug import MDescAug
 from modules.reranking.RerankwMDA import RerankwMDA
-import torch
-from tqdm import tqdm
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.manifold import TSNE
 
 
 @torch.no_grad()
@@ -39,22 +34,18 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, update
         if custom:
             query_paths = askopenfilenames()
             data_dir = askopendirname()
-            create_groundtruth(query_paths, data_dir)
+            create_groundtruth(query_paths, data_dir, dataset) # TODO: Fix custom dataset param
             gnd_fn = 'custom.pkl'
             dataset = "custom"
-        elif dataset == 'roxford5k':
-            gnd_fn = 'gnd_roxford5k.pkl'
-            file_path = 'revisitop/roxford5k/jpg/'
-        elif dataset == 'rparis6k':
-            gnd_fn = 'gnd_rparis6k.pkl'
-        elif dataset in ['smartTrim', 'catndogs']:
+        elif dataset in ['roxford5k', 'rparis6k']:
+            gnd_fn = f'gnd_{dataset}.pkl'
+            file_path = os.path.join(data_dir, dataset)
+            process_txt_files(data_dir, dataset)
+        elif not dataset == "":
             query_paths = [os.path.join(data_dir, dataset, "queries", i) for i in os.listdir(os.path.join(data_dir, dataset, "queries"))]
-            #query_paths = [data_dir + "/" + dataset + "/queries/" + i for i in
-            #               os.listdir(data_dir + "/" + dataset + "/queries/")]
-            #dir_path = '/home/nick/Downloads/data/'
             create_groundtruth(query_paths, data_dir, dataset)
             file_path = os.path.join(data_dir, dataset)
-            gnd_fn = 'gnd_' + dataset + '.pkl'
+            gnd_fn = f'gnd_{dataset}.pkl'
         else:
             file_path = ''
             assert dataset

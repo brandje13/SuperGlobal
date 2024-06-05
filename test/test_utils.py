@@ -1,5 +1,6 @@
 # written by Seongwon Lee (won4113@yonsei.ac.kr)
 import os
+import shutil
 
 import torch
 import torch.nn.functional as F
@@ -175,31 +176,20 @@ def rerank_ranks_revisitop(cfg, topk, ranks, sim_global, sim_local_dict, mix_rat
 
 def print_top_n(cfg, ranks, n, file_path):
     ranks = np.transpose(ranks)
-    #file_path = 'revisitop/roxford5k/jpg/'
     images = []
 
     resize_transform = transforms.Resize((224, 224))
 
     for i in range(len(ranks)):
         query = cfg['qimlist'][i]
-        if cfg['dataset'] == 'roxford5k':
-            image = read_image(os.path.join(file_path, "test", query))
-        else:
-            image = read_image(os.path.join(file_path, "queries", query))
+        image = read_image(os.path.join(file_path, "queries", query))
         image = resize_transform(image)
         images.append(image)
 
-        # im = Image.open("Ba_b_do8mag_c6_big.png")
-        # rgb_im = im.convert('RGB')
-        # rgb_im.save('colors.jpg')
-
         for j in range(n):
-            next_best = cfg['imlist'][ranks[i][j]]  #[np.where(ranks[i] == j)[0][0]]
+            next_best = cfg['imlist'][ranks[i][j]]
             # try:
-            if cfg['dataset'] == 'roxford5k':
-                image = read_image(os.path.join(file_path, 'test', next_best))
-            else:
-                image = read_image(os.path.join(file_path, next_best))
+            image = read_image(os.path.join(file_path, next_best))
             # except:
             #     im = Image.open(os.path.join(file_path, next_best))
             #     rgb_im = im.convert('RGB')
@@ -231,7 +221,13 @@ def create_groundtruth(query_paths, dir_path, dataset):
     for filename in query_paths:
         # Determine the category based on the filename
         # parts = filename.split('_')
-        query_name = filename.split("\\")[-1]  # Extract query name
+        if os.name == 'nt':
+            split = "\\"
+        elif os.name == 'posix':
+            split = "/"
+        else:
+            split = "_" # TODO: Better fix for this
+        query_name = filename.split(split)[-1]  # Extract query name
         category = 'query'
 
         # Read the content of the text file
@@ -254,13 +250,65 @@ def create_groundtruth(query_paths, dir_path, dataset):
         if category in ['ok', 'good', 'junk']:
             query_info[query_name][category].append(None)
 
-            # Add images to 'imlist'
-            # data['imlist'].extend(parts)
-
     # Populate 'gnd' based on query info
     for query_name, info in query_info.items():
         cfg['gnd'].append(info)
 
     # Save the result as Pickle (pkl)
-    with open(os.path.join(dir_path, dataset, 'gnd_{}.pkl'.format(dataset)), 'wb') as pkl_file:
+    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.pkl'), 'wb') as pkl_file:
         pkl.dump(cfg, pkl_file)
+
+
+def process_txt_files(dir_path, dataset):
+    data = {'imlist': [], 'qimlist': [], 'gnd': []}
+    query_info = {}
+
+    # Iterate through each file in the directory
+    for img in os.listdir(os.path.join(dir_path, dataset)):
+        # Check if the file ends with .jpg or .png
+        # Leave extentions to handle multiple data types
+        if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg"):
+            # Add the file to the list
+            data['imlist'].append(img)
+
+    # Iterate over all text files in the directory
+    for filename in os.listdir(os.path.join(dir_path, dataset, "groundtruth")):
+        if filename.endswith('.txt'):
+            # Determine the category based on the filename
+            parts = filename.split('_')
+            query_name = '_'.join(parts[:-1])  # Extract query name
+            category = parts[-1][:-4]
+
+            # Read the content of the text file
+            with open(os.path.join(os.path.join(dir_path, dataset, "groundtruth"), filename), 'r') as file:
+                lines = file.readlines()
+
+            # Process each line in the text file
+            for line in lines:
+                parts = line.split()
+
+                if query_name not in query_info:
+                    query_info[query_name] = {'query': None, 'bbx': None,
+                                              'ok': [], 'good': [], 'junk': []}
+
+                # Check if the line indicates a query
+                if category == 'query':
+                    query_info[query_name][category] = parts[0][5:] + '.jpg'
+                    query_info[query_name]['bbx'] = list(map(float, parts[1:]))
+                    data['qimlist'].append(parts[0][5:] + '.jpg')
+                    shutil.copy(os.path.join(dir_path, dataset, parts[0][5:] + '.jpg'), os.path.join(dir_path, dataset, "queries"))
+
+                # Populate data dictionary based on category
+                if category in ['ok', 'good', 'junk']:
+                    query_info[query_name][category].append(parts[0] + '.jpg')
+
+    # Populate 'gnd' based on query info
+    for query_name, info in query_info.items():
+        data['gnd'].append(info)
+
+
+    # Save the result as Pickle (pkl)
+    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.pkl'), 'wb') as pkl_file:
+        pkl.dump(data, pkl_file)
+
+    return data

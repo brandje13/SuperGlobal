@@ -33,34 +33,22 @@ class DataSet(torch.utils.data.Dataset):
         """Constructs the db."""
         # Compile the split data path
         self._db = []
-        if self._dataset in ['oxford5k', 'roxford5k', 'paris6k', 'rparis6k', 'smartTrim', 'catndogs']:
+        if self._dataset in os.listdir(self._data_path):
             with open(os.path.join(self._data_path, self._dataset, self._fn), 'rb') as fin:
                 gnd = pkl.load(fin)
                 if self._split == "query":
                     for i in range(len(gnd["qimlist"])):
                         im_fn = gnd["qimlist"][i]
-                        if self._dataset == "roxford5k":
-                            im_path = os.path.join(
-                                self._data_path, self._dataset, "jpg", "test", im_fn)#+".jpg")
-                        else:
-                            im_path = os.path.join(
-                                self._data_path, self._dataset, "queries", im_fn)  # +".jpg")
-
+                        im_path = os.path.join(self._data_path, self._dataset, "queries", im_fn)
                         self._db.append(
                             {"im_path": im_path, "bbox": gnd["gnd"][i]["bbx"]})
                 elif self._split == "db":
                     for i in range(len(gnd["imlist"])):
                         im_fn = gnd["imlist"][i]
-                        if self._dataset == "roxford5k":
-                            im_path = os.path.join(
-                                self._data_path, self._dataset, "jpg", "test", im_fn) #+".jpg")
-                        else:
-                            im_path = os.path.join(
-                                self._data_path, self._dataset, im_fn) #+".jpg")
-
+                        im_path = os.path.join(self._data_path, self._dataset, im_fn)
                         self._db.append({"im_path": im_path})
         else:
-            assert() # Unsupported dataset
+            assert() # Dataset does not exist
 
     def _prepare_im(self, im):
         """Prepares the image for network input."""
