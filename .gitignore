@@ -9,3 +9,4 @@ log.txt
 *.pyc
 .idea/misc.xml
 .idea/SuperGlobal.iml
+*.pt

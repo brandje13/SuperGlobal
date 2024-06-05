@@ -19,7 +19,8 @@ from sklearn.manifold import TSNE
 
 
 @torch.no_grad()
-def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rerank, gemp, rgem, sgem, onemeval, depth, logger):
+def test_model(model, device, data_dir, dataset_list, scale_list, custom, update_data, update_queries,
+               is_rerank, gemp, rgem, sgem, onemeval, depth, logger):
     torch.backends.cudnn.benchmark = False
     model.eval()
     torch.cuda.set_device(device)
@@ -63,16 +64,21 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, is_rer
         print(cfg)
 
         print("extract query features")
-        Q = extract_feature(model, data_dir, dataset, gnd_fn, "query", [1.0], gemp, rgem, sgem, scale_list)
+        Q_path = os.path.join(data_dir, dataset, "query_features.pt")
+        if update_queries or not os.path.isfile(Q_path):
+            Q = extract_feature(model, data_dir, dataset, gnd_fn, "query", [1.0], gemp, rgem, sgem, scale_list)
+            torch.save(Q, Q_path)
+        else:
+            Q = torch.load(Q_path)
+
+
         print("extract database features")
-        X = extract_feature(model, data_dir, dataset, gnd_fn, "db", [1.0], gemp, rgem, sgem, scale_list)
-
-        # nbrs = KNeighborsClassifier(n_neighbors=2, algorithm='ball_tree').fit(X, Q)
-        # distances, indices = nbrs.kneighbors(X)
-        # print(distances)
-        # graph = nbrs.kneighbors_graph(X).toarray()
-        # print(graph)
-
+        X_path = os.path.join(data_dir, dataset, "data_features.pt")
+        if update_data or not os.path.isfile(X_path):
+            X = extract_feature(model, data_dir, dataset, gnd_fn, "db", [1.0], gemp, rgem, sgem, scale_list)
+            torch.save(X, X_path)
+        else:
+            X = torch.load(X_path)
 
 
 

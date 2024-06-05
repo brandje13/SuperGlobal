@@ -41,7 +41,7 @@ class DataSet(torch.utils.data.Dataset):
                         im_fn = gnd["qimlist"][i]
                         if self._dataset == "roxford5k":
                             im_path = os.path.join(
-                                self._data_path, self._dataset, "jpg/test", im_fn)#+".jpg")
+                                self._data_path, self._dataset, "jpg", "test", im_fn)#+".jpg")
                         else:
                             im_path = os.path.join(
                                 self._data_path, self._dataset, "queries", im_fn)  # +".jpg")
@@ -53,7 +53,7 @@ class DataSet(torch.utils.data.Dataset):
                         im_fn = gnd["imlist"][i]
                         if self._dataset == "roxford5k":
                             im_path = os.path.join(
-                                self._data_path, self._dataset, "jpg/test", im_fn) #+".jpg")
+                                self._data_path, self._dataset, "jpg", "test", im_fn) #+".jpg")
                         else:
                             im_path = os.path.join(
                                 self._data_path, self._dataset, im_fn) #+".jpg")

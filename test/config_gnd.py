@@ -35,7 +35,7 @@ def config_gnd(dataset, dir_main, custom):
         cfg['qext'] = ''
 
     cfg['dir_data'] = os.path.join(dir_main, dataset)
-    cfg['dir_images'] = os.path.join(cfg['dir_data'], 'jpg/test')
+    cfg['dir_images'] = os.path.join(cfg['dir_data'], 'jpg', 'test')
 
     cfg['n'] = len(cfg['imlist'])
     cfg['nq'] = len(cfg['qimlist'])
