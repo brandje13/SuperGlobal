@@ -140,3 +140,4 @@ yacs~=0.1.6
 zipp
 
 einops~=0.7.0
+fiftyone~=0.24.0

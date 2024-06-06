@@ -12,6 +12,8 @@ from test.dataset import DataSet
 from modules.reranking.MDescAug import MDescAug
 from modules.reranking.RerankwMDA import RerankwMDA
 
+import fiftyone as fo
+
 
 @torch.no_grad()
 def test_model(model, device, data_dir, dataset_list, scale_list, custom, update_data, update_queries,
@@ -101,6 +103,10 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, update
             logger.info('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE * 100, decimals=2),
                                                                             np.around(mapM * 100, decimals=2),
                                                                             np.around(mapH * 100, decimals=2)))
+        dataset = fo.Dataset.from_images_dir(os.path.join(data_dir, dataset))
+
+        session = fo.launch_app(dataset, desktop=True)
+        session.wait()
 
         # print('>> {}: Reranking results with CVNet-Rerank'.format(dataset))
         #
