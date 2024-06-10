@@ -1,7 +1,9 @@
 import fiftyone as fo
-import fiftyone.zoo as foz
+import os
 
-dataset = fo.Dataset.from_images_dir(".\\revisitop\\roxford5k")
 
-session = fo.launch_app(dataset, desktop=True)
-session.wait()
+def fifty_one(data_dir, dataset):
+    data = fo.Dataset.from_images_dir(os.path.join(data_dir, dataset))
+
+    session = fo.launch_app(data, desktop=True)
+    session.wait()
