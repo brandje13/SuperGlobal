@@ -18,7 +18,7 @@ import fiftyone as fo
 
 @torch.no_grad()
 def test_model(model, device, data_dir, dataset_list, scale_list, custom, update_data, update_queries,
-               is_rerank, gemp, rgem, sgem, onemeval, depth, logger):
+               is_rerank, gemp, rgem, sgem, onemeval, depth, evaluate, logger):
     torch.backends.cudnn.benchmark = False
     model.eval()
     torch.cuda.set_device(device)
@@ -91,18 +91,21 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, update
             ranks = RerankwMDA_obj(ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba)
         ranks = ranks.data.cpu().numpy()
 
-        #print_top_n(cfg, ranks, 10, file_path)
+        if evaluate:
+            print_top_n(cfg, ranks, 10, file_path)
 
-        # # revisited evaluation
-        # ks = [1, 5, 10]
-        # if not custom:
-        #     (mapE, _, _, _), (mapM, _, _, _), (mapH, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
-        #
-        #     print('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE * 100, decimals=2),
-        #                                                               np.around(mapM * 100, decimals=2),
-        #                                                               np.around(mapH * 100, decimals=2)))
-        #     logger.info('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE * 100, decimals=2),
-        #                                                                     np.around(mapM * 100, decimals=2),
-        #                                                                     np.around(mapH * 100, decimals=2)))
+            # revisited evaluation
+            ks = [1, 5, 10]
+            if not custom:
+                (mapE, _, _, _), (mapM, _, _, _), (mapH, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
+
+                print('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE * 100, decimals=2),
+                                                                          np.around(mapM * 100, decimals=2),
+                                                                          np.around(mapH * 100, decimals=2)))
+                logger.info('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE * 100, decimals=2),
+                                                                                np.around(mapM * 100, decimals=2),
+                                                                                np.around(mapH * 100, decimals=2)))
 
         FiftyOne.fifty_one(data_dir, dataset)
+
+        # Return ranks?

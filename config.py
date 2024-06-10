@@ -66,6 +66,7 @@ _C.TEST.TOPK_LIST = [400]
 _C.TEST.CUSTOM = False
 _C.TEST.UPDATE_DATA = False
 _C.TEST.UPDATE_QUERIES = False
+_C.TEST.EVALUATE = False
 
 # ------------------------------------------------------------------------------------ #
 # Common train/test data loader options

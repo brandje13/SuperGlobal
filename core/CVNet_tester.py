@@ -45,4 +45,4 @@ def __main__():
         checkpoint.load_checkpoint(cfg.TEST.WEIGHTS, model)
         test_model(model, device, cfg.TEST.DATA_DIR, cfg.TEST.DATASET, cfg.TEST.SCALE_LIST, cfg.TEST.CUSTOM,
                    cfg.TEST.UPDATE_DATA, cfg.TEST.UPDATE_QUERIES, cfg.SupG.rerank, cfg.SupG.gemp, cfg.SupG.rgem,
-                   cfg.SupG.sgem, cfg.SupG.onemeval, cfg.MODEL.DEPTH, logger)
+                   cfg.SupG.sgem, cfg.SupG.onemeval, cfg.MODEL.DEPTH, cfg.TEST.EVALUATE, logger)
