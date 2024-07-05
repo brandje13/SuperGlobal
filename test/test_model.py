@@ -106,6 +106,6 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, update
                                                                                 np.around(mapM * 100, decimals=2),
                                                                                 np.around(mapH * 100, decimals=2)))
 
-        FiftyOne.fifty_one(data_dir, dataset)
+        #FiftyOne.fifty_one(data_dir, dataset)
 
         # Return ranks?
