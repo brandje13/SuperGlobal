@@ -9,7 +9,7 @@ scipy
 tkfilebrowser~=2.3.2
 
 --find-links https://download.pytorch.org/whl/torch_stable.html
-torch~=2.1.2+cu118
+torch==2.1.2+cu118
 torchaudio
 torchvision~=0.16.2+cu118
 tqdm~=4.66.1
