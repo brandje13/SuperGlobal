@@ -11,7 +11,7 @@ tkfilebrowser~=2.3.2
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch==2.1.2+cu118
 torchaudio
-torchvision~=0.16.2+cu118
+torchvision==0.16.2+cu118
 tqdm~=4.66.1
 yacs~=0.1.6
 einops~=0.7.0
