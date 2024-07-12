@@ -56,8 +56,8 @@ def test_revisitop(cfg, ks, ranks):
     gnd_t = []
     for i in range(len(gnd)):
         g = {}
-        g['ok'] = np.concatenate([gnd[i]['good']])
-        g['junk'] = np.concatenate([gnd[i]['junk'], gnd[i]['ok']])
+        g['ok'] = np.concatenate([gnd[i]['good'], gnd[i]['ok']])
+        g['junk'] = np.concatenate([gnd[i]['junk']])
         gnd_t.append(g)
     mapE, apsE, mprE, prsE = compute_map(ranks_E, gnd_t, cfg, ks)
 
@@ -65,8 +65,8 @@ def test_revisitop(cfg, ks, ranks):
     gnd_t = []
     for i in range(len(gnd)):
         g = {}
-        g['ok'] = np.concatenate([gnd[i]['good'], gnd[i]['ok']])
-        g['junk'] = np.concatenate([gnd[i]['junk']])
+        g['ok'] = np.concatenate([gnd[i]['good']])
+        g['junk'] = np.concatenate([gnd[i]['junk'], gnd[i]['ok']])
         gnd_t.append(g)
     mapM, apsM, mprM, prsM = compute_map(ranks_M, gnd_t, cfg, ks)
 

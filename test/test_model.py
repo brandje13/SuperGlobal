@@ -92,7 +92,7 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, update
         ranks = ranks.data.cpu().numpy()
 
         if evaluate:
-            print_top_n(cfg, ranks, 10, file_path)
+            #print_top_n(cfg, ranks, 10, file_path)
 
             # revisited evaluation
             ks = [1, 5, 10]

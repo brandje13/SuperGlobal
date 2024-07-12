@@ -81,8 +81,6 @@ def compute_map(ranks, gnd, cfg, kappas=[]):
             qgndj = np.empty(0)
 
         # sorted positions of positive and junk images (0 based)
-        print(ranks.shape[0])
-        print(np.in1d(ranks[:, i], np.array([cfg['imlist'].index(i) for i in qgnd])))
         pos = np.arange(ranks.shape[0])[np.in1d(ranks[:, i], np.array([cfg['imlist'].index(i) for i in qgnd]))]
         junk = np.arange(ranks.shape[0])[np.in1d(ranks[:, i], np.array([cfg['imlist'].index(i) for i in qgndj]))]
 
