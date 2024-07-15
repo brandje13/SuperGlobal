@@ -256,8 +256,8 @@ def create_groundtruth(query_paths, dir_path, dataset):
         cfg['gnd'].append(info)
 
     # Save the result as json
-    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.json'), 'wb') as json_file:
-        json.dump(cfg, json_file)
+    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.json'), 'w') as json_file:
+        json.dump(cfg, json_file, indent=4)
 
 
 def process_txt_files(dir_path, dataset):
@@ -309,8 +309,8 @@ def process_txt_files(dir_path, dataset):
 
 
     # Save the result as json
-    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.json'), 'wb') as json_file:
-        json.dump(data, json_file)
+    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.json'), 'w') as json_file:
+        json.dump(data, json_file, indent=4)
 
     return data
 
