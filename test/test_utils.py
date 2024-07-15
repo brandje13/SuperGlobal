@@ -13,7 +13,7 @@ import torchvision.transforms as transforms
 from torchvision.io import read_image
 from torchvision.utils import make_grid
 from PIL import Image
-import pickle as pkl
+import json
 
 
 @torch.no_grad()
@@ -182,6 +182,7 @@ def print_top_n(cfg, ranks, n, file_path):
 
     for i in range(len(ranks)):
         query = cfg['qimlist'][i]
+        #query = cfg['gnd'][i]['query']
         image = read_image(os.path.join(file_path, "queries", query))
         image = resize_transform(image)
         images.append(image)
@@ -210,7 +211,7 @@ def create_groundtruth(query_paths, dir_path, dataset):
     query_info = {}
 
     # Iterate through each file in the directory
-    for img in os.listdir(os.path.join(dir_path, dataset)):
+    for img in sorted(os.listdir(os.path.join(dir_path, dataset))):
         # Check if the file ends with .jpg or .png
         # Leave extentions to handle multiple data types
         if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg"):
@@ -218,7 +219,7 @@ def create_groundtruth(query_paths, dir_path, dataset):
             cfg['imlist'].append(img)
 
     # Iterate over all text files in the directory
-    for filename in query_paths:
+    for filename in sorted(query_paths):
         # Determine the category based on the filename
         # parts = filename.split('_')
         if os.name == 'nt':
@@ -254,9 +255,9 @@ def create_groundtruth(query_paths, dir_path, dataset):
     for query_name, info in query_info.items():
         cfg['gnd'].append(info)
 
-    # Save the result as Pickle (pkl)
-    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.pkl'), 'wb') as pkl_file:
-        pkl.dump(cfg, pkl_file)
+    # Save the result as json
+    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.json'), 'wb') as json_file:
+        json.dump(cfg, json_file)
 
 
 def process_txt_files(dir_path, dataset):
@@ -264,7 +265,7 @@ def process_txt_files(dir_path, dataset):
     query_info = {}
 
     # Iterate through each file in the directory
-    for img in os.listdir(os.path.join(dir_path, dataset)):
+    for img in sorted(os.listdir(os.path.join(dir_path, dataset))):
         # Check if the file ends with .jpg or .png
         # Leave extentions to handle multiple data types
         if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg"):
@@ -272,7 +273,7 @@ def process_txt_files(dir_path, dataset):
             data['imlist'].append(img)
 
     # Iterate over all text files in the directory
-    for filename in os.listdir(os.path.join(dir_path, dataset, "groundtruth")):
+    for filename in sorted(os.listdir(os.path.join(dir_path, dataset, "groundtruth"))):
         if filename.endswith('.txt'):
             # Determine the category based on the filename
             parts = filename.split('_')
@@ -307,8 +308,30 @@ def process_txt_files(dir_path, dataset):
         data['gnd'].append(info)
 
 
-    # Save the result as Pickle (pkl)
-    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.pkl'), 'wb') as pkl_file:
-        pkl.dump(data, pkl_file)
+    # Save the result as json
+    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.json'), 'wb') as json_file:
+        json.dump(data, json_file)
 
     return data
+
+
+def print_images(cfg, query, ranks, file_path):
+    images = []
+
+    resize_transform = transforms.Resize((224, 224))
+
+    image = read_image(os.path.join(file_path, "queries", query))
+    image = resize_transform(image)
+    images.append(image)
+
+    for j in range(len(ranks)):
+        next_image = cfg['imlist'][ranks[j]]
+        image = read_image(os.path.join(file_path, next_image))
+        image = resize_transform(image)
+        images.append(image)
+
+    images_tensor = torch.stack(images)
+
+    grid = make_grid(images_tensor, nrow=np.sqrt(len(images)))
+    img = torchvision.transforms.ToPILImage()(grid)
+    img.show()

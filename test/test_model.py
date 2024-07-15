@@ -38,24 +38,24 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, update
             query_paths = askopenfilenames()
             data_dir = askopendirname()
             create_groundtruth(query_paths, data_dir, dataset) # TODO: Fix custom dataset param
-            gnd_fn = 'custom.pkl'
+            gnd_fn = 'custom.json'
             dataset = "custom"
         elif dataset in ['roxford5k', 'rparis6k']:
-            gnd_fn = f'gnd_{dataset}.pkl'
+            gnd_fn = f'gnd_{dataset}.json'
             file_path = os.path.join(data_dir, dataset)
             process_txt_files(data_dir, dataset)
         elif not dataset == "":
             query_paths = [os.path.join(data_dir, dataset, "queries", i) for i in os.listdir(os.path.join(data_dir, dataset, "queries"))]
             create_groundtruth(query_paths, data_dir, dataset)
             file_path = os.path.join(data_dir, dataset)
-            gnd_fn = f'gnd_{dataset}.pkl'
+            gnd_fn = f'gnd_{dataset}.json'
         else:
             file_path = ''
             assert dataset
 
 
         cfg = config_gnd(dataset, data_dir, custom)
-        print(cfg)
+        #print(cfg)
 
         print("extract query features")
         Q_path = os.path.join(data_dir, dataset, "query_features.pt")
@@ -92,7 +92,7 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, update
         ranks = ranks.data.cpu().numpy()
 
         if evaluate:
-            #print_top_n(cfg, ranks, 10, file_path)
+            print_top_n(cfg, ranks, 10, file_path)
 
             # revisited evaluation
             ks = [1, 5, 10]

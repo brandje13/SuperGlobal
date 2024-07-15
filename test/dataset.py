@@ -15,7 +15,8 @@ import numpy as np
 import core.transforms as transforms
 import torch.utils.data
 
-import pickle as pkl
+import json
+
 # Per-channel mean and SD values in BGR order
 _MEAN = [0.406, 0.456, 0.485]
 _SD = [0.225, 0.224, 0.229]
@@ -35,7 +36,7 @@ class DataSet(torch.utils.data.Dataset):
         self._db = []
         if self._dataset in os.listdir(self._data_path):
             with open(os.path.join(self._data_path, self._dataset, self._fn), 'rb') as fin:
-                gnd = pkl.load(fin)
+                gnd = json.load(fin)
                 if self._split == "query":
                     for i in range(len(gnd["qimlist"])):
                         im_fn = gnd["qimlist"][i]

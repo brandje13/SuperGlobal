@@ -1,5 +1,4 @@
 import os
-import pickle as pkl
 import json
 from PIL import Image
 
@@ -9,7 +8,7 @@ def process_txt_files(folder_path_txt, folder_path_img):
     query_info = {}
 
     # Iterate through each file in the directory
-    for img in os.listdir(folder_path_img):
+    for img in sorted(os.listdir(folder_path_img)):
         # Check if the file ends with .jpg or .png
         # Leave extentions to handle multiple data types
         if img.endswith(".jpg") or img.endswith(".png"):
@@ -17,7 +16,7 @@ def process_txt_files(folder_path_txt, folder_path_img):
             data['imlist'].append(img)#[:-4])
 
     # Iterate over all text files in the directory
-    for filename in os.listdir(folder_path_txt):
+    for filename in sorted(os.listdir(folder_path_txt)):
         if filename.endswith('.txt'):
             # Determine the category based on the filename
             parts = filename.split('_')
@@ -65,7 +64,3 @@ result = process_txt_files(folder_path_txt, folder_path_img)
 # Save the result as json
 with open('./revisitop/roxford5k/gnd_roxford5k.json', 'w') as json_file:
     json.dump(result, json_file, indent=4)
-
-# Save the result as Pickle (pkl)
-with open('./revisitop/roxford5k/gnd_roxford5k.pkl', 'wb') as pkl_file:
-    pkl.dump(result, pkl_file)
