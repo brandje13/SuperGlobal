@@ -2,6 +2,7 @@
 import os
 import shutil
 
+import pandas as pd
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
@@ -74,8 +75,12 @@ def test_revisitop(cfg, ks, ranks):
     gnd_t = []
     for i in range(len(gnd)):
         g = {}
-        g['ok'] = np.concatenate([gnd[i]['ok']])
-        g['junk'] = np.concatenate([gnd[i]['junk'], gnd[i]['good']])
+        if cfg['dataset'] == "IQM":
+            g['ok'] = np.concatenate([gnd[i]['good']])
+            g['junk'] = np.concatenate([gnd[i]['junk'], gnd[i]['ok']])
+        else:
+            g['ok'] = np.concatenate([gnd[i]['ok']])
+            g['junk'] = np.concatenate([gnd[i]['junk'], gnd[i]['good']])
         gnd_t.append(g)
     mapH, apsH, mprH, prsH = compute_map(ranks_H, gnd_t, cfg, ks)
 
@@ -260,6 +265,67 @@ def create_groundtruth(query_paths, dir_path, dataset):
         json.dump(cfg, json_file, indent=4)
 
 
+def create_groundtruth_csv(query_paths, dir_path, dataset):
+    cfg = {'imlist': [], 'qimlist': [], 'gnd': []}
+    query_info = {}
+    images = []
+
+    df_data = pd.read_csv(os.path.join(dir_path, dataset, "queries", f"groundtruth_{dataset}_data.csv")).drop("Unnamed: 0", axis=1)
+    df_query = pd.read_csv(os.path.join(dir_path, dataset, "queries", f"groundtruth_{dataset}_query.csv")).drop("Unnamed: 0", axis=1)
+    #df_query.drop(df_query[df_query["category_name"] == "good"].index[0], inplace=True)
+
+    for img in sorted(os.listdir(os.path.join(dir_path, dataset))):
+        if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg"):
+            images.append(img)
+
+    # Iterate through each file in the directory
+    for img in sorted(df_data["img"]):
+        # Check if the file ends with .jpg or .png
+        # Leave extentions to handle multiple data types
+        if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg"):
+            if img in images:
+                # Add the file to the list
+                cfg['imlist'].append(img)
+
+    # Iterate over all text files in the directory
+    for filename in sorted(query_paths):
+        if filename.endswith(".csv"):# or filename.endswith("Good.jpeg"):
+            continue
+        # Determine the category based on the filename
+        # parts = filename.split('_')
+        if os.name == 'nt':
+            split = "\\"
+        elif os.name == 'posix':
+            split = "/"
+        else:
+            split = "_" # TODO: Better fix for this
+
+        query_name = filename.split(split)[-1]  # Extract query name
+        _df_query = df_query[df_query["img"] == query_name]
+        cfg['qimlist'].append(query_name)
+
+        # Process each query
+        if query_name not in query_info:
+            query_info[query_name] = {'query': query_name, 'bbx': _df_query["bbx"][_df_query.index[0]],
+                                      'ok': [],
+                                      'good': list(set(df_data[df_data["category_nr"] == _df_query["category_nr"][_df_query.index[0]]]["img"].values) & set(images)),
+                                      #'junk': list(set(df_data[df_data["category_nr"] != _df_query["category_nr"][_df_query.index[0]]]["img"].values) & set(images))
+                                      'junk': list(set(df_data[df_data["category_nr"] == 8]["img"].values) & set(images))
+            }
+
+        if query_info[query_name]['bbx'] == 0:
+            w, h = Image.open(filename).size
+            query_info[query_name]['bbx'] = [0, 0, w, h]
+
+    # Populate 'gnd' based on query info
+    for query_name, info in query_info.items():
+        cfg['gnd'].append(info)
+
+    # Save the result as json
+    with open(os.path.join(dir_path, dataset, f'gnd_{dataset}.json'), 'w') as json_file:
+        json.dump(cfg, json_file, indent=4)
+
+
 def process_txt_files(dir_path, dataset):
     data = {'imlist': [], 'qimlist': [], 'gnd': []}
     query_info = {}
@@ -313,25 +379,3 @@ def process_txt_files(dir_path, dataset):
         json.dump(data, json_file, indent=4)
 
     return data
-
-
-def print_images(cfg, query, ranks, file_path):
-    images = []
-
-    resize_transform = transforms.Resize((224, 224))
-
-    image = read_image(os.path.join(file_path, "queries", query))
-    image = resize_transform(image)
-    images.append(image)
-
-    for j in range(len(ranks)):
-        next_image = cfg['imlist'][ranks[j]]
-        image = read_image(os.path.join(file_path, next_image))
-        image = resize_transform(image)
-        images.append(image)
-
-    images_tensor = torch.stack(images)
-
-    grid = make_grid(images_tensor, nrow=np.sqrt(len(images)))
-    img = torchvision.transforms.ToPILImage()(grid)
-    img.show()

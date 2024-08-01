@@ -7,7 +7,8 @@ from tkfilebrowser import askopenfilenames, askopendirname
 
 import FiftyOne
 from test.config_gnd import config_gnd
-from test.test_utils import extract_feature, test_revisitop, print_top_n, create_groundtruth, process_txt_files
+from test.test_utils import extract_feature, test_revisitop, print_top_n, create_groundtruth, process_txt_files, \
+    create_groundtruth_csv
 from test.dataset import DataSet
 
 from modules.reranking.MDescAug import MDescAug
@@ -46,7 +47,11 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, update
             process_txt_files(data_dir, dataset)
         elif not dataset == "":
             query_paths = [os.path.join(data_dir, dataset, "queries", i) for i in os.listdir(os.path.join(data_dir, dataset, "queries"))]
-            create_groundtruth(query_paths, data_dir, dataset)
+
+            if dataset in ["IQM"]:
+                create_groundtruth_csv(query_paths, data_dir, dataset)
+            else:
+                create_groundtruth(query_paths, data_dir, dataset)
             file_path = os.path.join(data_dir, dataset)
             gnd_fn = f'gnd_{dataset}.json'
         else:
@@ -55,7 +60,6 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, update
 
 
         cfg = config_gnd(dataset, data_dir, custom)
-        #print(cfg)
 
         print("extract query features")
         Q_path = os.path.join(data_dir, dataset, "query_features.pt")
@@ -92,17 +96,17 @@ def test_model(model, device, data_dir, dataset_list, scale_list, custom, update
         ranks = ranks.data.cpu().numpy()
 
         if evaluate:
-            print_top_n(cfg, ranks, 10, file_path)
+            #print_top_n(cfg, ranks, 10, file_path)
 
             # revisited evaluation
-            ks = [1, 5, 10]
+            ks = [10, 25, 100]
             if not custom:
                 (mapE, _, _, _), (mapM, _, _, _), (mapH, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
 
-                print('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE * 100, decimals=2),
+                print('Retrieval results {}: mAP E: {}, M: {}, H: {}'.format(dataset, np.around(mapE * 100, decimals=2),
                                                                           np.around(mapM * 100, decimals=2),
                                                                           np.around(mapH * 100, decimals=2)))
-                logger.info('Retrieval results: mAP E: {}, M: {}, H: {}'.format(np.around(mapE * 100, decimals=2),
+                logger.info('Retrieval results {}: mAP E: {}, M: {}, H: {}'.format(dataset, np.around(mapE * 100, decimals=2),
                                                                                 np.around(mapM * 100, decimals=2),
                                                                                 np.around(mapH * 100, decimals=2)))
 

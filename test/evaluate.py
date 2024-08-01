@@ -20,7 +20,8 @@ def compute_ap(ranks, nres):
     """
 
     # number of images ranked by the system
-    nimgranks = len(ranks)
+    #nimgranks = len(ranks)
+    nimgranks = nres
 
     # accumulate trapezoids in PR-plot
     ap = 0
@@ -91,7 +92,7 @@ def compute_map(ranks, gnd, cfg, kappas=[]):
 
         k = 0;
         ij = 0;
-        if len(junk):
+        if len(junk) and cfg['dataset'] != "IQM":
             # decrease positions of positives based on the number of
             # junk images appearing before them
             ip = 0
@@ -103,7 +104,7 @@ def compute_map(ranks, gnd, cfg, kappas=[]):
                 ip += 1
 
         # compute ap
-        ap = compute_ap(pos, len(qgnd))
+        ap = compute_ap(pos, min(len(qgnd), kappas[1]))
         map = map + ap
         aps[i] = ap
 
