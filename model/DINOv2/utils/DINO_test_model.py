@@ -77,42 +77,42 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
         # Q_tensor[i] is (768, 256)
         q_patches = Q_tensor[i].t().unsqueeze(0)  # (1, 256, 768)
 
-        # B. Get the Top 100 Candidates for this query
+        # B. Get the Top k Candidates for this query
         candidate_idxs = top_global_indices[i].cpu()
 
-        # C. Fetch ONLY those 100 images from the CPU Database
-        # X_tensor is (N_db, 768, 256) -> Slice -> (100, 768, 256)
+        # C. Fetch ONLY those k images from the CPU Database
+        # X_tensor is (N_db, 768, 256) -> Slice -> (k, 768, 256)
         db_candidates = X_tensor[candidate_idxs].to(device)
 
-        # D. Batched Matrix Multiplication (Small Batch of 100)
-        # (1, 256, 768) @ (100, 768, 256) -> (100, 256, 256)
+        # D. Batched Matrix Multiplication (Small Batch of k)
+        # (1, 256, 768) @ (k, 768, 256) -> (k, 256, 256)
         sim_matrix = torch.matmul(q_patches, db_candidates)
 
         # E. Max-Max Scoring (Same logic as your original code)
-        # Max over DB patches (dim 2) -> (100, 256)
+        # Max over DB patches (dim 2) -> (k, 256)
         best_match_per_patch, _ = sim_matrix.max(dim=2)
 
         # Top 50% of query patches
         k_patches = int(Q.shape[2] * 0.5)
         top_k_vals, _ = torch.topk(best_match_per_patch, k_patches, dim=1)
 
-        # Mean score -> (100,)
+        # Mean score -> (k,)
         local_scores = top_k_vals.mean(dim=1)
 
-        # F. Re-Sort the Top 100
+        # F. Re-Sort the Top k
         # Sort descending based on new local scores
         local_sort_order = torch.argsort(local_scores, descending=True)
 
         # Map back to original Database Indices
-        final_top_100_indices = candidate_idxs[local_sort_order.cpu()]
+        final_top_k_indices = candidate_idxs[local_sort_order.cpu()]
 
-        # G. Append the rest of the list (Ranks 101 to End)
-        # We trust the global order for everything past rank 100
+        # G. Append the rest of the list (Ranks k+1 to End)
+        # We trust the global order for everything past rank k
         global_sort_order = torch.argsort(sim_global[i], descending=True).cpu()
         rest_indices = global_sort_order[TOP_K_RERANK:]
 
-        # Concatenate: [Best 100 (Reranked)] + [Rest (Global Order)]
-        full_rank_list = torch.cat([final_top_100_indices, rest_indices])
+        # Concatenate: [Best k (Reranked)] + [Rest (Global Order)]
+        full_rank_list = torch.cat([final_top_k_indices, rest_indices])
 
         final_ranks.append(full_rank_list.numpy())
 
