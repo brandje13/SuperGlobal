@@ -21,10 +21,11 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
     model.eval()
     torch.cuda.set_device(device)
     state_dict = model.state_dict()
+    TOP_K_RERANK = 600
 
     # initialize modules
-    MDescAug_obj = MDescAug(M=600, K=9)
-    RerankwMDA_obj = RerankwMDA(M=600, K=9)
+    MDescAug_obj = MDescAug(M=TOP_K_RERANK, K=9)
+    RerankwMDA_obj = RerankwMDA(M=TOP_K_RERANK, K=9)
 
     model.load_state_dict(state_dict)
 

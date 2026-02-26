@@ -40,6 +40,7 @@ def evaluate_final(cfg, models, results, mode):
         precisions = []
         recalls = []
         f1_scores = []
+        expected_list = []
 
         # Iterate via Index (i) to align QIMLIST with GND LIST
         for i, query_name in enumerate(cfg['qimlist']):
@@ -50,6 +51,7 @@ def evaluate_final(cfg, models, results, mode):
             # B. Get Ground Truth
             gnd_item = cfg['gnd'][i]
             expected = set(gnd_item['ok']) | set(gnd_item['good'])
+            expected_list.append(len(expected))
 
             # C. Calculate Metrics
             p = precision(predicted, expected)
@@ -65,6 +67,8 @@ def evaluate_final(cfg, models, results, mode):
         print(f"  Recall:    {np.mean(recalls):.4f}")
         print(f"  F1 Score:  {np.mean(f1_scores):.4f}")
         print("-" * 30)
+        print("  Expected Counts per Query: ", max(expected_list), " (Max), ", min(expected_list), " (Min), ", np.mean(expected_list), " (Avg)")
+        print(expected_list)
 
     # 2. Evaluate Multiview Results
     precisions = []

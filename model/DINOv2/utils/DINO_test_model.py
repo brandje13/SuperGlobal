@@ -59,8 +59,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
     # Global Similarity: (N_q, 768) @ (768, N_db) -> (N_q, N_db)
     sim_global = torch.mm(Q_global, X_global.t())
 
-    # Get Top 100 Candidates for Reranking
-    TOP_K_RERANK = 1000
+    # Get Top k Candidates for Reranking
+    TOP_K_RERANK = 100
     top_global_scores, top_global_indices = torch.topk(sim_global, k=TOP_K_RERANK, dim=1)
 
     # ---------------------------------------------------------
@@ -122,9 +122,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
     if True:
         ks = [10, 25, 100]
         if not custom:
-            (mapE, _, _, _), (mapM, _, _, _), (mapH, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
-            print('Retrieval results {}: mAP E: {}, M: {}, H: {}'.format(dataset, np.around(mapE * 100, decimals=2),
-                                                                         np.around(mapM * 100, decimals=2),
-                                                                         np.around(mapH * 100, decimals=2)))
+            (map, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
+            print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map * 100, decimals=2)))
 
     return ranks

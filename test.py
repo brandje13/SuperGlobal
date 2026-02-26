@@ -11,7 +11,7 @@ from model.DINOv2 import DINO_tester
 from utils.config_gnd import config_gnd
 from utils.evaluate_final import evaluate_final
 from utils.groundtruth import create_groundtruth_from_txt, create_groundtruth
-from utils.SIR_topk import retrieve_and_print_top_k
+from utils.SIR_topk import retrieve_top_k, save_merged_results
 from utils.merge_results import merge_results
 
 
@@ -38,27 +38,27 @@ def main():
         assert c.TEST.DATASET
 
     cfg = config_gnd(c.TEST.DATASET, c.TEST.DATA_DIR, c.TEST.CUSTOM, gnd)
-    top_k = 10
+    top_k = 5
 
     SG_ranks = CVNet_tester.__main__(gnd, cfg)
-    SG_top = retrieve_and_print_top_k(cfg, SG_ranks, top_k, True)
+    SG_top = retrieve_top_k(cfg, SG_ranks, top_k, 'SuperGlobal', False)
 
     #SAM_ranks = SAM_tester.__main__(gnd, cfg)
-    #SAM_top = retrieve_and_print_top_k(cfg, SAM_ranks, top_k, False)
+    #SAM_top = retrieve_top_k(cfg, SAM_ranks, top_k, False)
 
     DINO_ranks = DINO_tester.__main__(gnd, cfg)
-    DINO_top = retrieve_and_print_top_k(cfg, DINO_ranks, top_k, True)
+    DINO_top = retrieve_top_k(cfg, DINO_ranks, top_k, 'DINOv2', False)
 
     models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top]]
 
     results_union = merge_results(cfg, models, 'union')
     results_intersection = merge_results(cfg, models, 'intersection')
 
-    # TODO: Evaluate final set
+    save_merged_results(cfg, results_union, 'union')
+    save_merged_results(cfg, results_intersection, 'intersection')
+
     evaluate_final(cfg, models, results_union, 'union')
     evaluate_final(cfg, models, results_intersection, 'intersection')
-
-    # TODO: Show final set
 
 
 if __name__ == "__main__":
