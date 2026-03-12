@@ -5,12 +5,12 @@ import json
 
 
 def create_groundtruth(query_paths, dir_path, dataset):
-    data = {'imlist': [], 'qimlist': [], 'gnd': [], 'path': str}
+    # Added qtxtlist and gnd_txt to cleanly separate the modalities
+    data = {'imlist': [], 'qimlist': [], 'gnd': [], 'qtxtlist': [], 'gnd_txt': [], 'path': str}
     query_info = {}
     data['path'] = os.path.join(dir_path, dataset)
 
     # Determine the category based on the filename
-    # parts = filename.split('_')
     if os.name == 'nt':
         split = "\\"
     elif os.name == 'posix':
@@ -21,51 +21,66 @@ def create_groundtruth(query_paths, dir_path, dataset):
     # Iterate through each file in the directory
     for img in sorted(os.listdir(os.path.join(dir_path, dataset))):
         # Check if the file ends with .jpg, .jpeg or .png
-        # Leave extentions to handle multiple data types
-        if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg"):
+        if img.endswith((".jpg", ".png", ".jpeg")):
             # Add the file to the list
             data['imlist'].append(img)
 
     if all(os.path.isdir(path) for path in query_paths) and (dataset == "ILIAS" or dataset == "ILIAS_Test"):
         for path in query_paths:
             temp_queries = []
-            temp_path = os.path.join(path, "query")
+            class_pos_images = []
+            temp_path_query = os.path.join(path, "query")
+            temp_path_pos = os.path.join(path, "pos")
 
-            # Iterate through each file in the query directory
-            for file in sorted(os.listdir(temp_path)):
-                # Check if the file ends with .jpg, .jpeg or .png
-                # Leave extentions to handle multiple data types
-                if file.endswith(".jpg") or file.endswith(".png") or file.endswith(".jpeg"):
+            # A. Gather all positive images for this specific class first
+            for file in sorted(os.listdir(temp_path_pos)):
+                if file.endswith((".jpg", ".png", ".jpeg")):
+                    pos_file = os.path.join("queries", path.split('\\')[-1], 'pos', file)
+                    data['imlist'].append(pos_file)
+                    class_pos_images.append(pos_file)
+
+            # B. Process Image Queries and Text Queries
+            for file in sorted(os.listdir(temp_path_query)):
+                # --- IMAGE QUERY LOGIC ---
+                if file.endswith((".jpg", ".png", ".jpeg")):
                     query_file = os.path.join(path.split('\\')[-1], 'query', file)
                     query_name = file.split('.')[0]
                     temp_queries.append(query_file)
 
                     if query_name not in query_info:
-                        bbx_path = os.path.join(path, 'query', query_name + '_bbox.txt')
+                        bbx_path = os.path.join(temp_path_query, query_name + '_bbox.txt')
                         with open(bbx_path, 'r') as f:
                             content = f.read().strip()
                             raw_bbx = list(map(float, content.split()))
                             x, y, w, h = raw_bbx
                             x2 = x + w
                             y2 = y + h
-
                             bbx = [x, y, x2, y2]
 
-                        query_info[query_file] = {'query': query_file, 'bbx': bbx,
-                                                  'ok': [], 'good': [], 'junk': []}
+                        query_info[query_file] = {
+                            'query': query_file,
+                            'bbx': bbx,
+                            'ok': class_pos_images.copy(),
+                            'good': [],
+                            'junk': []
+                        }
                         data['qimlist'].append(query_file)
 
-            # Iterate through each file in the pos directory
-            temp_path = os.path.join(path, "pos")
-            for file in sorted(os.listdir(temp_path)):
-                # Check if the file ends with .jpg, .jpeg or .png
-                # Leave extentions to handle multiple data types
-                if file.endswith(".jpg") or file.endswith(".png") or file.endswith(".jpeg"):
-                    pos_file = os.path.join("queries", path.split('\\')[-1], 'pos', file)
-                    data['imlist'].append(pos_file)
+                # --- TEXT QUERY LOGIC ---
+                elif file.endswith(".txt") and file.startswith("T"):
+                    text_query_id = file.split('.')[0]  # e.g., 'T000'
 
-                    for img in temp_queries:
-                        query_info[img]['ok'].append(pos_file)
+                    with open(os.path.join(temp_path_query, file), 'r', encoding='utf-8') as f:
+                        text_string = f.read().strip()
+
+                    data['qtxtlist'].append(text_query_id)
+                    data['gnd_txt'].append({
+                        'query': text_query_id,
+                        'text': text_string,
+                        'ok': class_pos_images.copy(),
+                        'good': [],
+                        'junk': []
+                    })
     else:
         # Iterate over all image files in the directory
         for filename in sorted(query_paths):
@@ -88,7 +103,7 @@ def create_groundtruth(query_paths, dir_path, dataset):
             if category in ['ok', 'good', 'junk']:
                 query_info[query_name][category].append(None)
 
-    # Populate 'gnd' based on query info
+    # Populate 'gnd' based on image query info
     for query_name, info in query_info.items():
         data['gnd'].append(info)
 

@@ -8,6 +8,7 @@ from tkfilebrowser import askopenfilenames, askopendirname
 from config import cfg as c
 from model.SAM import SAM_tester
 from model.DINOv2 import DINO_tester
+from model.CLIP import CLIP_tester
 from utils.config_gnd import config_gnd
 from utils.evaluate_final import evaluate_final
 from utils.groundtruth import create_groundtruth_from_txt, create_groundtruth
@@ -40,25 +41,28 @@ def main():
     cfg = config_gnd(c.TEST.DATASET, c.TEST.DATA_DIR, c.TEST.CUSTOM, gnd)
     top_k = 5
 
-    SG_ranks = CVNet_tester.__main__(gnd, cfg)
-    SG_top = retrieve_top_k(cfg, SG_ranks, top_k, 'SuperGlobal', False)
+    # SG_ranks = CVNet_tester.__main__(gnd, cfg)
+    # SG_top = retrieve_top_k(cfg, SG_ranks, top_k, 'SuperGlobal', False)
 
-    #SAM_ranks = SAM_tester.__main__(gnd, cfg)
-    #SAM_top = retrieve_top_k(cfg, SAM_ranks, top_k, False)
+    # SAM_ranks = SAM_tester.__main__(gnd, cfg)
+    # SAM_top = retrieve_top_k(cfg, SAM_ranks, top_k, False)
 
-    DINO_ranks = DINO_tester.__main__(gnd, cfg)
-    DINO_top = retrieve_top_k(cfg, DINO_ranks, top_k, 'DINOv2', False)
+    # DINO_ranks = DINO_tester.__main__(gnd, cfg)
+    # DINO_top = retrieve_top_k(cfg, DINO_ranks, top_k, 'DINOv2', False)
 
-    models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top]]
+    CLIP_ranks = CLIP_tester.__main__(gnd, cfg)
+    CLIP_top = retrieve_top_k(cfg, CLIP_ranks, top_k, 'CLIP', False)
 
-    results_union = merge_results(cfg, models, 'union')
-    results_intersection = merge_results(cfg, models, 'intersection')
+    # models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top]]
 
-    save_merged_results(cfg, results_union, 'union')
-    save_merged_results(cfg, results_intersection, 'intersection')
+    # results_union = merge_results(cfg, models, 'union')
+    # results_intersection = merge_results(cfg, models, 'intersection')
 
-    evaluate_final(cfg, models, results_union, 'union')
-    evaluate_final(cfg, models, results_intersection, 'intersection')
+    # save_merged_results(cfg, results_union, 'union')
+    # save_merged_results(cfg, results_intersection, 'intersection')
+    #
+    # evaluate_final(cfg, models, results_union, 'union')
+    # evaluate_final(cfg, models, results_intersection, 'intersection')
 
 
 if __name__ == "__main__":

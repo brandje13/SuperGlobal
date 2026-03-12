@@ -1,5 +1,4 @@
-import torch
-import timm  # <--- NEW IMPORT
+import timm
 from config import cfg as c
 from model.DINOv2.utils.DINO_test_model import test_DINO
 
