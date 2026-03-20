@@ -5,8 +5,8 @@ import json
 
 
 def create_groundtruth(query_paths, dir_path, dataset):
-    # Added qtxtlist and gnd_txt to cleanly separate the modalities
-    data = {'imlist': [], 'qimlist': [], 'gnd': [], 'qtxtlist': [], 'gnd_txt': [], 'path': str}
+    # Reverted to standard RevisitOP format: No separate text arrays
+    data = {'imlist': [], 'qimlist': [], 'gnd': [], 'path': str}
     query_info = {}
     data['path'] = os.path.join(dir_path, dataset)
 
@@ -39,9 +39,16 @@ def create_groundtruth(query_paths, dir_path, dataset):
                     data['imlist'].append(pos_file)
                     class_pos_images.append(pos_file)
 
-            # B. Process Image Queries and Text Queries
+            # B. Find the text description for this class (e.g., T000.txt)
+            class_text = ""
             for file in sorted(os.listdir(temp_path_query)):
-                # --- IMAGE QUERY LOGIC ---
+                if file.endswith(".txt") and file.startswith("T"):
+                    with open(os.path.join(temp_path_query, file), 'r', encoding='utf-8') as f:
+                        class_text = f.read().strip()
+                    break
+
+            # C. Process Image Queries and inject the text
+            for file in sorted(os.listdir(temp_path_query)):
                 if file.endswith((".jpg", ".png", ".jpeg")):
                     query_file = os.path.join(path.split('\\')[-1], 'query', file)
                     query_name = file.split('.')[0]
@@ -60,27 +67,12 @@ def create_groundtruth(query_paths, dir_path, dataset):
                         query_info[query_file] = {
                             'query': query_file,
                             'bbx': bbx,
+                            'text': class_text,  # Both modalities safely live here now
                             'ok': class_pos_images.copy(),
                             'good': [],
                             'junk': []
                         }
                         data['qimlist'].append(query_file)
-
-                # --- TEXT QUERY LOGIC ---
-                elif file.endswith(".txt") and file.startswith("T"):
-                    text_query_id = file.split('.')[0]  # e.g., 'T000'
-
-                    with open(os.path.join(temp_path_query, file), 'r', encoding='utf-8') as f:
-                        text_string = f.read().strip()
-
-                    data['qtxtlist'].append(text_query_id)
-                    data['gnd_txt'].append({
-                        'query': text_query_id,
-                        'text': text_string,
-                        'ok': class_pos_images.copy(),
-                        'good': [],
-                        'junk': []
-                    })
     else:
         # Iterate over all image files in the directory
         for filename in sorted(query_paths):
@@ -89,7 +81,8 @@ def create_groundtruth(query_paths, dir_path, dataset):
 
             # Process each line in the text file
             if query_name not in query_info:
-                query_info[query_name] = {'query': None, 'bbx': None,
+                # Add empty text key to keep schema uniform
+                query_info[query_name] = {'query': None, 'bbx': None, 'text': "",
                                           'ok': [], 'good': [], 'junk': []}
 
             # Check if the line indicates a query
@@ -122,7 +115,7 @@ def create_groundtruth_from_txt(dir_path, dataset):
     for img in sorted(os.listdir(os.path.join(dir_path, dataset))):
         # Check if the file ends with .jpg or .png
         # Leave extentions to handle multiple data types
-        if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".jpeg"):
+        if img.endswith((".jpg", ".png", ".jpeg")):
             # Add the file to the list
             data['imlist'].append(img)
 
@@ -143,7 +136,8 @@ def create_groundtruth_from_txt(dir_path, dataset):
                 parts = line.split()
 
                 if query_name not in query_info:
-                    query_info[query_name] = {'query': None, 'bbx': None,
+                    # Add empty text key to keep schema uniform
+                    query_info[query_name] = {'query': None, 'bbx': None, 'text': "",
                                               'ok': [], 'good': [], 'junk': []}
 
                 # Check if the line indicates a query

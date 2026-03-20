@@ -51,13 +51,7 @@ def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, upd
     if True:
         ks = [10, 25, 100]
         if not custom:
-            # --- THE FIX: Create a text-specific eval config ---
-            cfg_text = cfg.copy()
-            cfg_text['gnd'] = cfg['gnd_txt']
-            cfg_text['qimlist'] = cfg['qtxtlist']
-
-            # Pass cfg_text instead of cfg
-            (map_score, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg_text, ks, [ranks, ranks, ranks])
+            (map_score, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
             print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map_score * 100, decimals=2)))
 
     return ranks

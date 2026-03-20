@@ -40,6 +40,8 @@ def evaluate_final(cfg, models, results, mode):
         precisions = []
         recalls = []
         f1_scores = []
+        f2_scores = []
+        f3_scores = []
         expected_list = []
 
         # Iterate via Index (i) to align QIMLIST with GND LIST
@@ -56,16 +58,22 @@ def evaluate_final(cfg, models, results, mode):
             # C. Calculate Metrics
             p = precision(predicted, expected)
             r = recall(predicted, expected)
-            f1 = f1_score(p, r)
+            f1 = f_beta(p, r, beta=1.0)  # Standard F1 Score
+            f2 = f_beta(p, r, beta=2.0)
+            f3 = f_beta(p, r, beta=3.0)
 
             precisions.append(p)
             recalls.append(r)
             f1_scores.append(f1)
+            f2_scores.append(f2)
+            f3_scores.append(f3)
 
         print(f"[{model_name}]")
         print(f"  Precision: {np.mean(precisions):.4f}")
         print(f"  Recall:    {np.mean(recalls):.4f}")
         print(f"  F1 Score:  {np.mean(f1_scores):.4f}")
+        print(f"  F2 Score:  {np.mean(f2_scores):.4f}")
+        print(f"  F3 Score:  {np.mean(f3_scores):.4f}")
         print("-" * 30)
         print("  Expected Counts per Query: ", max(expected_list), " (Max), ", min(expected_list), " (Min), ", np.mean(expected_list), " (Avg)")
         print(expected_list)
@@ -74,6 +82,8 @@ def evaluate_final(cfg, models, results, mode):
     precisions = []
     recalls = []
     f1_scores = []
+    f2_scores = []
+    f3_scores = []
 
     for i, query_name in enumerate(cfg['qimlist']):
         # A. Get Results
@@ -86,16 +96,22 @@ def evaluate_final(cfg, models, results, mode):
 
         p = precision(predicted, expected)
         r = recall(predicted, expected)
-        f1 = f1_score(p, r)
+        f1 = f_beta(p, r, beta=1.0)  # Standard F1 Score
+        f2 = f_beta(p, r, beta=2.0)
+        f3 = f_beta(p, r, beta=3.0)
 
         precisions.append(p)
         recalls.append(r)
         f1_scores.append(f1)
+        f2_scores.append(f2)
+        f3_scores.append(f3)
 
     print(f"[Multiview Results]")
     print(f"  Precision: {np.mean(precisions):.4f}")
     print(f"  Recall:    {np.mean(recalls):.4f}")
     print(f"  F1 Score:  {np.mean(f1_scores):.4f}")
+    print(f"  F2 Score:  {np.mean(f2_scores):.4f}")
+    print(f"  F3 Score:  {np.mean(f3_scores):.4f}")
 
 
 # --- Metrics Helper Functions ---
@@ -109,6 +125,16 @@ def recall(predicted: Set[Any], expected: Set[Any]) -> float:
     return len(predicted & expected) / len(expected)
 
 
-def f1_score(p: float, r: float) -> float:
-    if p + r == 0: return 0.0
-    return 2 * p * r / (p + r)
+def f_beta(p: float, r: float, beta=2.0) -> float:
+    """
+    Calculates the F-Beta score.
+    beta=2 weights recall twice as much as precision.
+    beta=3 weights recall three times as much as precision.
+    """
+    if p == 0 and r == 0:
+        return 0.0
+
+    beta_sq = beta ** 2
+    f_beta = (1 + beta_sq) * (p * r) / ((beta_sq * p) + r)
+
+    return f_beta

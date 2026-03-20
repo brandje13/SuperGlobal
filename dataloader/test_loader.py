@@ -10,7 +10,6 @@
 import torch
 from dataloader.dataset import DataSet
 
-
 # Default data directory (/path/pycls/pycls/datasets/data)
 from dataloader.dataset_sam import DataSet_SAM
 from dataloader.dataset_sg import DataSet_SG
@@ -32,13 +31,16 @@ def _construct_loader(model, _DATA_DIR, dataset_name, fn, split, scale_list, bat
     else:
         dataset = DataSet(_DATA_DIR, dataset_name, fn, split)
 
+    # Windows string multiprocessing safeguard
+    workers = 0 if (model == "CLIP" and split == "query") else 4
+
     # Create a loader
     loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=batch_size,
         shuffle=shuffle,
         sampler=None,
-        num_workers=4,
+        num_workers=workers,
         pin_memory=False,
         drop_last=drop_last,
     )

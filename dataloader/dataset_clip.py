@@ -32,10 +32,10 @@ class DataSet_CLIP(DataSet):
 
             # --- TEXT LOGIC (For Queries) ---
             if self._split == "query":
-                # Use our newly created qtxtlist and gnd_txt!
-                for i in range(len(gnd["qtxtlist"])):
-                    text_str = gnd["gnd_txt"][i]["text"]
-                    # Stash the text directly into the DB list
+                # Back to iterating through the standard qimlist
+                for i in range(len(gnd["qimlist"])):
+                    # Grab the injected text, defaulting to "" if missing
+                    text_str = gnd["gnd"][i].get("text", "")
                     self._db.append({"text": text_str})
 
             # --- IMAGE LOGIC (For Database) ---

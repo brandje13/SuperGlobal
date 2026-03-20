@@ -39,30 +39,33 @@ def main():
         assert c.TEST.DATASET
 
     cfg = config_gnd(c.TEST.DATASET, c.TEST.DATA_DIR, c.TEST.CUSTOM, gnd)
-    top_k = 5
+    top_k = 50
 
-    # SG_ranks = CVNet_tester.__main__(gnd, cfg)
-    # SG_top = retrieve_top_k(cfg, SG_ranks, top_k, 'SuperGlobal', False)
+    SG_ranks = CVNet_tester.__main__(gnd, cfg)
+    SG_top = retrieve_top_k(cfg, SG_ranks, top_k, 'SuperGlobal', False)
 
     # SAM_ranks = SAM_tester.__main__(gnd, cfg)
     # SAM_top = retrieve_top_k(cfg, SAM_ranks, top_k, False)
 
-    # DINO_ranks = DINO_tester.__main__(gnd, cfg)
-    # DINO_top = retrieve_top_k(cfg, DINO_ranks, top_k, 'DINOv2', False)
+    DINO_ranks = DINO_tester.__main__(gnd, cfg)
+    DINO_top = retrieve_top_k(cfg, DINO_ranks, top_k, 'DINOv2', False)
 
     CLIP_ranks = CLIP_tester.__main__(gnd, cfg)
     CLIP_top = retrieve_top_k(cfg, CLIP_ranks, top_k, 'CLIP', False)
 
-    # models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top]]
+    models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top], ['CLIP', CLIP_top]]
 
-    # results_union = merge_results(cfg, models, 'union')
-    # results_intersection = merge_results(cfg, models, 'intersection')
+    results_union = merge_results(cfg, models, 'union')
+    results_intersection = merge_results(cfg, models, 'intersection')
+    results_majority = merge_results(cfg, models, 'majority')
 
-    # save_merged_results(cfg, results_union, 'union')
-    # save_merged_results(cfg, results_intersection, 'intersection')
-    #
-    # evaluate_final(cfg, models, results_union, 'union')
-    # evaluate_final(cfg, models, results_intersection, 'intersection')
+    save_merged_results(cfg, results_union, models, 'union')
+    save_merged_results(cfg, results_intersection, models, 'intersection')
+    save_merged_results(cfg, results_majority, models, 'majority')
+
+    evaluate_final(cfg, models, results_union, 'union')
+    evaluate_final(cfg, models, results_intersection, 'intersection')
+    evaluate_final(cfg, models, results_majority, 'majority')
 
 
 if __name__ == "__main__":

@@ -60,7 +60,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
     sim_global = torch.mm(Q_global, X_global.t())
 
     # Get Top k Candidates for Reranking
-    TOP_K_RERANK = 100
+    TOP_K_RERANK = 1000
     top_global_scores, top_global_indices = torch.topk(sim_global, k=TOP_K_RERANK, dim=1)
 
     # ---------------------------------------------------------
