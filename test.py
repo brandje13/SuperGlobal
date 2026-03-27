@@ -39,19 +39,18 @@ def main():
         assert c.TEST.DATASET
 
     cfg = config_gnd(c.TEST.DATASET, c.TEST.DATA_DIR, c.TEST.CUSTOM, gnd)
-    top_k = 50
 
     SG_ranks = CVNet_tester.__main__(gnd, cfg)
-    SG_top = retrieve_top_k(cfg, SG_ranks, top_k, 'SuperGlobal', False)
+    SG_top = retrieve_top_k(cfg, SG_ranks, c.TEST.TOP_K, 'SuperGlobal', False)
 
     # SAM_ranks = SAM_tester.__main__(gnd, cfg)
-    # SAM_top = retrieve_top_k(cfg, SAM_ranks, top_k, 'SAM', False)
+    # SAM_top = retrieve_top_k(cfg, SAM_ranks, c.TEST.TOP_K, 'SAM', False)
 
     DINO_ranks = DINO_tester.__main__(gnd, cfg)
-    DINO_top = retrieve_top_k(cfg, DINO_ranks, top_k, 'DINOv2', False)
+    DINO_top = retrieve_top_k(cfg, DINO_ranks, c.TEST.TOP_K, 'DINOv2', False)
 
     CLIP_ranks = CLIP_tester.__main__(gnd, cfg)
-    CLIP_top = retrieve_top_k(cfg, CLIP_ranks, top_k, 'CLIP', False)
+    CLIP_top = retrieve_top_k(cfg, CLIP_ranks, c.TEST.TOP_K, 'CLIP', False)
 
     models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top], ['CLIP', CLIP_top]]
 

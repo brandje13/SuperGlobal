@@ -7,7 +7,7 @@ from model.SuperGlobal.utils.SG_utils import test_revisitop
 
 
 @torch.no_grad()
-def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries):
+def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, evaluate):
     torch.backends.cudnn.benchmark = True
     model.eval()
 
@@ -48,7 +48,7 @@ def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, upd
     ranks = torch.argsort(sim_global, descending=True).cpu().numpy().T
 
     # Evaluation
-    if True:
+    if evaluate:
         ks = [10, 25, 100]
         if not custom:
             (map_score, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])

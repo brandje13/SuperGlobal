@@ -9,7 +9,7 @@ from model.SuperGlobal.utils.SG_utils import test_revisitop
 
 
 @torch.no_grad()
-def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, top_m_rerank):
+def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, top_m_rerank, evaluate):
     torch.backends.cudnn.benchmark = True
     model.eval()
 
@@ -117,7 +117,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
     ranks = np.array(final_ranks).T
 
     # Evaluation
-    if True:
+    if evaluate:
         ks = [10, 25, 100]
         if not custom:
             (map, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
