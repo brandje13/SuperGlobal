@@ -7,7 +7,7 @@ from model.SuperGlobal.utils.SG_utils import test_revisitop
 
 
 @torch.no_grad()
-def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, top_k_list):
+def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries):
     torch.backends.cudnn.benchmark = True
     model.eval()
 

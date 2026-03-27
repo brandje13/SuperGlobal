@@ -15,17 +15,16 @@ from model.SuperGlobal.modules.reranking.RerankwMDA import RerankwMDA
 
 
 @torch.no_grad()
-def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, update_data, update_queries, top_k_list,
+def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, update_data, update_queries, top_m_rerank,
                is_rerank, gemp, rgem, sgem, onemeval, depth, evaluate, logger):
     torch.backends.cudnn.benchmark = False
     model.eval()
     torch.cuda.set_device(device)
     state_dict = model.state_dict()
-    TOP_K_RERANK = 600
 
     # initialize modules
-    MDescAug_obj = MDescAug(M=TOP_K_RERANK, K=9)
-    RerankwMDA_obj = RerankwMDA(M=TOP_K_RERANK, K=9)
+    MDescAug_obj = MDescAug(M=top_m_rerank, K=9)
+    RerankwMDA_obj = RerankwMDA(M=top_m_rerank, K=9)
 
     model.load_state_dict(state_dict)
 
@@ -66,7 +65,7 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
 
     # Search
     # dist = distances, inx = indices (ranks)
-    dist, inx = index.search(Q_tensor.cpu().numpy(), top_k_list[0])
+    dist, inx = index.search(Q_tensor.cpu().numpy(), top_m_rerank)
 
     # 'I' is your 'ranks' variable
     ranks = inx.T  # Transpose to match your original shape (Gallery, Query)

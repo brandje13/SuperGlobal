@@ -14,5 +14,5 @@ def __main__(gnd, cfg):
 
     # Pass the raw gnd object down, exactly like DINO and CVNet
     ranks = test_CLIP(model, processor, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET,
-                      c.TEST.CUSTOM, c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES, c.TEST.TOPK_LIST)
+                      c.TEST.CUSTOM, c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES)
     return ranks

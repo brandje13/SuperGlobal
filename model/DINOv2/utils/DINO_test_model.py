@@ -9,13 +9,12 @@ from model.SuperGlobal.utils.SG_utils import test_revisitop
 
 
 @torch.no_grad()
-def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, top_k_list):
+def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, top_m_rerank):
     torch.backends.cudnn.benchmark = True
     model.eval()
 
     print(f'>> {dataset}: Image Retrieval with DINOv2')
 
-    # 1. Load Features (Same as before)
     print("extract query features")
     Q_path = os.path.join(data_dir, dataset, "DINO_query_features.pt")
     if update_queries or not os.path.isfile(Q_path):
@@ -59,14 +58,13 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
     # Global Similarity: (N_q, 768) @ (768, N_db) -> (N_q, N_db)
     sim_global = torch.mm(Q_global, X_global.t())
 
-    # Get Top k Candidates for Reranking
-    TOP_K_RERANK = 1000
-    top_global_scores, top_global_indices = torch.topk(sim_global, k=TOP_K_RERANK, dim=1)
+    # Get Top m Candidates for Reranking
+    top_global_scores, top_global_indices = torch.topk(sim_global, k=top_m_rerank, dim=1)
 
     # ---------------------------------------------------------
     # STAGE 2: LOCAL RERANKING (Detailed Patch Search)
     # ---------------------------------------------------------
-    print(f">> Stage 2: Reranking Top-{TOP_K_RERANK} candidates with Patch Logic...")
+    print(f">> Stage 2: Reranking Top-{top_m_rerank} candidates with Patch Logic...")
 
     final_ranks = []
     N_q = Q.shape[0]
@@ -77,42 +75,42 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
         # Q_tensor[i] is (768, 256)
         q_patches = Q_tensor[i].t().unsqueeze(0)  # (1, 256, 768)
 
-        # B. Get the Top k Candidates for this query
+        # B. Get the Top m Candidates for this query
         candidate_idxs = top_global_indices[i].cpu()
 
-        # C. Fetch ONLY those k images from the CPU Database
-        # X_tensor is (N_db, 768, 256) -> Slice -> (k, 768, 256)
+        # C. Fetch ONLY those m images from the CPU Database
+        # X_tensor is (N_db, 768, 256) -> Slice -> (m, 768, 256)
         db_candidates = X_tensor[candidate_idxs].to(device)
 
-        # D. Batched Matrix Multiplication (Small Batch of k)
-        # (1, 256, 768) @ (k, 768, 256) -> (k, 256, 256)
+        # D. Batched Matrix Multiplication (Small Batch of m)
+        # (1, 256, 768) @ (m, 768, 256) -> (m, 256, 256)
         sim_matrix = torch.matmul(q_patches, db_candidates)
 
         # E. Max-Max Scoring (Same logic as your original code)
-        # Max over DB patches (dim 2) -> (k, 256)
+        # Max over DB patches (dim 2) -> (m, 256)
         best_match_per_patch, _ = sim_matrix.max(dim=2)
 
         # Top 50% of query patches
-        k_patches = int(Q.shape[2] * 0.5)
-        top_k_vals, _ = torch.topk(best_match_per_patch, k_patches, dim=1)
+        m_patches = int(Q.shape[2] * 0.5)
+        top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
 
-        # Mean score -> (k,)
-        local_scores = top_k_vals.mean(dim=1)
+        # Mean score -> (m,)
+        local_scores = top_m_vals.mean(dim=1)
 
-        # F. Re-Sort the Top k
+        # F. Re-Sort the Top m
         # Sort descending based on new local scores
         local_sort_order = torch.argsort(local_scores, descending=True)
 
         # Map back to original Database Indices
-        final_top_k_indices = candidate_idxs[local_sort_order.cpu()]
+        final_top_m_indices = candidate_idxs[local_sort_order.cpu()]
 
         # G. Append the rest of the list (Ranks k+1 to End)
         # We trust the global order for everything past rank k
         global_sort_order = torch.argsort(sim_global[i], descending=True).cpu()
-        rest_indices = global_sort_order[TOP_K_RERANK:]
+        rest_indices = global_sort_order[top_m_rerank:]
 
-        # Concatenate: [Best k (Reranked)] + [Rest (Global Order)]
-        full_rank_list = torch.cat([final_top_k_indices, rest_indices])
+        # Concatenate: [Best m (Reranked)] + [Rest (Global Order)]
+        full_rank_list = torch.cat([final_top_m_indices, rest_indices])
 
         final_ranks.append(full_rank_list.numpy())
 

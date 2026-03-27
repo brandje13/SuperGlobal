@@ -17,5 +17,5 @@ def __main__(gnd, cfg):
 
     # Run the DINO test function
     ranks = test_DINO(model, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET, c.TEST.CUSTOM,
-                      c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES, c.TEST.TOPK_LIST)
+                      c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES, c.TEST.TOP_M_DICT['DINOv2'])
     return ranks

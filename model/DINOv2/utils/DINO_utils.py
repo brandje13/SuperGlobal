@@ -8,7 +8,7 @@ import dataloader.test_loader as loader
 def extract_DINO_features(model, data_dir, dataset, gnd_fn, split):
     im_feats = []
 
-    test_loader = loader.construct_loader("DINO", data_dir, dataset, gnd_fn, split)
+    test_loader = loader.construct_loader("DINOv2", data_dir, dataset, gnd_fn, split)
 
     print(f"Extracting DINO features for {split}...")
 

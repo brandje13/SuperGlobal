@@ -45,7 +45,7 @@ def main():
     SG_top = retrieve_top_k(cfg, SG_ranks, top_k, 'SuperGlobal', False)
 
     # SAM_ranks = SAM_tester.__main__(gnd, cfg)
-    # SAM_top = retrieve_top_k(cfg, SAM_ranks, top_k, False)
+    # SAM_top = retrieve_top_k(cfg, SAM_ranks, top_k, 'SAM', False)
 
     DINO_ranks = DINO_tester.__main__(gnd, cfg)
     DINO_top = retrieve_top_k(cfg, DINO_ranks, top_k, 'DINOv2', False)

@@ -22,7 +22,7 @@ def _construct_loader(model, _DATA_DIR, dataset_name, fn, split, scale_list, bat
     # Construct the dataset
     if model == "SAM":
         dataset = DataSet_SAM(_DATA_DIR, dataset_name, fn, split)
-    elif model == "DINO":
+    elif model == "DINOv2":
         dataset = DataSet_DINO(_DATA_DIR, dataset_name, fn, split)
     elif model == "CLIP":
         dataset = DataSet_CLIP(_DATA_DIR, dataset_name, fn, split)

@@ -6,17 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="ee3dcb7a-ed7d-47df-90f3-b54f3599d71a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataloader/dataset_clip.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader/dataset_clip.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataloader/test_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader/test_loader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/ILIAS/gnd_ILIAS.json" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/ILIAS/gnd_ILIAS.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/ILIAS_Test/gnd_ILIAS_Test.json" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/ILIAS_Test/gnd_ILIAS_Test.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/CLIP/CLIP_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/CLIP/CLIP_tester.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/CLIP/utils/CLIP_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/CLIP/utils/CLIP_test_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/SuperGlobal/CVNet_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/CVNet_tester.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_test_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/SIR_topk.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/SIR_topk.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/evaluate_final.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/evaluate_final.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/groundtruth.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/groundtruth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/merge_results.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/merge_results.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +59,7 @@
     &quot;Python.ILIAS.executor&quot;: &quot;Run&quot;,
     &quot;Python.test (ILIAS).executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;CLIP&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;parameter-tuning&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/model/CLIP&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
@@ -80,7 +79,7 @@
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\Superglobal\model\SuperGlobal" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.ILIAS">
+  <component name="RunManager" selected="Python.test (ILIAS)">
     <configuration name="ILIAS" type="PythonConfigurationType" factoryName="Python">
       <module name="SimilarityImageRetrieval" />
       <option name="ENV_FILES" value="" />

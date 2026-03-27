@@ -45,7 +45,7 @@ def __main__(gnd, cfg):
         checkpoint.load_checkpoint(c.TEST.WEIGHTS, model)
 
         ranks = test_model(model, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET, c.TEST.SCALE_LIST, c.TEST.CUSTOM,
-                   c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES, c.TEST.TOPK_LIST, c.SupG.rerank, c.SupG.gemp, c.SupG.rgem,
+                   c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES, c.TEST.TOP_M_DICT['SuperGlobal'], c.SupG.rerank, c.SupG.gemp, c.SupG.rgem,
                    c.SupG.sgem, c.SupG.onemeval, c.MODEL.DEPTH, c.TEST.EVALUATE, logger)
 
     return ranks
