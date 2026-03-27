@@ -9,14 +9,18 @@ from model.SuperGlobal.utils.SG_utils import test_revisitop
 
 
 @torch.no_grad()
-def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, top_m_rerank, evaluate):
+def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, top_m_rerank, evaluate,
+              model_id):
     torch.backends.cudnn.benchmark = True
     model.eval()
 
-    print(f'>> {dataset}: Image Retrieval with DINOv2')
+    print(f'>> {dataset}: Image Retrieval with DINOv2 ({model_id})')
+
+    # Sanitize the backbone name so it is safe for Windows file paths
+    safe_model_name = str(model_id).replace('/', '_').replace('\\', '_')
 
     print("extract query features")
-    Q_path = os.path.join(data_dir, dataset, "DINO_query_features.pt")
+    Q_path = os.path.join(data_dir, dataset, f"DINO_query_{safe_model_name}.pt")
     if update_queries or not os.path.isfile(Q_path):
         Q = extract_DINO_features(model, data_dir, dataset, gnd, "query")
         torch.save(Q, Q_path, pickle_protocol=4)
@@ -24,7 +28,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
         Q = torch.load(Q_path)
 
     print("extract database features")
-    X_path = os.path.join(data_dir, dataset, "DINO_data_features.pt")
+    X_path = os.path.join(data_dir, dataset, f"DINO_data_{safe_model_name}.pt")
     if update_data or not os.path.isfile(X_path):
         X = extract_DINO_features(model, data_dir, dataset, gnd, "db")
         torch.save(X, X_path, pickle_protocol=4)
@@ -33,9 +37,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
 
     print(f"Query Shape: {Q.shape}")
     print(f"Database Shape: {X.shape}")
-
-    # Q and X are numpy arrays: (N, 768, 256)
-    # 768 = Dimensions, 256 = Patches (14x14 grid)
 
     # ---------------------------------------------------------
     # STAGE 1: GLOBAL SEARCH (Instant Filter)
@@ -47,12 +48,9 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
     X_tensor = torch.from_numpy(X)
 
     # Compute Global Descriptors (Mean Pooling)
-    # Shape: (N, 768, 256) -> Mean dim 2 -> (N, 768)
     Q_global = torch.mean(Q_tensor, dim=2)
     Q_global = F.normalize(Q_global, p=2, dim=1)
 
-    # Process DB in chunks to avoid GPU OOM during mean pooling
-    # (Though 30k vectors fits easily, being safe)
     X_global = F.normalize(torch.mean(X_tensor.float(), dim=2), p=2, dim=1).to(device)
 
     # Global Similarity: (N_q, 768) @ (768, N_db) -> (N_q, N_db)
@@ -71,23 +69,18 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
 
     for i in tqdm(range(N_q), desc="Reranking"):
         # A. Prepare Query Patches
-        # Current Q: (1, 768, 256) -> Transpose for matmul -> (1, 256, 768)
-        # Q_tensor[i] is (768, 256)
         q_patches = Q_tensor[i].t().unsqueeze(0)  # (1, 256, 768)
 
         # B. Get the Top m Candidates for this query
         candidate_idxs = top_global_indices[i].cpu()
 
         # C. Fetch ONLY those m images from the CPU Database
-        # X_tensor is (N_db, 768, 256) -> Slice -> (m, 768, 256)
         db_candidates = X_tensor[candidate_idxs].to(device)
 
         # D. Batched Matrix Multiplication (Small Batch of m)
-        # (1, 256, 768) @ (m, 768, 256) -> (m, 256, 256)
         sim_matrix = torch.matmul(q_patches, db_candidates)
 
-        # E. Max-Max Scoring (Same logic as your original code)
-        # Max over DB patches (dim 2) -> (m, 256)
+        # E. Max-Max Scoring
         best_match_per_patch, _ = sim_matrix.max(dim=2)
 
         # Top 50% of query patches
@@ -98,14 +91,10 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
         local_scores = top_m_vals.mean(dim=1)
 
         # F. Re-Sort the Top m
-        # Sort descending based on new local scores
         local_sort_order = torch.argsort(local_scores, descending=True)
-
-        # Map back to original Database Indices
         final_top_m_indices = candidate_idxs[local_sort_order.cpu()]
 
         # G. Append the rest of the list (Ranks k+1 to End)
-        # We trust the global order for everything past rank k
         global_sort_order = torch.argsort(sim_global[i], descending=True).cpu()
         rest_indices = global_sort_order[top_m_rerank:]
 

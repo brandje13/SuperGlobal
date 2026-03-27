@@ -49,7 +49,7 @@ _C.SupG = CfgNode()
 
 # SG Retrieval & Evaluation Variables
 _C.SupG.TOP_M = 600
-_C.SupG.WEIGHTS = ".\weights\CVPR2022_CVNet_R50.pyth"
+_C.SupG.WEIGHTS = ".\weights\CVPR2022_CVNet_R101.pyth"
 _C.SupG.SCALE_LIST = 3
 
 # SG Logic

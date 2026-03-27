@@ -7,15 +7,18 @@ from model.SuperGlobal.utils.SG_utils import test_revisitop
 
 
 @torch.no_grad()
-def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, evaluate):
+def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, evaluate, model_id):
     torch.backends.cudnn.benchmark = True
     model.eval()
 
-    print(f'>> {dataset}: Pure Text-to-Image Retrieval with CLIP')
+    print(f'>> {dataset}: Pure Text-to-Image Retrieval with CLIP ({model_id})')
+
+    # Sanitize the backbone name so it is safe for Windows file paths
+    safe_model_name = str(model_id).replace('/', '_').replace('\\', '_')
 
     # 1. Load/Extract Text Query Features
     print("extract query features (Text)")
-    Q_path = os.path.join(data_dir, dataset, "CLIP_query_features.pt")
+    Q_path = os.path.join(data_dir, dataset, f"CLIP_query_{safe_model_name}.pt")
     if update_queries or not os.path.isfile(Q_path):
         Q = extract_CLIP_features(model, processor, data_dir, dataset, gnd, "query")
         torch.save(Q, Q_path, pickle_protocol=4)
@@ -24,7 +27,7 @@ def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, upd
 
     # 2. Load/Extract Database Image Features
     print("extract database features (Images)")
-    X_path = os.path.join(data_dir, dataset, "CLIP_data_features.pt")
+    X_path = os.path.join(data_dir, dataset, f"CLIP_data_{safe_model_name}.pt")
     if update_data or not os.path.isfile(X_path):
         X = extract_CLIP_features(model, processor, data_dir, dataset, gnd, "db")
         torch.save(X, X_path, pickle_protocol=4)

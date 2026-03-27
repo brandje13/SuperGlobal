@@ -46,6 +46,6 @@ def __main__(gnd, cfg):
 
         ranks, map_score = test_model(model, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET, c.SupG.SCALE_LIST, c.TEST.CUSTOM,
                    c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES, c.SupG.TOP_M, c.SupG.rerank, c.SupG.gemp, c.SupG.rgem,
-                   c.SupG.sgem, c.SupG.onemeval, c.SupG.MODEL.DEPTH, c.TEST.EVALUATE, logger)
+                   c.SupG.sgem, c.SupG.onemeval, c.SupG.MODEL.DEPTH, c.TEST.EVALUATE, logger, c.SupG.WEIGHTS)
 
     return ranks, map_score

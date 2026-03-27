@@ -15,8 +15,8 @@ from model.SuperGlobal.modules.reranking.RerankwMDA import RerankwMDA
 
 
 @torch.no_grad()
-def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, update_data, update_queries, top_m_rerank,
-               is_rerank, gemp, rgem, sgem, onemeval, depth, evaluate, logger):
+def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, update_data, update_queries,
+               top_m_rerank, is_rerank, gemp, rgem, sgem, onemeval, depth, evaluate, logger, model_id):
     torch.backends.cudnn.benchmark = False
     model.eval()
     torch.cuda.set_device(device)
@@ -28,11 +28,14 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
 
     model.load_state_dict(state_dict)
 
-    text = '>> {}: Global Retrieval for scale {} with CVNet-Global'.format(dataset, str(scale_list))
+    # Sanitize the backbone name (e.g. '.\weights\CVPR2022_CVNet_R50.pyth' -> 'CVPR2022_CVNet_R50')
+    safe_model_name = str(model_id).split('\\')[-1].split('/')[-1].replace('.pyth', '').replace('.pth', '')
+
+    text = f'>> {dataset}: Global Retrieval for scale {scale_list} with CVNet-Global ({safe_model_name})'
     print(text)
 
     print("extract query features")
-    Q_path = os.path.join(data_dir, dataset, "SG_query_features.pt")
+    Q_path = os.path.join(data_dir, dataset, f"SG_query_{safe_model_name}.pt")
     if update_queries or not os.path.isfile(Q_path):
         Q = extract_feature(model, data_dir, dataset, gnd, "query", [1.0], gemp, rgem, sgem, scale_list)
         torch.save(Q, Q_path)
@@ -40,7 +43,7 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
         Q = torch.load(Q_path)
 
     print("extract database features")
-    X_path = os.path.join(data_dir, dataset, "SG_data_features.pt")
+    X_path = os.path.join(data_dir, dataset, f"SG_data_{safe_model_name}.pt")
     if update_data or not os.path.isfile(X_path):
         X = extract_feature(model, data_dir, dataset, gnd, "db", [1.0], gemp, rgem, sgem, scale_list)
         torch.save(X, X_path)
@@ -54,7 +57,6 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
     if onemeval:
         X_expand = torch.load(f"./feats_1m_RN{depth}.pth").cuda()
         X = torch.cat([X, X_expand], 0)
-
 
     # Build Index (Flat = Brute Force, IP = Inner Product)
     # 2048 is the dimension of the features
