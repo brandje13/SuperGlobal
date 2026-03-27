@@ -17,6 +17,6 @@ def __main__(gnd, cfg):
     model.eval()
 
     # Run the DINO test function
-    ranks = test_DINO(model, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET, c.TEST.CUSTOM,
+    ranks, map_score = test_DINO(model, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET, c.TEST.CUSTOM,
                       c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES, c.DINO.TOP_M, c.TEST.EVALUATE)
-    return ranks
+    return ranks, map_score

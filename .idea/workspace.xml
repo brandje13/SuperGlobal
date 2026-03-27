@@ -5,14 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee3dcb7a-ed7d-47df-90f3-b54f3599d71a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/grid_search.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/CLIP/CLIP_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/CLIP/CLIP_tester.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/CLIP/utils/CLIP_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/CLIP/utils/CLIP_test_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/SuperGlobal/CVNet_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/CVNet_tester.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_test_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/evaluate_final.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/evaluate_final.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,16 +52,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.ILIAS.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test (ILIAS).executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;parameter-tuning&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/model/CLIP&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.ILIAS.executor": "Run",
+    "Python.grid_search.executor": "Run",
+    "Python.test (ILIAS).executor": "Run",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "parameter-tuning",
+    "last_opened_file_path": "C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/model/CLIP",
+    "settings.editor.selected.configurable": "Console"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\SimilarityImageRetrieval\model\CLIP" />
@@ -76,7 +78,7 @@
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\Superglobal\model\SuperGlobal" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.test (ILIAS)">
+  <component name="RunManager" selected="Python.grid_search">
     <configuration name="ILIAS" type="PythonConfigurationType" factoryName="Python">
       <module name="SimilarityImageRetrieval" />
       <option name="ENV_FILES" value="" />
@@ -86,6 +88,7 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="C:\Users\brand\anaconda3\envs\SG\python.exe" />
+      <option name="SDK_NAME" value="Python 3.8 (SG)" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -136,6 +139,29 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model/SAM/check_sam.py" />
       <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="grid_search" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="SimilarityImageRetrieval" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.8 (SG)" />
+      <option name="WORKING_DIRECTORY" value="C:\Users\brand\Documents\TUe Master\Thesis\SimilarityImageRetrieval" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grid_search.py" />
+      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS_Test' TEST.EVALUATE True" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -353,6 +379,7 @@
     <list>
       <item itemvalue="Python.ILIAS" />
       <item itemvalue="Python.test (ILIAS)" />
+      <item itemvalue="Python.grid_search" />
       <item itemvalue="Python.test" />
       <item itemvalue="Python.check_sam" />
       <item itemvalue="Python.groundtruth_creator" />

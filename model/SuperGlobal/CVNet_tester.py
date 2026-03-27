@@ -25,7 +25,7 @@ def setup_model(device, encoder):
     # Build the model
     print("=> creating CVNet_Rerank model")
     model = CVNet_Rerank(c.SupG.MODEL.DEPTH, c.SupG.MODEL.HEADS.REDUCTION_DIM, c.SupG.relup, encoder)
-    print(model)
+    #print(model)
     model = model.cuda(device=device)
 
     return model
@@ -44,8 +44,8 @@ def __main__(gnd, cfg):
         # Load checkpoint
         checkpoint.load_checkpoint(c.SupG.WEIGHTS, model)
 
-        ranks = test_model(model, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET, c.SupG.SCALE_LIST, c.TEST.CUSTOM,
+        ranks, map_score = test_model(model, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET, c.SupG.SCALE_LIST, c.TEST.CUSTOM,
                    c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES, c.SupG.TOP_M, c.SupG.rerank, c.SupG.gemp, c.SupG.rgem,
                    c.SupG.sgem, c.SupG.onemeval, c.SupG.MODEL.DEPTH, c.TEST.EVALUATE, logger)
 
-    return ranks
+    return ranks, map_score

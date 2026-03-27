@@ -12,6 +12,6 @@ def __main__(gnd, cfg):
     processor = CLIPProcessor.from_pretrained(model_id)
     model.eval()
 
-    ranks = test_CLIP(model, processor, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET,
+    ranks, map_score = test_CLIP(model, processor, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET,
                       c.TEST.CUSTOM, c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES, c.TEST.EVALUATE)
-    return ranks
+    return ranks, map_score

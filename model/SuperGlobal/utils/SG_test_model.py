@@ -75,6 +75,7 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
         rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba = MDescAug_obj(X_tensor, Q_tensor, ranks)
         ranks = RerankwMDA_obj(ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba)
     ranks = ranks.data.cpu().numpy()
+    mapE = 0.0
 
     if evaluate:
         # revisited evaluation
@@ -90,4 +91,4 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
                                                                        np.around(mapM * 100, decimals=2),
                                                                        np.around(mapH * 100, decimals=2)))
 
-    return ranks
+    return ranks, mapE

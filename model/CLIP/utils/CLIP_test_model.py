@@ -46,6 +46,7 @@ def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, upd
 
     # Sort and Transpose to match the RevisitOP evaluation format
     ranks = torch.argsort(sim_global, descending=True).cpu().numpy().T
+    map_score = 0.0
 
     # Evaluation
     if evaluate:
@@ -54,4 +55,4 @@ def test_CLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, upd
             (map_score, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
             print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map_score * 100, decimals=2)))
 
-    return ranks
+    return ranks, map_score

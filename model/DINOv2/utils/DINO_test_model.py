@@ -115,12 +115,13 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
         final_ranks.append(full_rank_list.numpy())
 
     ranks = np.array(final_ranks).T
+    map_score = 0.0
 
     # Evaluation
     if evaluate:
         ks = [10, 25, 100]
         if not custom:
-            (map, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
-            print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map * 100, decimals=2)))
+            (map_score, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
+            print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map_score * 100, decimals=2)))
 
-    return ranks
+    return ranks, map_score
