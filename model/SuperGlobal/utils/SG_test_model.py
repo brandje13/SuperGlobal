@@ -1,5 +1,3 @@
-# written by Seongwon Lee (won4113@yonsei.ac.kr)
-
 import os
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -9,7 +7,6 @@ import torch
 import numpy as np
 
 from model.SuperGlobal.utils.SG_utils import extract_feature, test_revisitop
-
 from model.SuperGlobal.modules.reranking.MDescAug import MDescAug
 from model.SuperGlobal.modules.reranking.RerankwMDA import RerankwMDA
 
@@ -22,15 +19,13 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
     torch.cuda.set_device(device)
     state_dict = model.state_dict()
 
-    # initialize modules
+    # Dynamic M mapping for the grid search
     MDescAug_obj = MDescAug(M=top_m_rerank, K=9)
     RerankwMDA_obj = RerankwMDA(M=top_m_rerank, K=9)
 
     model.load_state_dict(state_dict)
 
-    # Sanitize the backbone name (e.g. '.\weights\CVPR2022_CVNet_R50.pyth' -> 'CVPR2022_CVNet_R50')
     safe_model_name = str(model_id).split('\\')[-1].split('/')[-1].replace('.pyth', '').replace('.pth', '')
-
     text = f'>> {dataset}: Global Retrieval for scale {scale_list} with CVNet-Global ({safe_model_name})'
     print(text)
 
@@ -58,39 +53,26 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
         X_expand = torch.load(f"./feats_1m_RN{depth}.pth").cuda()
         X = torch.cat([X, X_expand], 0)
 
-    # Build Index (Flat = Brute Force, IP = Inner Product)
-    # 2048 is the dimension of the features
     index = faiss.IndexFlatIP(2048)
-
-    # Add Gallery (X) to Index
     index.add(X_tensor.cpu().numpy())
 
-    # Search
-    # dist = distances, inx = indices (ranks)
     dist, inx = index.search(Q_tensor.cpu().numpy(), top_m_rerank)
-
-    # 'I' is your 'ranks' variable
-    ranks = inx.T  # Transpose to match your original shape (Gallery, Query)
+    ranks = inx.T
 
     if is_rerank:
         ranks = torch.from_numpy(ranks).to(device)
         rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba = MDescAug_obj(X_tensor, Q_tensor, ranks)
         ranks = RerankwMDA_obj(ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba)
+
     ranks = ranks.data.cpu().numpy()
     mapE = 0.0
 
     if evaluate:
-        # revisited evaluation
         ks = [10, 25, 100]
         if not custom:
             (mapE, _, _, _), (mapM, _, _, _), (mapH, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
-
             print('Retrieval results {}: mAP E: {}, M: {}, H: {}'.format(dataset, np.around(mapE * 100, decimals=2),
                                                                          np.around(mapM * 100, decimals=2),
                                                                          np.around(mapH * 100, decimals=2)))
-            logger.info(
-                'Retrieval results {}: mAP E: {}, M: {}, H: {}'.format(dataset, np.around(mapE * 100, decimals=2),
-                                                                       np.around(mapM * 100, decimals=2),
-                                                                       np.around(mapH * 100, decimals=2)))
 
     return ranks, mapE

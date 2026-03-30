@@ -148,7 +148,9 @@ def retrieve_top_k(cfg, ranks, k, model, retrieve_only=True, save_dir="output", 
             true_positives = 0
             ap_sum = 0.0
 
-            for j in range(k):
+            # Cap j so it never exceeds the array bounds
+            actual_k = min(k, len(ranks[i]))
+            for j in range(actual_k):
                 next_best = cfg['imlist'][ranks[i][j]]
                 best_path = os.path.join(file_path, next_best)
                 top_k[query]['top_k'].append(best_path)
@@ -234,7 +236,8 @@ def retrieve_top_k(cfg, ranks, k, model, retrieve_only=True, save_dir="output", 
             save_path = os.path.join(save_dir, f"{model}_{short_query_name}.jpg")
             canvas.save(save_path)
         else:
-            for j in range(k):
+            actual_k = min(k, len(ranks[i]))
+            for j in range(actual_k):
                 next_best = cfg['imlist'][ranks[i][j]]
                 best_path = os.path.join(file_path, next_best)
                 top_k[query]['top_k'].append(best_path)

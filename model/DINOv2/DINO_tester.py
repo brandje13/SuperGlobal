@@ -3,7 +3,7 @@ from config import cfg as c
 from model.DINOv2.utils.DINO_test_model import test_DINO
 
 def __main__(gnd, cfg):
-    device = c.SupG.MODEL.DEVICE
+    device = c.MODEL.DEVICE
     model_id = c.DINO.WEIGHTS
 
     print(f"Loading DINOv2 ({model_id}) via timm...")

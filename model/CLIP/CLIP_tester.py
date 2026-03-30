@@ -3,7 +3,7 @@ from config import cfg as c
 from model.CLIP.utils.CLIP_test_model import test_CLIP
 
 def __main__(gnd, cfg):
-    device = c.SupG.MODEL.DEVICE
+    device = c.MODEL.DEVICE
     model_id = c.CLIP.WEIGHTS
 
     print(f"Loading CLIP ({model_id}) via HuggingFace...")

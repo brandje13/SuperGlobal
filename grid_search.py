@@ -44,16 +44,22 @@ def main():
     cfg = config_gnd(c.TEST.DATASET, c.TEST.DATA_DIR, c.TEST.CUSTOM, gnd)
 
     # --- 2. DEFINE FULL ARCHITECTURE SEARCH SPACE ---
-    SG_BACKBONES = ['.\\weights\\CVPR2022_CVNet_R50.pyth', '.\\weights\\CVPR2022_CVNet_R101.pyth']
+    SG_BACKBONES = [
+        '.\\weights\\CVPR2022_CVNet_R50.pyth',
+        '.\\weights\\CVPR2022_CVNet_R101.pyth'
+    ]
     DINO_BACKBONES = [
         'vit_small_patch14_dinov2.lvd142m',
         'vit_base_patch14_dinov2.lvd142m',
         'vit_large_patch14_dinov2.lvd142m'
     ]
-    CLIP_BACKBONES = ['openai/clip-vit-base-patch32', 'openai/clip-vit-large-patch14']
+    CLIP_BACKBONES = [
+        'openai/clip-vit-base-patch32',
+        'openai/clip-vit-large-patch14'
+    ]
 
-    SG_M_SEARCH = list(range(1000, 11000, 1000))
-    DINO_M_SEARCH = list(range(1000, 2000, 1000))
+    SG_M_SEARCH = list(range(100, 900, 100))
+    DINO_M_SEARCH = list(range(1000, 11000, 1000))
     TOP_K_SEARCH = list(range(10, 160, 10))
 
     sg_data = {}
@@ -65,7 +71,9 @@ def main():
     # ====================================================================================
     for sg_bb in SG_BACKBONES:
         print(f"\n{'=' * 40}\n>> Initializing SuperGlobal with {sg_bb}\n{'=' * 40}")
-        c.SupG.WEIGHTS = sg_bb
+
+        c.TEST.WEIGHTS = sg_bb
+        c.MODEL.DEPTH = 101 if 'R101' in sg_bb else 50
 
         for m in SG_M_SEARCH:
             c.SupG.TOP_M = m
@@ -140,51 +148,54 @@ def main():
             torch.cuda.empty_cache()
             gc.collect()
 
-        # ====================================================================================
-        # PHASE 4: THE FULL COMBINATORIAL FRONTIER
-        # ====================================================================================
-        MODES = ['union', 'intersection', 'majority']
-        total_combos = len(sg_data) * len(dino_data) * len(clip_data) * len(TOP_K_SEARCH) * len(MODES)
-        print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
-        ensemble_results = []
+    # ====================================================================================
+    # PHASE 4: THE FULL COMBINATORIAL FRONTIER
+    # ====================================================================================
+    MODES = ['union', 'intersection', 'majority']
+    total_combos = len(sg_data) * len(dino_data) * len(clip_data) * len(TOP_K_SEARCH) * len(MODES)
+    print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
+    ensemble_results = []
 
-        with tqdm(total=total_combos, desc="Fusing Ensembles", unit="combo") as pbar:
-            for (sg_bb, sg_m), sg_info in sg_data.items():
-                for (dino_bb, dino_m), dino_info in dino_data.items():
-                    for clip_bb, clip_info in clip_data.items():
+    with tqdm(total=total_combos, desc="Fusing Ensembles", unit="combo") as pbar:
+        for (sg_bb, sg_m), sg_info in sg_data.items():
+            for (dino_bb, dino_m), dino_info in dino_data.items():
+                for clip_bb, clip_info in clip_data.items():
 
-                        total_inf_time = sg_info['time'] + dino_info['time'] + clip_info['time']
+                    total_inf_time = sg_info['time'] + dino_info['time'] + clip_info['time']
 
-                        for k in TOP_K_SEARCH:
-                            SG_top = retrieve_top_k(cfg, sg_info['ranks'], k, 'SuperGlobal', False)
-                            DINO_top = retrieve_top_k(cfg, dino_info['ranks'], k, 'DINOv2', False)
-                            CLIP_top = retrieve_top_k(cfg, clip_info['ranks'], k, 'CLIP', False)
+                    for k in TOP_K_SEARCH:
+                        SG_top = retrieve_top_k(cfg, sg_info['ranks'], k, 'SuperGlobal', False)
+                        DINO_top = retrieve_top_k(cfg, dino_info['ranks'], k, 'DINOv2', False)
+                        CLIP_top = retrieve_top_k(cfg, clip_info['ranks'], k, 'CLIP', False)
 
-                            models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top], ['CLIP', CLIP_top]]
+                        models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top], ['CLIP', CLIP_top]]
 
-                            for mode in MODES:
-                                merged_res = merge_results(cfg, models, mode)
-                                m_metrics = evaluate_final(cfg, models, merged_res, mode, silent=True)
+                        for mode in MODES:
+                            merged_res = merge_results(cfg, models, mode)
+                            m_metrics = evaluate_final(cfg, models, merged_res, mode, silent=True)
 
-                                ensemble_results.append({
-                                    'mode': mode,
-                                    'sg_bb': sg_bb,
-                                    'dino_bb': dino_bb,
-                                    'clip_bb': clip_bb,
-                                    'sg_m': sg_m,
-                                    'sg_map': sg_info['mAP'],
-                                    'dino_m': dino_m,
-                                    'dino_map': dino_info['mAP'],
-                                    'clip_map': clip_info['mAP'],
-                                    'top_k': k,
-                                    'precision': m_metrics['precision'],
-                                    'recall': m_metrics['recall'],
-                                    'f3': m_metrics['f3'],
-                                    'total_time': total_inf_time
-                                })
+                            ensemble_results.append({
+                                'mode': mode,
+                                'sg_bb': sg_bb,
+                                'dino_bb': dino_bb,
+                                'clip_bb': clip_bb,
+                                'sg_m': sg_m,
+                                'sg_map': sg_info['mAP'],
+                                'sg_time': sg_info['time'],
+                                'dino_m': dino_m,
+                                'dino_map': dino_info['mAP'],
+                                'dino_time': dino_info['time'],
+                                'clip_map': clip_info['mAP'],
+                                'clip_time': clip_info['time'],
+                                'top_k': k,
+                                'precision': m_metrics['precision'],
+                                'recall': m_metrics['recall'],
+                                'f3': m_metrics['f3'],
+                                'total_time': total_inf_time
+                            })
 
-                                # Tick the progress bar forward by 1
-                                pbar.update(1)
+                            # Tick the progress bar forward by 1
+                            pbar.update(1)
 
     # --- FIND THE BEST PATH TO 20/50 ---
     print(f"\n{'*' * 40}\nCONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)\n{'*' * 40}")

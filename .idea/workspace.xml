@@ -5,15 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee3dcb7a-ed7d-47df-90f3-b54f3599d71a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/grid_search_ILIAS_1774692731.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/grid_search_ILIAS_Test_1774630819.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grid_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_Test_1774621171.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_Test_1774621542.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/model/CLIP/CLIP_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/CLIP/CLIP_tester.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/CLIP/utils/CLIP_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/CLIP/utils/CLIP_test_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/SuperGlobal/CVNet_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/CVNet_tester.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_test_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/SIR_topk.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/SIR_topk.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,17 +59,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.ILIAS.executor": "Run",
-    "Python.grid_search.executor": "Run",
-    "Python.test (ILIAS).executor": "Run",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "parameter-tuning",
-    "last_opened_file_path": "C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/model/CLIP",
-    "settings.editor.selected.configurable": "Console"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.ILIAS.executor&quot;: &quot;Run&quot;,
+    &quot;Python.grid_search.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test (ILIAS).executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;parameter-tuning&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/model/CLIP&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Console&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\SimilarityImageRetrieval\model\CLIP" />
@@ -78,7 +85,7 @@
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\Superglobal\model\SuperGlobal" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.grid_search">
+  <component name="RunManager" selected="Python.ILIAS">
     <configuration name="ILIAS" type="PythonConfigurationType" factoryName="Python">
       <module name="SimilarityImageRetrieval" />
       <option name="ENV_FILES" value="" />
@@ -94,7 +101,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test.py" />
-      <option name="PARAMETERS" value="MODEL.DEPTH 50 TEST.WEIGHTS .\weights\CVPR2022_CVNet_R50.pyth TEST.DATA_DIR .\datasets TEST.DATASET 'ILIAS' TEST.EVALUATE True SupG.gemp True SupG.rgem True SupG.sgem True SupG.relup True SupG.rerank True SupG.onemeval False" />
+      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS' TEST.EVALUATE True" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -161,7 +168,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grid_search.py" />
-      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS_Test' TEST.EVALUATE True" />
+      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS' TEST.EVALUATE True" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -428,26 +435,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/model/SuperGlobal/modules/reranking/MDescAug.py</url>
-          <line>92</line>
-          <option name="timeStamp" value="20" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/model/SuperGlobal/modules/reranking/MDescAug.py</url>
-          <line>93</line>
-          <option name="timeStamp" value="21" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/model/SuperGlobal/modules/reranking/MDescAug.py</url>
-          <line>96</line>
-          <option name="timeStamp" value="22" />
-        </line-breakpoint>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/model/SuperGlobal/modules/reranking/MDescAug.py</url>
-          <line>104</line>
-          <option name="timeStamp" value="23" />
-        </line-breakpoint>
         <line-breakpoint suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/model/SuperGlobal/modules/reranking/RerankwMDA.py</url>
           <line>19</line>
