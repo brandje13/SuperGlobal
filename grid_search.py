@@ -3,6 +3,7 @@ import time
 import torch
 import csv
 import gc
+import pickle
 from tqdm import tqdm
 
 import config as config
@@ -18,6 +19,19 @@ from utils.evaluate_final import evaluate_final
 from utils.groundtruth import create_groundtruth_from_txt, create_groundtruth
 from utils.SIR_topk import retrieve_top_k, save_merged_results
 from utils.merge_results import merge_results
+
+
+# --- CHECKPOINT HELPERS ---
+def load_ckpt(path):
+    if os.path.exists(path):
+        with open(path, 'rb') as f:
+            return pickle.load(f)
+    return {}
+
+
+def save_ckpt(data, path):
+    with open(path, 'wb') as f:
+        pickle.dump(data, f)
 
 
 def main():
@@ -43,28 +57,31 @@ def main():
 
     cfg = config_gnd(c.TEST.DATASET, c.TEST.DATA_DIR, c.TEST.CUSTOM, gnd)
 
+    # --- SETUP CHECKPOINT DIRECTORY ---
+    ckpt_dir = os.path.join(c.TEST.DATA_DIR, c.TEST.DATASET, "checkpoints")
+    os.makedirs(ckpt_dir, exist_ok=True)
+
+    sg_ckpt = os.path.join(ckpt_dir, "sg_data.pkl")
+    dino_ckpt = os.path.join(ckpt_dir, "dino_data.pkl")
+    clip_ckpt = os.path.join(ckpt_dir, "clip_data.pkl")
+
+    # Load existing progress (will be empty dicts if first run)
+    sg_data = load_ckpt(sg_ckpt)
+    dino_data = load_ckpt(dino_ckpt)
+    clip_data = load_ckpt(clip_ckpt)
+
     # --- 2. DEFINE FULL ARCHITECTURE SEARCH SPACE ---
-    SG_BACKBONES = [
-        '.\\weights\\CVPR2022_CVNet_R50.pyth',
-        '.\\weights\\CVPR2022_CVNet_R101.pyth'
-    ]
+    SG_BACKBONES = ['.\\weights\\CVPR2022_CVNet_R50.pyth', '.\\weights\\CVPR2022_CVNet_R101.pyth']
     DINO_BACKBONES = [
         'vit_small_patch14_dinov2.lvd142m',
         'vit_base_patch14_dinov2.lvd142m',
         'vit_large_patch14_dinov2.lvd142m'
     ]
-    CLIP_BACKBONES = [
-        'openai/clip-vit-base-patch32',
-        'openai/clip-vit-large-patch14'
-    ]
+    CLIP_BACKBONES = ['openai/clip-vit-base-patch32', 'openai/clip-vit-large-patch14']
 
     SG_M_SEARCH = list(range(100, 900, 100))
-    DINO_M_SEARCH = list(range(1000, 11000, 1000))
+    DINO_M_SEARCH = list(range(1000, 2000, 1000))
     TOP_K_SEARCH = list(range(10, 160, 10))
-
-    sg_data = {}
-    dino_data = {}
-    clip_data = {}
 
     # ====================================================================================
     # PHASE 1: SuperGlobal
@@ -76,13 +93,21 @@ def main():
         c.MODEL.DEPTH = 101 if 'R101' in sg_bb else 50
 
         for m in SG_M_SEARCH:
+            # --- Auto-Resume Check ---
+            if (sg_bb, m) in sg_data:
+                print(f">> Skipping SG {sg_bb} M={m} (Loaded from checkpoint)")
+                continue
+
             c.SupG.TOP_M = m
             start = time.time()
 
             try:
                 ranks, mAP = CVNet_tester.__main__(gnd, cfg)
                 elapsed = time.time() - start
+
+                # Save to dict and immediately commit to disk
                 sg_data[(sg_bb, m)] = {'ranks': ranks, 'mAP': mAP, 'time': elapsed}
+                save_ckpt(sg_data, sg_ckpt)
 
             except torch.cuda.OutOfMemoryError:
                 print(f"\n[!] WARNING: CUDA OOM at SuperGlobal {sg_bb} M={m}. Skipping.")
@@ -107,13 +132,21 @@ def main():
         c.DINO.WEIGHTS = dino_bb
 
         for m in DINO_M_SEARCH:
+            # --- Auto-Resume Check ---
+            if (dino_bb, m) in dino_data:
+                print(f">> Skipping DINO {dino_bb} M={m} (Loaded from checkpoint)")
+                continue
+
             c.DINO.TOP_M = m
             start = time.time()
 
             try:
                 ranks, mAP = DINO_tester.__main__(gnd, cfg)
                 elapsed = time.time() - start
+
+                # Save to dict and immediately commit to disk
                 dino_data[(dino_bb, m)] = {'ranks': ranks, 'mAP': mAP, 'time': elapsed}
+                save_ckpt(dino_data, dino_ckpt)
 
             except torch.cuda.OutOfMemoryError:
                 print(f"\n[!] WARNING: CUDA OOM at DINOv2 {dino_bb} M={m}. Skipping.")
@@ -136,12 +169,22 @@ def main():
     for clip_bb in CLIP_BACKBONES:
         print(f"\n{'=' * 40}\n>> Initializing CLIP with {clip_bb}\n{'=' * 40}")
         c.CLIP.WEIGHTS = clip_bb
+
+        # --- Auto-Resume Check ---
+        if clip_bb in clip_data:
+            print(f">> Skipping CLIP {clip_bb} (Loaded from checkpoint)")
+            continue
+
         start = time.time()
 
         try:
             ranks, mAP = CLIP_tester.__main__(gnd, cfg)
             elapsed = time.time() - start
+
+            # Save to dict and immediately commit to disk
             clip_data[clip_bb] = {'ranks': ranks, 'mAP': mAP, 'time': elapsed}
+            save_ckpt(clip_data, clip_ckpt)
+
         except Exception as e:
             print(f"\n[!] Error running CLIP {clip_bb}: {e}. Skipping.")
         finally:
@@ -154,7 +197,12 @@ def main():
     MODES = ['union', 'intersection', 'majority']
     total_combos = len(sg_data) * len(dino_data) * len(clip_data) * len(TOP_K_SEARCH) * len(MODES)
     print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
-    ensemble_results = []
+
+    csv_filename = f"grid_search_{c.TEST.DATASET}_{int(time.time())}.csv"
+    print(f">> Streaming results live to {csv_filename}...")
+
+    csv_headers_written = False
+    ensemble_results = []  # Keep in memory for the Top 20 printout at the end
 
     with tqdm(total=total_combos, desc="Fusing Ensembles", unit="combo") as pbar:
         for (sg_bb, sg_m), sg_info in sg_data.items():
@@ -164,9 +212,9 @@ def main():
                     total_inf_time = sg_info['time'] + dino_info['time'] + clip_info['time']
 
                     for k in TOP_K_SEARCH:
-                        SG_top = retrieve_top_k(cfg, sg_info['ranks'], k, 'SuperGlobal', False)
-                        DINO_top = retrieve_top_k(cfg, dino_info['ranks'], k, 'DINOv2', False)
-                        CLIP_top = retrieve_top_k(cfg, clip_info['ranks'], k, 'CLIP', False)
+                        SG_top = retrieve_top_k(cfg, sg_info['ranks'], k, 'SuperGlobal', True)
+                        DINO_top = retrieve_top_k(cfg, dino_info['ranks'], k, 'DINOv2', True)
+                        CLIP_top = retrieve_top_k(cfg, clip_info['ranks'], k, 'CLIP', True)
 
                         models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top], ['CLIP', CLIP_top]]
 
@@ -174,7 +222,7 @@ def main():
                             merged_res = merge_results(cfg, models, mode)
                             m_metrics = evaluate_final(cfg, models, merged_res, mode, silent=True)
 
-                            ensemble_results.append({
+                            result_dict = {
                                 'mode': mode,
                                 'sg_bb': sg_bb,
                                 'dino_bb': dino_bb,
@@ -192,22 +240,27 @@ def main():
                                 'recall': m_metrics['recall'],
                                 'f3': m_metrics['f3'],
                                 'total_time': total_inf_time
-                            })
+                            }
 
-                            # Tick the progress bar forward by 1
+                            ensemble_results.append(result_dict)
+
+                            # --- LIVE CSV EXPORT ---
+                            with open(csv_filename, 'a', newline='') as output_file:
+                                dict_writer = csv.DictWriter(output_file, fieldnames=result_dict.keys())
+                                if not csv_headers_written:
+                                    dict_writer.writeheader()
+                                    csv_headers_written = True
+                                dict_writer.writerow(result_dict)
+
                             pbar.update(1)
 
     # --- FIND THE BEST PATH TO 20/50 ---
     print(f"\n{'*' * 40}\nCONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)\n{'*' * 40}")
-
     targets_met = [r for r in ensemble_results if r['precision'] >= 0.20 and r['recall'] >= 0.50]
 
     if targets_met:
-        # Sort by F3 Score
         sorted_targets = sorted(targets_met, key=lambda x: x['f3'], reverse=True)
-
         for res in sorted_targets[:20]:
-            # String slicing to make the printout readable in the console
             sg_short = res['sg_bb'].split('_')[-1].split('.')[0]
             dino_short = res['dino_bb'].split('_')[1]
             clip_short = res['clip_bb'].split('-')[-2]
@@ -220,18 +273,7 @@ def main():
     else:
         print("No configuration met the 20/50 target on this dataset.")
 
-    # --- 5. EXPORT TO CSV FOR THESIS PLOTTING ---
-    csv_filename = f"grid_search_{c.TEST.DATASET}_{int(time.time())}.csv"
-
-    print(f"\n>> Exporting all {len(ensemble_results)} combinations to {csv_filename}...")
-
-    keys = ensemble_results[0].keys() if ensemble_results else []
-    if keys:
-        with open(csv_filename, 'w', newline='') as output_file:
-            dict_writer = csv.DictWriter(output_file, fieldnames=keys)
-            dict_writer.writeheader()
-            dict_writer.writerows(ensemble_results)
-        print(f">> Export complete! Data saved to {os.getcwd()}\\{csv_filename}")
+    print(f"\n>> Pipeline complete! All data safely saved to {os.getcwd()}\\{csv_filename}")
 
 
 if __name__ == "__main__":

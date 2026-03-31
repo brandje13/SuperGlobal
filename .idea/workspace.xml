@@ -5,22 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee3dcb7a-ed7d-47df-90f3-b54f3599d71a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/grid_search_ILIAS_1774692731.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/grid_search_ILIAS_Test_1774630819.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grid_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_Test_1774621171.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_Test_1774621542.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/CLIP/CLIP_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/CLIP/CLIP_tester.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_1774692731.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_Test_1774630819.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/SuperGlobal/CVNet_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/CVNet_tester.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_test_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/SIR_topk.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/SIR_topk.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,7 +74,7 @@
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\Superglobal\model\SuperGlobal" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.ILIAS">
+  <component name="RunManager" selected="Python.grid_search">
     <configuration name="ILIAS" type="PythonConfigurationType" factoryName="Python">
       <module name="SimilarityImageRetrieval" />
       <option name="ENV_FILES" value="" />

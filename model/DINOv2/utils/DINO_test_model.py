@@ -22,11 +22,9 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
     Q_path = os.path.join(data_dir, dataset, f"DINO_query_{safe_model_name}.h5")
     X_path = os.path.join(data_dir, dataset, f"DINO_data_{safe_model_name}.h5")
 
-    print("extract query features")
     if update_queries or not os.path.isfile(Q_path):
         extract_DINO_features(model, data_dir, dataset, gnd, "query", Q_path)
 
-    print("extract database features")
     if update_data or not os.path.isfile(X_path):
         extract_DINO_features(model, data_dir, dataset, gnd, "db", X_path)
 
