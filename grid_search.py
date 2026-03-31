@@ -79,8 +79,8 @@ def main():
     ]
     CLIP_BACKBONES = ['openai/clip-vit-base-patch32', 'openai/clip-vit-large-patch14']
 
-    SG_M_SEARCH = list(range(100, 900, 100))
-    DINO_M_SEARCH = list(range(1000, 2000, 1000))
+    SG_M_SEARCH = list(range(100, 1000, 100))
+    DINO_M_SEARCH = list(range(1000, 11000, 1000))
     TOP_K_SEARCH = list(range(10, 160, 10))
 
     # ====================================================================================
@@ -191,84 +191,84 @@ def main():
             torch.cuda.empty_cache()
             gc.collect()
 
-        # ====================================================================================
-        # PHASE 4: THE FULL COMBINATORIAL FRONTIER
-        # ====================================================================================
-        MODES = ['union', 'intersection', 'majority']
-        total_combos = len(sg_data) * len(dino_data) * len(clip_data) * len(TOP_K_SEARCH) * len(MODES)
-        print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
+    # ====================================================================================
+    # PHASE 4: THE FULL COMBINATORIAL FRONTIER
+    # ====================================================================================
+    MODES = ['union', 'intersection', 'majority']
+    total_combos = len(sg_data) * len(dino_data) * len(clip_data) * len(TOP_K_SEARCH) * len(MODES)
+    print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
 
-        ensemble_results = []
+    ensemble_results = []
 
-        with tqdm(total=total_combos, desc="Fusing Ensembles", unit="combo") as pbar:
-            for (sg_bb, sg_m), sg_info in sg_data.items():
-                for (dino_bb, dino_m), dino_info in dino_data.items():
-                    for clip_bb, clip_info in clip_data.items():
+    with tqdm(total=total_combos, desc="Fusing Ensembles", unit="combo") as pbar:
+        for (sg_bb, sg_m), sg_info in sg_data.items():
+            for (dino_bb, dino_m), dino_info in dino_data.items():
+                for clip_bb, clip_info in clip_data.items():
 
-                        total_inf_time = sg_info['time'] + dino_info['time'] + clip_info['time']
+                    total_inf_time = sg_info['time'] + dino_info['time'] + clip_info['time']
 
-                        for k in TOP_K_SEARCH:
-                            SG_top = retrieve_top_k(cfg, sg_info['ranks'], k, 'SuperGlobal', True)
-                            DINO_top = retrieve_top_k(cfg, dino_info['ranks'], k, 'DINOv2', True)
-                            CLIP_top = retrieve_top_k(cfg, clip_info['ranks'], k, 'CLIP', True)
+                    for k in TOP_K_SEARCH:
+                        SG_top = retrieve_top_k(cfg, sg_info['ranks'], k, 'SuperGlobal', True)
+                        DINO_top = retrieve_top_k(cfg, dino_info['ranks'], k, 'DINOv2', True)
+                        CLIP_top = retrieve_top_k(cfg, clip_info['ranks'], k, 'CLIP', True)
 
-                            models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top], ['CLIP', CLIP_top]]
+                        models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top], ['CLIP', CLIP_top]]
 
-                            for mode in MODES:
-                                merged_res = merge_results(cfg, models, mode)
-                                m_metrics = evaluate_final(cfg, models, merged_res, mode, silent=True)
+                        for mode in MODES:
+                            merged_res = merge_results(cfg, models, mode)
+                            m_metrics = evaluate_final(cfg, models, merged_res, mode, silent=True)
 
-                                ensemble_results.append({
-                                    'mode': mode,
-                                    'sg_bb': sg_bb,
-                                    'dino_bb': dino_bb,
-                                    'clip_bb': clip_bb,
-                                    'sg_m': sg_m,
-                                    'sg_map': sg_info['mAP'],
-                                    'sg_time': sg_info['time'],
-                                    'dino_m': dino_m,
-                                    'dino_map': dino_info['mAP'],
-                                    'dino_time': dino_info['time'],
-                                    'clip_map': clip_info['mAP'],
-                                    'clip_time': clip_info['time'],
-                                    'top_k': k,
-                                    'precision': m_metrics['precision'],
-                                    'recall': m_metrics['recall'],
-                                    'f3': m_metrics['f3'],
-                                    'total_time': total_inf_time
-                                })
-                                pbar.update(1)
+                            ensemble_results.append({
+                                'mode': mode,
+                                'sg_bb': sg_bb,
+                                'dino_bb': dino_bb,
+                                'clip_bb': clip_bb,
+                                'sg_m': sg_m,
+                                'sg_map': sg_info['mAP'],
+                                'sg_time': sg_info['time'],
+                                'dino_m': dino_m,
+                                'dino_map': dino_info['mAP'],
+                                'dino_time': dino_info['time'],
+                                'clip_map': clip_info['mAP'],
+                                'clip_time': clip_info['time'],
+                                'top_k': k,
+                                'precision': m_metrics['precision'],
+                                'recall': m_metrics['recall'],
+                                'f3': m_metrics['f3'],
+                                'total_time': total_inf_time
+                            })
+                            pbar.update(1)
 
-        # --- FIND THE BEST PATH TO 20/50 ---
-        print(f"\n{'*' * 40}\nCONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)\n{'*' * 40}")
-        targets_met = [r for r in ensemble_results if r['precision'] >= 0.20 and r['recall'] >= 0.50]
+    # --- FIND THE BEST PATH TO 20/50 ---
+    print(f"\n{'*' * 40}\nCONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)\n{'*' * 40}")
+    targets_met = [r for r in ensemble_results if r['precision'] >= 0.20 and r['recall'] >= 0.50]
 
-        if targets_met:
-            sorted_targets = sorted(targets_met, key=lambda x: x['f3'], reverse=True)
-            for res in sorted_targets[:20]:
-                sg_short = res['sg_bb'].split('_')[-1].split('.')[0]
-                dino_short = res['dino_bb'].split('_')[1]
-                clip_short = res['clip_bb'].split('-')[-2]
+    if targets_met:
+        sorted_targets = sorted(targets_met, key=lambda x: x['f3'], reverse=True)
+        for res in sorted_targets[:20]:
+            sg_short = res['sg_bb'].split('_')[-1].split('.')[0]
+            dino_short = res['dino_bb'].split('_')[1]
+            clip_short = res['clip_bb'].split('-')[-2]
 
-                print(
-                    f"[{res['mode'].upper()}] K:{res['top_k']} | SG:{sg_short}({res['sg_m']}), DINO:{dino_short}({res['dino_m']}), CLIP:{clip_short} | "
-                    f"P:{res['precision']:.2%}, R:{res['recall']:.2%}, F3:{res['f3']:.4f} | "
-                    f"mAPs [SG:{res['sg_map']:.2f}, DI:{res['dino_map']:.2f}, CL:{res['clip_map']:.2f}] | "
-                    f"Time:{res['total_time']:.1f}s")
-        else:
-            print("No configuration met the 20/50 target on this dataset.")
+            print(
+                f"[{res['mode'].upper()}] K:{res['top_k']} | SG:{sg_short}({res['sg_m']}), DINO:{dino_short}({res['dino_m']}), CLIP:{clip_short} | "
+                f"P:{res['precision']:.2%}, R:{res['recall']:.2%}, F3:{res['f3']:.4f} | "
+                f"mAPs [SG:{res['sg_map']:.2f}, DI:{res['dino_map']:.2f}, CL:{res['clip_map']:.2f}] | "
+                f"Time:{res['total_time']:.1f}s")
+    else:
+        print("No configuration met the 20/50 target on this dataset.")
 
-        # --- EXPORT TO CSV ---
-        csv_filename = f"grid_search_{c.TEST.DATASET}_{int(time.time())}.csv"
-        print(f"\n>> Exporting all {len(ensemble_results)} combinations to {csv_filename}...")
+    # --- EXPORT TO CSV ---
+    csv_filename = f"grid_search_{c.TEST.DATASET}_{int(time.time())}.csv"
+    print(f"\n>> Exporting all {len(ensemble_results)} combinations to {csv_filename}...")
 
-        keys = ensemble_results[0].keys() if ensemble_results else []
-        if keys:
-            with open(csv_filename, 'w', newline='') as output_file:
-                dict_writer = csv.DictWriter(output_file, fieldnames=keys)
-                dict_writer.writeheader()
-                dict_writer.writerows(ensemble_results)
-            print(f">> Export complete! Data saved to {os.getcwd()}\\{csv_filename}")
+    keys = ensemble_results[0].keys() if ensemble_results else []
+    if keys:
+        with open(csv_filename, 'w', newline='') as output_file:
+            dict_writer = csv.DictWriter(output_file, fieldnames=keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(ensemble_results)
+        print(f">> Export complete! Data saved to {os.getcwd()}\\{csv_filename}")
 
 
 if __name__ == "__main__":
