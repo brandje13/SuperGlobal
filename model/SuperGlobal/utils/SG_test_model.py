@@ -19,7 +19,6 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
     torch.cuda.set_device(device)
     state_dict = model.state_dict()
 
-    # Dynamic M mapping for the grid search
     MDescAug_obj = MDescAug(M=top_m_rerank, K=9)
     RerankwMDA_obj = RerankwMDA(M=top_m_rerank, K=9)
 
@@ -56,15 +55,15 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
     index = faiss.IndexFlatIP(2048)
     index.add(X_tensor.cpu().numpy())
 
-    dist, inx = index.search(Q_tensor.cpu().numpy(), top_m_rerank)
+    dist, inx = index.search(Q_tensor.cpu().numpy(), len(X_tensor))
     ranks = inx.T
 
-    if is_rerank:
+    if is_rerank and top_m_rerank > 0:
         ranks = torch.from_numpy(ranks).to(device)
         rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba = MDescAug_obj(X_tensor, Q_tensor, ranks)
         ranks = RerankwMDA_obj(ranks, rerank_dba_final, res_top1000_dba, ranks_trans_1000_pre, x_dba)
+        ranks = ranks.data.cpu().numpy()
 
-    ranks = ranks.data.cpu().numpy()
     mapE = 0.0
 
     if evaluate:

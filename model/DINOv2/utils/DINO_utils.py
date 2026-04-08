@@ -18,7 +18,7 @@ def extract_DINO_features(model, data_dir, dataset, gnd_fn, split, save_path):
         ptr = 0
 
         # Added mininterval=30.0 to stop the log spam!
-        for batch in tqdm(test_loader, mininterval=30.0):
+        for batch in tqdm(test_loader, mininterval=10.0):
             if isinstance(batch, (list, tuple)):
                 im = batch[0]
             else:
@@ -31,7 +31,7 @@ def extract_DINO_features(model, data_dir, dataset, gnd_fn, split, save_path):
             patches = features[:, 1:, :].permute(0, 2, 1)  # (Batch, Dim, Patches)
 
             # Normalize and move to CPU
-            patches = F.normalize(patches, p=2, dim=1).cpu().numpy()
+            patches = F.normalize(patches, p=2, dim=1).contiguous().cpu().numpy()
             batch_size = patches.shape[0]
 
             # Initialize the HDF5 dataset dynamically on the first batch

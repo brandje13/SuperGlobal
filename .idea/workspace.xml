@@ -5,8 +5,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee3dcb7a-ed7d-47df-90f3-b54f3599d71a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/dataloader/dataset_convnext.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dataloader/dataset_siglip.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/ConvNeXtV2/ConvNeXtV2_tester.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/ConvNeXtV2/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/ConvNeXtV2/utils/ConvNeXtV2_test_model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/ConvNeXtV2/utils/ConvNeXtV2_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/ConvNeXtV2/utils/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/SigLIP/SigLIP_tester.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/SigLIP/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/SigLIP/utils/SigLIP_test_model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/SigLIP/utils/SigLIP_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/SigLIP/utils/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataloader/dataset_clip.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader/dataset_clip.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataloader/dataset_dino.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader/dataset_dino.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataloader/test_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader/test_loader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grid_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/SuperGlobal/CVNet_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/CVNet_tester.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/SuperGlobal/utils/SG_test_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -154,7 +176,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grid_search.py" />
-      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS' TEST.EVALUATE True" />
+      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS_Test' TEST.EVALUATE True" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -371,8 +393,8 @@
     </configuration>
     <list>
       <item itemvalue="Python.ILIAS" />
-      <item itemvalue="Python.test (ILIAS)" />
       <item itemvalue="Python.grid_search" />
+      <item itemvalue="Python.test (ILIAS)" />
       <item itemvalue="Python.test" />
       <item itemvalue="Python.check_sam" />
       <item itemvalue="Python.groundtruth_creator" />

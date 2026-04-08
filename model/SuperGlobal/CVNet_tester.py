@@ -13,7 +13,6 @@ logger.addHandler(handler)
 
 def setup_model(device, encoder):
     print("=> creating CVNet_Rerank model")
-    # Restored root c.MODEL mapping
     model = CVNet_Rerank(c.MODEL.DEPTH, c.MODEL.HEADS.REDUCTION_DIM, c.SupG.relup, encoder)
     model = model.cuda(device=device)
     return model
@@ -27,11 +26,8 @@ def __main__(gnd, cfg):
         encoder = ["", ""]
         device = c.MODEL.DEVICE
         model = setup_model(device, encoder)
-
-        # Restored root c.TEST.WEIGHTS mapping
         checkpoint.load_checkpoint(c.TEST.WEIGHTS, model)
 
-        # Passes TOP_M correctly to allow Grid Search to loop
         ranks, map_score = test_model(model, device, cfg, gnd, c.TEST.DATA_DIR, c.TEST.DATASET, c.SupG.SCALE_LIST, c.TEST.CUSTOM,
                    c.TEST.UPDATE_DATA, c.TEST.UPDATE_QUERIES, c.SupG.TOP_M, c.SupG.rerank, c.SupG.gemp, c.SupG.rgem,
                    c.SupG.sgem, c.SupG.onemeval, c.MODEL.DEPTH, c.TEST.EVALUATE, logger, c.TEST.WEIGHTS)

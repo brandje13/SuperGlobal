@@ -15,6 +15,8 @@ from dataloader.dataset_sam import DataSet_SAM
 from dataloader.dataset_sg import DataSet_SG
 from dataloader.dataset_dino import DataSet_DINO
 from dataloader.dataset_clip import DataSet_CLIP
+from dataloader.dataset_siglip import DataSet_SigLIP
+from dataloader.dataset_convnext import DataSet_ConvNeXtV2
 
 
 def _construct_loader(model, _DATA_DIR, dataset_name, fn, split, scale_list, batch_size, shuffle, drop_last):
@@ -28,11 +30,15 @@ def _construct_loader(model, _DATA_DIR, dataset_name, fn, split, scale_list, bat
         dataset = DataSet_CLIP(_DATA_DIR, dataset_name, fn, split)
     elif model == "SuperGlobal":
         dataset = DataSet_SG(_DATA_DIR, dataset_name, fn, split, scale_list)
+    elif model == "SigLIP":
+        dataset = DataSet_SigLIP(_DATA_DIR, dataset_name, fn, split)
+    elif model == "ConvNeXtV2":
+        dataset = DataSet_ConvNeXtV2(_DATA_DIR, dataset_name, fn, split)
     else:
         dataset = DataSet(_DATA_DIR, dataset_name, fn, split)
 
     # Windows string multiprocessing safeguard
-    workers = 0 if (model == "CLIP" and split == "query") else 4
+    workers = 0 if (model in ["CLIP", "SigLIP"] and split == "query") else 4
 
     # Create a loader
     loader = torch.utils.data.DataLoader(

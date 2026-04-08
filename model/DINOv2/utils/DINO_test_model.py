@@ -28,7 +28,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
     if update_data or not os.path.isfile(X_path):
         extract_DINO_features(model, data_dir, dataset, gnd, "db", X_path)
 
-    # Load Queries entirely into RAM (They are small enough)
+    # --- LOAD EVERYTHING INTO RAM FOR SPEED ---
+    print(">> Loading features...")
     with h5py.File(Q_path, 'r') as f_q:
         Q = f_q['features'][:]
         print(f"Query Shape: {Q.shape}")
@@ -37,29 +38,18 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
         Q_global = torch.mean(Q_tensor, dim=2)
         Q_global = F.normalize(Q_global, p=2, dim=1)
 
+    with h5py.File(X_path, 'r') as f_x:
+        X = f_x['features'][:]
+        print(f"Database Shape: {X.shape}")
+        X_tensor = torch.from_numpy(X)
+
     # ---------------------------------------------------------
-    # STAGE 1: GLOBAL SEARCH (Chunked to save RAM)
+    # STAGE 1: GLOBAL SEARCH
     # ---------------------------------------------------------
     print(">> Stage 1: Global Descriptor Search...")
 
-    # Open DB file in read mode, but DO NOT load into RAM
-    f_x = h5py.File(X_path, 'r')
-    X_dset = f_x['features']
-    num_db = X_dset.shape[0]
-    print(f"Database Shape: {X_dset.shape}")
-
-    # Compute Database Global Descriptors in chunks
-    chunk_size = 1000
-    X_global_list = []
-
-    for i in range(0, num_db, chunk_size):
-        end = min(i + chunk_size, num_db)
-        # Load just this chunk to RAM/GPU
-        X_chunk = torch.from_numpy(X_dset[i:end]).to(device)
-        X_g_chunk = F.normalize(torch.mean(X_chunk, dim=2), p=2, dim=1)
-        X_global_list.append(X_g_chunk)
-
-    X_global = torch.cat(X_global_list, dim=0)
+    # Compute Database Global Descriptors directly from the RAM tensor
+    X_global = F.normalize(torch.mean(X_tensor, dim=2), p=2, dim=1).to(device)
 
     # Global Similarity
     sim_global = torch.mm(Q_global, X_global.t())
@@ -77,16 +67,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
         q_patches = Q_tensor[i].t().unsqueeze(0)  # (1, 256, 768)
         candidate_idxs = top_global_indices[i].cpu()
 
-        # h5py requires sorted indices to slice efficiently
-        sorted_candidate_idxs, sort_order = torch.sort(candidate_idxs)
-
-        # Fetch the candidates directly from the hard drive
-        db_candidates_numpy = X_dset[sorted_candidate_idxs.numpy().tolist()]
-        db_candidates_sorted = torch.from_numpy(db_candidates_numpy).to(device)
-
-        # Un-sort to restore the global ranking order
-        unsort_order = torch.argsort(sort_order)
-        db_candidates = db_candidates_sorted[unsort_order]
+        # INSTANT RAM SLICING (No more hard drive bottlenecks)
+        db_candidates = X_tensor[candidate_idxs].to(device)
 
         # Patched Math
         sim_matrix = torch.matmul(q_patches, db_candidates)
@@ -104,8 +86,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
 
         full_rank_list = torch.cat([final_top_m_indices, rest_indices])
         final_ranks.append(full_rank_list.numpy())
-
-    f_x.close()  # Close the HDF5 file
 
     ranks = np.array(final_ranks).T
     map_score = 0.0

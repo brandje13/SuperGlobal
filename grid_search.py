@@ -1,4 +1,7 @@
 import os
+
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 import time
 import torch
 import csv
@@ -71,17 +74,87 @@ def main():
     clip_data = load_ckpt(clip_ckpt)
 
     # --- 2. DEFINE FULL ARCHITECTURE SEARCH SPACE ---
-    SG_BACKBONES = ['.\\weights\\CVPR2022_CVNet_R50.pyth', '.\\weights\\CVPR2022_CVNet_R101.pyth']
-    DINO_BACKBONES = [
-        'vit_small_patch14_dinov2.lvd142m',
-        'vit_base_patch14_dinov2.lvd142m',
-        'vit_large_patch14_dinov2.lvd142m'
-    ]
-    CLIP_BACKBONES = ['openai/clip-vit-base-patch32', 'openai/clip-vit-large-patch14']
+    # SG_BACKBONES = ['.\\weights\\CVPR2022_CVNet_R50.pyth', '.\\weights\\CVPR2022_CVNet_R101.pyth']
+    # DINO_BACKBONES = [
+    #     # Standard DINOv2 Backbones
+    #     'vit_small_patch14_dinov2.lvd142m',
+    #     'vit_base_patch14_dinov2.lvd142m',
+    #     'vit_large_patch14_dinov2.lvd142m',
+    #     'vit_giant_patch14_dinov2.lvd142m',
+    #
+    #     # DINOv2 with Registers
+    #     'vit_small_patch14_reg4_dinov2.lvd142m',
+    #     'vit_base_patch14_reg4_dinov2.lvd142m',
+    #     'vit_large_patch14_reg4_dinov2.lvd142m',
+    #     'vit_giant_patch14_reg4_dinov2.lvd142m'
+    # ]
+    # CLIP_BACKBONES = ['openai/clip-vit-base-patch32', 'openai/clip-vit-large-patch14']
 
-    SG_M_SEARCH = list(range(100, 1000, 100))
-    DINO_M_SEARCH = list(range(1000, 11000, 1000))
-    TOP_K_SEARCH = list(range(10, 160, 10))
+    # --- 2. DEFINE FULL ARCHITECTURE SEARCH SPACE ---
+
+    # SG_BACKBONES don't need resolution pairs (hardcoded in CVNet logic)
+    SG_BACKBONES = [
+        '.\\weights\\CVPR2022_CVNet_R50.pyth',
+        '.\\weights\\CVPR2022_CVNet_R101.pyth'
+    ]
+
+    DINO_BACKBONES = [
+        # --- Standard DINOv2 (224 Baseline) ---
+        ('vit_small_patch14_dinov2.lvd142m', 224),
+        ('vit_base_patch14_dinov2.lvd142m', 224),
+        ('vit_large_patch14_dinov2.lvd142m', 224),
+        ('vit_giant_patch14_dinov2.lvd142m', 518),
+
+        # --- DINOv2 with Registers ---
+        ('vit_small_patch14_reg4_dinov2.lvd142m', 224),
+        ('vit_base_patch14_reg4_dinov2.lvd142m', 224),
+        ('vit_large_patch14_reg4_dinov2.lvd142m', 224),
+        ('vit_giant_patch14_reg4_dinov2.lvd142m', 518),
+
+        # --- High-Res Extensions ---
+        ('vit_large_patch14_reg4_336.dinov2_lvd142m', 336),
+        ('vit_giant_patch14_reg4_336.dinov2_lvd142m', 336)
+    ]
+
+    CLIP_BACKBONES = [
+        # --- OpenAI (224 Native) ---
+        ('openai/clip-vit-base-patch32', 224),
+        ('openai/clip-vit-base-patch16', 224),
+        ('openai/clip-vit-large-patch14', 224),
+        ('openai/clip-vit-large-patch14-336', 336),
+
+        # --- OpenCLIP (Trained at 224 but scales well) ---
+        ('laion/CLIP-ViT-L-14-laion2B-s32B-b82K', 224),
+        ('laion/CLIP-ViT-H-14-laion2B-s32B-b79K', 224),
+        ('laion/CLIP-ViT-bigG-14-laion2B-39B-b160k', 224)
+    ]
+
+    SIGLIP_BACKBONES = [
+        # --- Resolution is baked into the string ---
+        ('google/siglip-base-patch16-224', 224),
+        ('google/siglip-base-patch16-256', 256),
+        ('google/siglip-base-patch16-384', 384),
+        ('google/siglip-large-patch16-256', 256),
+        ('google/siglip-large-patch16-384', 384),
+        ('google/siglip-so400m-patch14-224', 224),
+        ('google/siglip-so400m-patch14-384', 384)
+    ]
+
+    CONVNEXT_BACKBONES = [
+        # --- Standard V2 Scaling (all 224 native) ---
+        ('convnextv2_atto', 224),
+        ('convnextv2_femto', 224),
+        ('convnextv2_pico', 224),
+        ('convnextv2_nano', 224),
+        ('convnextv2_tiny', 224),
+        ('convnextv2_base', 224),
+        ('convnextv2_large', 224),
+        ('convnextv2_huge', 224)
+    ]
+
+    SG_M_SEARCH = list(range(0, 1000, 100))
+    DINO_M_SEARCH = list(range(0, 2000, 1000))
+    TOP_K_SEARCH = list(range(10, 110, 10))
 
     # ====================================================================================
     # PHASE 1: SuperGlobal
@@ -129,7 +202,7 @@ def main():
     # ====================================================================================
     for dino_bb in DINO_BACKBONES:
         print(f"\n{'=' * 40}\n>> Initializing DINOv2 with {dino_bb}\n{'=' * 40}")
-        c.DINO.WEIGHTS = dino_bb
+        c.DINO.WEIGHTS, c.DINO.RESOLUTION = dino_bb
 
         for m in DINO_M_SEARCH:
             # --- Auto-Resume Check ---
@@ -168,7 +241,7 @@ def main():
     # ====================================================================================
     for clip_bb in CLIP_BACKBONES:
         print(f"\n{'=' * 40}\n>> Initializing CLIP with {clip_bb}\n{'=' * 40}")
-        c.CLIP.WEIGHTS = clip_bb
+        c.CLIP.WEIGHTS, c.CLIP.RESOLUTION = clip_bb
 
         # --- Auto-Resume Check ---
         if clip_bb in clip_data:

@@ -9,7 +9,7 @@ def __main__(gnd, cfg):
     print(f"Loading DINOv2 ({model_id}) via timm...")
 
     # Load DINOv2 via timm (Compatible with Python < 3.10)
-    model = timm.create_model(model_id, pretrained=True, img_size=224)
+    model = timm.create_model(model_id, pretrained=True, img_size=c.DINO.RESOLUTION)
 
     model = model.cuda(device=device)
     model.eval()

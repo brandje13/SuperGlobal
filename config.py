@@ -15,7 +15,7 @@ _C.MODEL_NAME = ""
 _C.MODEL = CfgNode()
 _C.MODEL.TYPE = "RESNET"
 _C.MODEL.DEVICE = 0
-_C.MODEL.DEPTH = 50
+_C.MODEL.DEPTH = 101
 
 _C.MODEL.LOSSES = CfgNode()
 _C.MODEL.LOSSES.NAME = "cross_entropy"
@@ -45,7 +45,7 @@ _C.TEST.UPDATE_DATA = False
 _C.TEST.UPDATE_QUERIES = False
 _C.TEST.EVALUATE = False
 _C.TEST.TOP_K = 10
-_C.TEST.WEIGHTS = ".\weights\CVPR2022_CVNet_R50.pyth"
+_C.TEST.WEIGHTS = ".\weights\CVPR2022_CVNet_R101.pyth"
 
 _C.DATA_LOADER = CfgNode()
 _C.DATA_LOADER.NUM_WORKERS = 4
@@ -58,7 +58,7 @@ _C.CUDNN.BENCHMARK = True
 # Ensemble Models
 # ------------------------------------------------------------------------------------ #
 _C.SupG = CfgNode()
-_C.SupG.TOP_M = 600
+_C.SupG.TOP_M = 1000
 _C.SupG.SCALE_LIST = 3
 _C.SupG.gemp = True
 _C.SupG.sgem = True
@@ -69,11 +69,24 @@ _C.SupG.onemeval = False
 
 _C.DINO = CfgNode()
 _C.DINO.TOP_M = 1000
-_C.DINO.WEIGHTS = "vit_base_patch14_dinov2.lvd142m"
+_C.DINO.WEIGHTS = "vit_giant_patch14_reg4_dinov2.lvd142m"
+_C.DINO.RESOLUTION = 518
 
 _C.CLIP = CfgNode()
 _C.CLIP.TOP_M = -1
-_C.CLIP.WEIGHTS = "openai/clip-vit-base-patch32"
+_C.CLIP.WEIGHTS = "openai/clip-vit-large-patch14"
+_C.CLIP.RESOLUTION = 224
+
+_C.SigLIP = CfgNode()
+_C.SigLIP.TOP_M = -1
+_C.SigLIP.WEIGHTS = "google/siglip-so400m-patch14-384"
+_C.SigLIP.RESOLUTION = 384
+
+_C.ConvNeXtV2 = CfgNode()
+_C.ConvNeXtV2.TOP_M = -1
+_C.ConvNeXtV2.WEIGHTS = "convnextv2_large"
+_C.ConvNeXtV2.RESOLUTION = 224
+# ------------------------------------------------------------------------------------ #
 
 _C.register_deprecated_key("PREC_TIME.BATCH_SIZE")
 _C.register_deprecated_key("PREC_TIME.ENABLED")
