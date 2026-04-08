@@ -10,7 +10,7 @@ def test_SigLIP(model, processor, device, cfg, gnd, data_dir, dataset, custom, u
     torch.backends.cudnn.benchmark = True
     model.eval()
 
-    print(f'>> {dataset}: Pure Text-to-Image Retrieval with SigLIP 2 ({model_id})')
+    print(f'>> {dataset}: Pure Text-to-Image Retrieval with SigLIP ({model_id})')
 
     # Sanitize the backbone name so it is safe for Windows file paths
     safe_model_name = str(model_id).replace('/', '_').replace('\\', '_')

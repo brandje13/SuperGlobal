@@ -7,7 +7,7 @@ from config import cfg as c
 
 class DataSet_SigLIP(DataSet):
     def __init__(self, data_path, dataset, fn, split):
-        resolution = c.SIGLIP.RESOLUTION
+        resolution = c.SigLIP.RESOLUTION
 
         self.transform = transforms.Compose([
             transforms.ToPILImage(),

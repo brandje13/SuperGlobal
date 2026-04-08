@@ -13,14 +13,18 @@ import config as config
 from config import cfg as c
 from tkfilebrowser import askopenfilenames, askopendirname
 
+# --- IMPORT ALL TESTERS ---
 import model.SuperGlobal.CVNet_tester as CVNet_tester
 from model.DINOv2 import DINO_tester
 from model.CLIP import CLIP_tester
+# Assuming standard paths for your new models:
+from model.SigLIP import SigLIP_tester
+from model.ConvNeXtV2 import ConvNeXtV2_tester
 
 from utils.config_gnd import config_gnd
 from utils.evaluate_final import evaluate_final
 from utils.groundtruth import create_groundtruth_from_txt, create_groundtruth
-from utils.SIR_topk import retrieve_top_k, save_merged_results
+from utils.SIR_topk import retrieve_top_k
 from utils.merge_results import merge_results
 
 
@@ -64,35 +68,21 @@ def main():
     ckpt_dir = os.path.join(c.TEST.DATA_DIR, c.TEST.DATASET, "checkpoints")
     os.makedirs(ckpt_dir, exist_ok=True)
 
+    # Checkpoint Paths
     sg_ckpt = os.path.join(ckpt_dir, "sg_data.pkl")
+    conv_ckpt = os.path.join(ckpt_dir, "convnext_data.pkl")
     dino_ckpt = os.path.join(ckpt_dir, "dino_data.pkl")
     clip_ckpt = os.path.join(ckpt_dir, "clip_data.pkl")
+    siglip_ckpt = os.path.join(ckpt_dir, "siglip_data.pkl")
 
-    # Load existing progress (will be empty dicts if first run)
+    # Load existing progress
     sg_data = load_ckpt(sg_ckpt)
+    conv_data = load_ckpt(conv_ckpt)
     dino_data = load_ckpt(dino_ckpt)
     clip_data = load_ckpt(clip_ckpt)
+    siglip_data = load_ckpt(siglip_ckpt)
 
-    # --- 2. DEFINE FULL ARCHITECTURE SEARCH SPACE ---
-    # SG_BACKBONES = ['.\\weights\\CVPR2022_CVNet_R50.pyth', '.\\weights\\CVPR2022_CVNet_R101.pyth']
-    # DINO_BACKBONES = [
-    #     # Standard DINOv2 Backbones
-    #     'vit_small_patch14_dinov2.lvd142m',
-    #     'vit_base_patch14_dinov2.lvd142m',
-    #     'vit_large_patch14_dinov2.lvd142m',
-    #     'vit_giant_patch14_dinov2.lvd142m',
-    #
-    #     # DINOv2 with Registers
-    #     'vit_small_patch14_reg4_dinov2.lvd142m',
-    #     'vit_base_patch14_reg4_dinov2.lvd142m',
-    #     'vit_large_patch14_reg4_dinov2.lvd142m',
-    #     'vit_giant_patch14_reg4_dinov2.lvd142m'
-    # ]
-    # CLIP_BACKBONES = ['openai/clip-vit-base-patch32', 'openai/clip-vit-large-patch14']
-
-    # --- 2. DEFINE FULL ARCHITECTURE SEARCH SPACE ---
-
-    # SG_BACKBONES don't need resolution pairs (hardcoded in CVNet logic)
+    # --- 2. SEARCH SPACE DEFINITIONS ---
     SG_BACKBONES = [
         '.\\weights\\CVPR2022_CVNet_R50.pyth',
         '.\\weights\\CVPR2022_CVNet_R101.pyth'
@@ -109,11 +99,12 @@ def main():
         ('vit_small_patch14_reg4_dinov2.lvd142m', 224),
         ('vit_base_patch14_reg4_dinov2.lvd142m', 224),
         ('vit_large_patch14_reg4_dinov2.lvd142m', 224),
-        ('vit_giant_patch14_reg4_dinov2.lvd142m', 518),
+        ('vit_giant_patch14_reg4_dinov2.lvd142m', 224),
 
         # --- High-Res Extensions ---
-        ('vit_large_patch14_reg4_336.dinov2_lvd142m', 336),
-        ('vit_giant_patch14_reg4_336.dinov2_lvd142m', 336)
+        ('vit_large_patch14_reg4_dinov2.lvd142m', 336),
+        ('vit_giant_patch14_reg4_dinov2.lvd142m', 336),
+        ('vit_giant_patch14_reg4_dinov2.lvd142m', 518)
     ]
 
     CLIP_BACKBONES = [
@@ -152,140 +143,146 @@ def main():
         ('convnextv2_huge', 224)
     ]
 
-    SG_M_SEARCH = list(range(0, 1000, 100))
+    # Search parameters
+    GLOBAL_M_SEARCH = list(range(0, 1000, 100))  # Shared between SG and ConvNeXt
     DINO_M_SEARCH = list(range(0, 2000, 1000))
     TOP_K_SEARCH = list(range(10, 110, 10))
 
     # ====================================================================================
-    # PHASE 1: SuperGlobal
+    # PHASE 1A: SuperGlobal (Global Slot)
     # ====================================================================================
     for sg_bb in SG_BACKBONES:
-        print(f"\n{'=' * 40}\n>> Initializing SuperGlobal with {sg_bb}\n{'=' * 40}")
-
         c.TEST.WEIGHTS = sg_bb
         c.MODEL.DEPTH = 101 if 'R101' in sg_bb else 50
-
-        for m in SG_M_SEARCH:
-            # --- Auto-Resume Check ---
-            if (sg_bb, m) in sg_data:
-                print(f">> Skipping SG {sg_bb} M={m} (Loaded from checkpoint)")
-                continue
+        for m in GLOBAL_M_SEARCH:
+            if (sg_bb, m) in sg_data: continue
 
             c.SupG.TOP_M = m
             start = time.time()
-
             try:
                 ranks, mAP = CVNet_tester.__main__(gnd, cfg)
-                elapsed = time.time() - start
-
-                # Save to dict and immediately commit to disk
-                sg_data[(sg_bb, m)] = {'ranks': ranks, 'mAP': mAP, 'time': elapsed}
+                sg_data[(sg_bb, m)] = {'family': 'SuperGlobal', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
                 save_ckpt(sg_data, sg_ckpt)
-
-            except torch.cuda.OutOfMemoryError:
-                print(f"\n[!] WARNING: CUDA OOM at SuperGlobal {sg_bb} M={m}. Skipping.")
-            except RuntimeError as e:
-                if "out of memory" in str(e).lower():
-                    print(f"\n[!] WARNING: CUDA OOM at SuperGlobal {sg_bb} M={m}. Skipping.")
-                else:
-                    raise e
-
+            except Exception as e:
+                print(f"[!] Error on SG {sg_bb}: {e}")
             finally:
-                torch.cuda.empty_cache()
-                gc.collect()
-
-        torch.cuda.empty_cache()
-        gc.collect()
+                torch.cuda.empty_cache(); gc.collect()
 
     # ====================================================================================
-    # PHASE 2: DINOv2
+    # PHASE 1B: ConvNeXt V2 (Global Slot)
     # ====================================================================================
-    for dino_bb in DINO_BACKBONES:
-        print(f"\n{'=' * 40}\n>> Initializing DINOv2 with {dino_bb}\n{'=' * 40}")
-        c.DINO.WEIGHTS, c.DINO.RESOLUTION = dino_bb
+    for conv_bb, res in CONVNEXT_BACKBONES:
+        c.ConvNeXtV2.WEIGHTS = conv_bb
+        c.ConvNeXtV2.RESOLUTION = res
+        if conv_bb in conv_data: continue
 
+        start = time.time()
+        try:
+            ranks, mAP = ConvNeXtV2_tester.__main__(gnd, cfg)
+            conv_data[(conv_bb,0)] = {'family': 'ConvNeXtV2', 'ranks': ranks, 'mAP': mAP,
+                                       'time': time.time() - start}
+            save_ckpt(conv_data, conv_ckpt)
+        except Exception as e:
+            print(f"[!] Error on ConvNeXt {conv_bb}: {e}")
+        finally:
+            torch.cuda.empty_cache(); gc.collect()
+
+    # ====================================================================================
+    # PHASE 2: DINOv2 (Local Slot)
+    # ====================================================================================
+    for dino_bb, res in DINO_BACKBONES:
+        c.DINO.WEIGHTS = dino_bb
+        c.DINO.RESOLUTION = res
         for m in DINO_M_SEARCH:
-            # --- Auto-Resume Check ---
-            if (dino_bb, m) in dino_data:
-                print(f">> Skipping DINO {dino_bb} M={m} (Loaded from checkpoint)")
-                continue
+            if (dino_bb, m) in dino_data: continue
 
             c.DINO.TOP_M = m
             start = time.time()
-
             try:
                 ranks, mAP = DINO_tester.__main__(gnd, cfg)
-                elapsed = time.time() - start
-
-                # Save to dict and immediately commit to disk
-                dino_data[(dino_bb, m)] = {'ranks': ranks, 'mAP': mAP, 'time': elapsed}
+                dino_data[(dino_bb, m)] = {'family': 'DINOv2', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
                 save_ckpt(dino_data, dino_ckpt)
-
-            except torch.cuda.OutOfMemoryError:
-                print(f"\n[!] WARNING: CUDA OOM at DINOv2 {dino_bb} M={m}. Skipping.")
-            except RuntimeError as e:
-                if "out of memory" in str(e).lower():
-                    print(f"\n[!] WARNING: CUDA OOM at DINOv2 {dino_bb} M={m}. Skipping.")
-                else:
-                    raise e
-
+            except Exception as e:
+                print(f"[!] Error on DINO {dino_bb}: {e}")
             finally:
-                torch.cuda.empty_cache()
-                gc.collect()
-
-        torch.cuda.empty_cache()
-        gc.collect()
+                torch.cuda.empty_cache(); gc.collect()
 
     # ====================================================================================
-    # PHASE 3: CLIP
+    # PHASE 3A: CLIP (Semantic Slot)
     # ====================================================================================
-    for clip_bb in CLIP_BACKBONES:
-        print(f"\n{'=' * 40}\n>> Initializing CLIP with {clip_bb}\n{'=' * 40}")
-        c.CLIP.WEIGHTS, c.CLIP.RESOLUTION = clip_bb
-
-        # --- Auto-Resume Check ---
-        if clip_bb in clip_data:
-            print(f">> Skipping CLIP {clip_bb} (Loaded from checkpoint)")
-            continue
-
+    for clip_bb, res in CLIP_BACKBONES:
+        if clip_bb in clip_data: continue
+        c.CLIP.WEIGHTS = clip_bb
+        c.CLIP.RESOLUTION = res
         start = time.time()
-
         try:
             ranks, mAP = CLIP_tester.__main__(gnd, cfg)
-            elapsed = time.time() - start
-
-            # Save to dict and immediately commit to disk
-            clip_data[clip_bb] = {'ranks': ranks, 'mAP': mAP, 'time': elapsed}
+            clip_data[clip_bb] = {'family': 'CLIP', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
             save_ckpt(clip_data, clip_ckpt)
-
         except Exception as e:
-            print(f"\n[!] Error running CLIP {clip_bb}: {e}. Skipping.")
+            print(f"[!] Error on CLIP {clip_bb}: {e}")
         finally:
-            torch.cuda.empty_cache()
-            gc.collect()
+            torch.cuda.empty_cache(); gc.collect()
 
     # ====================================================================================
-    # PHASE 4: THE FULL COMBINATORIAL FRONTIER
+    # PHASE 3B: SigLIP (Semantic Slot)
+    # ====================================================================================
+    for siglip_bb, res in SIGLIP_BACKBONES:
+        if siglip_bb in siglip_data: continue
+        c.SigLIP.WEIGHTS = siglip_bb
+        c.SigLIP.RESOLUTION = res
+        start = time.time()
+        try:
+            ranks, mAP = SigLIP_tester.__main__(gnd, cfg)
+            siglip_data[siglip_bb] = {'family': 'SigLIP', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
+            save_ckpt(siglip_data, siglip_ckpt)
+        except Exception as e:
+            print(f"[!] Error on SigLIP {siglip_bb}: {e}")
+        finally:
+            torch.cuda.empty_cache(); gc.collect()
+
+    # ====================================================================================
+    # PHASE 4: DYNAMIC SLOT-BASED FUSION
     # ====================================================================================
     MODES = ['union', 'intersection', 'majority']
-    total_combos = len(sg_data) * len(dino_data) * len(clip_data) * len(TOP_K_SEARCH) * len(MODES)
+
+    # Pool the slots together
+    global_pool = {}
+    global_pool.update(sg_data)
+    for k, v in conv_data.items():
+        clean_key = (k, 0) if isinstance(k, str) else k
+        global_pool[clean_key] = v
+    local_pool = dino_data  # Currently only DINO occupies this slot
+    semantic_pool = {**clip_data, **siglip_data}
+
+    total_combos = len(global_pool) * len(local_pool) * len(semantic_pool) * len(TOP_K_SEARCH) * len(MODES)
     print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
 
     ensemble_results = []
 
     with tqdm(total=total_combos, desc="Fusing Ensembles", unit="combo") as pbar:
-        for (sg_bb, sg_m), sg_info in sg_data.items():
-            for (dino_bb, dino_m), dino_info in dino_data.items():
-                for clip_bb, clip_info in clip_data.items():
+        # 1. Iterate over Global Slot
+        for (global_bb, global_m), global_info in global_pool.items():
 
-                    total_inf_time = sg_info['time'] + dino_info['time'] + clip_info['time']
+            # 2. Iterate over Local Slot
+            for (local_bb, local_m), local_info in local_pool.items():
+
+                # 3. Iterate over Semantic Slot
+                for sem_bb, sem_info in semantic_pool.items():
+
+                    total_inf_time = global_info['time'] + local_info['time'] + sem_info['time']
 
                     for k in TOP_K_SEARCH:
-                        SG_top = retrieve_top_k(cfg, sg_info['ranks'], k, 'SuperGlobal', True)
-                        DINO_top = retrieve_top_k(cfg, dino_info['ranks'], k, 'DINOv2', True)
-                        CLIP_top = retrieve_top_k(cfg, clip_info['ranks'], k, 'CLIP', True)
+                        # Pass the dynamic family name (e.g., 'ConvNeXtV2' or 'SuperGlobal') to retrieve_top_k
+                        global_top = retrieve_top_k(cfg, global_info['ranks'], k, global_info['family'], True)
+                        local_top = retrieve_top_k(cfg, local_info['ranks'], k, local_info['family'], True)
+                        sem_top = retrieve_top_k(cfg, sem_info['ranks'], k, sem_info['family'], True)
 
-                        models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top], ['CLIP', CLIP_top]]
+                        models = [
+                            [global_info['family'], global_top],
+                            [local_info['family'], local_top],
+                            [sem_info['family'], sem_top]
+                        ]
 
                         for mode in MODES:
                             merged_res = merge_results(cfg, models, mode)
@@ -293,17 +290,17 @@ def main():
 
                             ensemble_results.append({
                                 'mode': mode,
-                                'sg_bb': sg_bb,
-                                'dino_bb': dino_bb,
-                                'clip_bb': clip_bb,
-                                'sg_m': sg_m,
-                                'sg_map': sg_info['mAP'],
-                                'sg_time': sg_info['time'],
-                                'dino_m': dino_m,
-                                'dino_map': dino_info['mAP'],
-                                'dino_time': dino_info['time'],
-                                'clip_map': clip_info['mAP'],
-                                'clip_time': clip_info['time'],
+                                'global_family': global_info['family'],
+                                'global_bb': global_bb,
+                                'global_m': global_m,
+                                'global_map': global_info['mAP'],
+                                'local_family': local_info['family'],
+                                'local_bb': local_bb,
+                                'local_m': local_m,
+                                'local_map': local_info['mAP'],
+                                'sem_family': sem_info['family'],
+                                'sem_bb': sem_bb,
+                                'sem_map': sem_info['mAP'],
                                 'top_k': k,
                                 'precision': m_metrics['precision'],
                                 'recall': m_metrics['recall'],
@@ -312,26 +309,31 @@ def main():
                             })
                             pbar.update(1)
 
-    # --- FIND THE BEST PATH TO 20/50 ---
-    print(f"\n{'*' * 40}\nCONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)\n{'*' * 40}")
-    targets_met = [r for r in ensemble_results if r['precision'] >= 0.20 and r['recall'] >= 0.50]
+        # --- FIND THE BEST PATH TO 20/50 ---
+        print(f"\n{'*' * 40}\nCONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)\n{'*' * 40}")
+        targets_met = [r for r in ensemble_results if r['precision'] >= 0.20 and r['recall'] >= 0.50]
 
-    if targets_met:
-        sorted_targets = sorted(targets_met, key=lambda x: x['f3'], reverse=True)
-        for res in sorted_targets[:20]:
-            sg_short = res['sg_bb'].split('_')[-1].split('.')[0]
-            dino_short = res['dino_bb'].split('_')[1]
-            clip_short = res['clip_bb'].split('-')[-2]
+        if targets_met:
+            sorted_targets = sorted(targets_met, key=lambda x: x['f3'], reverse=True)
+            for res in sorted_targets[:20]:
+                # Safe short-names depending on family
+                g_short = res['global_bb'].split('\\')[-1].split('.')[0] if res['global_family'] == 'SuperGlobal' else \
+                res['global_bb']
+                l_short = res['local_bb'].split('_')[1] if '_' in res['local_bb'] else res['local_bb']
+                s_short = res['sem_bb'].split('/')[-1]
 
-            print(
-                f"[{res['mode'].upper()}] K:{res['top_k']} | SG:{sg_short}({res['sg_m']}), DINO:{dino_short}({res['dino_m']}), CLIP:{clip_short} | "
-                f"P:{res['precision']:.2%}, R:{res['recall']:.2%}, F3:{res['f3']:.4f} | "
-                f"mAPs [SG:{res['sg_map']:.2f}, DI:{res['dino_map']:.2f}, CL:{res['clip_map']:.2f}] | "
-                f"Time:{res['total_time']:.1f}s")
-    else:
-        print("No configuration met the 20/50 target on this dataset.")
+                print(
+                    f"[{res['mode'].upper()}] K:{res['top_k']} | G:{g_short}({res['global_m']}), L:{l_short}({res['local_m']}), S:{s_short} | "
+                    f"P:{res['precision']:.2%}, R:{res['recall']:.2%}, F3:{res['f3']:.4f} | "
+                    f"mAPs [G:{res['global_map']:.2f}, L:{res['local_map']:.2f}, S:{res['sem_map']:.2f}] | "
+                    f"Time:{res['total_time']:.1f}s")
+        else:
+            print("No configuration met the 20/50 target on this dataset.")
 
-    # --- EXPORT TO CSV ---
+    # --- EXPORT LOGIC ---
+    # The export logic remains the same, but your CSV headers will now reflect
+    # 'global_bb' and 'sem_bb' instead of strictly 'sg_bb' and 'clip_bb'.
+
     csv_filename = f"grid_search_{c.TEST.DATASET}_{int(time.time())}.csv"
     print(f"\n>> Exporting all {len(ensemble_results)} combinations to {csv_filename}...")
 

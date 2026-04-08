@@ -6,7 +6,7 @@ from config import cfg as c
 
 class DataSet_ConvNeXtV2(DataSet):
     def __init__(self, data_path, dataset, fn, split):
-        resolution = c.ConNeXtV2.RESOLUTION
+        resolution = c.ConvNeXtV2.RESOLUTION
 
         # Standard ImageNet normalization used by timm backbones
         self.transform = transforms.Compose([

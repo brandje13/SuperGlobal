@@ -4,10 +4,10 @@ from model.SigLIP.utils.SigLIP_test_model import test_SigLIP
 
 def __main__(gnd, cfg):
     device = c.MODEL.DEVICE
-    # Example config: c.SigLIP.WEIGHTS = "google/siglip2-so400m-patch14-384"
+    # Example config: c.SigLIP.WEIGHTS = "google/siglip-so400m-patch14-384"
     model_id = c.SigLIP.WEIGHTS
 
-    print(f"Loading SigLIP 2 ({model_id}) via HuggingFace...")
+    print(f"Loading SigLIP ({model_id}) via HuggingFace...")
 
     model = AutoModel.from_pretrained(model_id).to(device)
     processor = AutoProcessor.from_pretrained(model_id)
