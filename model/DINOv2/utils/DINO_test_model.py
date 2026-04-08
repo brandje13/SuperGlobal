@@ -10,7 +10,7 @@ from model.SuperGlobal.utils.SG_utils import test_revisitop
 
 
 @torch.no_grad()
-def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, update_queries, top_m_rerank, evaluate,
+def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_data, update_queries, top_m_rerank, evaluate,
               model_id):
     torch.backends.cudnn.benchmark = True
     model.eval()
@@ -19,8 +19,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, custom, update_data, u
     safe_model_name = str(model_id).replace('/', '_').replace('\\', '_')
 
     # Use .h5 instead of .pt
-    Q_path = os.path.join(data_dir, dataset, f"DINO_query_{safe_model_name}.h5")
-    X_path = os.path.join(data_dir, dataset, f"DINO_data_{safe_model_name}.h5")
+    Q_path = os.path.join(data_dir, dataset, f"DINO_query_{safe_model_name}_{res}.h5")
+    X_path = os.path.join(data_dir, dataset, f"DINO_data_{safe_model_name}_{res}.h5")
 
     if update_queries or not os.path.isfile(Q_path):
         extract_DINO_features(model, data_dir, dataset, gnd, "query", Q_path)

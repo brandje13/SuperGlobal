@@ -145,7 +145,7 @@ def main():
 
     # Search parameters
     GLOBAL_M_SEARCH = list(range(0, 1000, 100))  # Shared between SG and ConvNeXt
-    DINO_M_SEARCH = list(range(0, 2000, 1000))
+    DINO_M_SEARCH = list(range(0, 9000, 1000))
     TOP_K_SEARCH = list(range(10, 110, 10))
 
     # ====================================================================================
@@ -174,12 +174,12 @@ def main():
     for conv_bb, res in CONVNEXT_BACKBONES:
         c.ConvNeXtV2.WEIGHTS = conv_bb
         c.ConvNeXtV2.RESOLUTION = res
-        if conv_bb in conv_data: continue
+        if (conv_bb, 0) in conv_data: continue
 
         start = time.time()
         try:
             ranks, mAP = ConvNeXtV2_tester.__main__(gnd, cfg)
-            conv_data[(conv_bb,0)] = {'family': 'ConvNeXtV2', 'ranks': ranks, 'mAP': mAP,
+            conv_data[(conv_bb, 0)] = {'family': 'ConvNeXtV2', 'ranks': ranks, 'mAP': mAP,
                                        'time': time.time() - start}
             save_ckpt(conv_data, conv_ckpt)
         except Exception as e:
@@ -193,19 +193,28 @@ def main():
     for dino_bb, res in DINO_BACKBONES:
         c.DINO.WEIGHTS = dino_bb
         c.DINO.RESOLUTION = res
+
+        # Concatenate the resolution onto the string to make it unique
+        dino_key = f"{dino_bb}_{res}"
+
         for m in DINO_M_SEARCH:
-            if (dino_bb, m) in dino_data: continue
+            if (dino_key, m) in dino_data:
+                print(f">> Skipping DINO {dino_key} M={m} (Loaded from checkpoint)")
+                continue
 
             c.DINO.TOP_M = m
             start = time.time()
             try:
                 ranks, mAP = DINO_tester.__main__(gnd, cfg)
-                dino_data[(dino_bb, m)] = {'family': 'DINOv2', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
+                # Save using the concatenated key
+                dino_data[(dino_key, m)] = {'family': 'DINOv2', 'ranks': ranks, 'mAP': mAP,
+                                            'time': time.time() - start}
                 save_ckpt(dino_data, dino_ckpt)
             except Exception as e:
-                print(f"[!] Error on DINO {dino_bb}: {e}")
+                print(f"[!] Error on DINO {dino_key}: {e}")
             finally:
-                torch.cuda.empty_cache(); gc.collect()
+                torch.cuda.empty_cache();
+                gc.collect()
 
     # ====================================================================================
     # PHASE 3A: CLIP (Semantic Slot)
@@ -319,7 +328,7 @@ def main():
                 # Safe short-names depending on family
                 g_short = res['global_bb'].split('\\')[-1].split('.')[0] if res['global_family'] == 'SuperGlobal' else \
                 res['global_bb']
-                l_short = res['local_bb'].split('_')[1] if '_' in res['local_bb'] else res['local_bb']
+                l_short = res['local_bb']
                 s_short = res['sem_bb'].split('/')[-1]
 
                 print(
