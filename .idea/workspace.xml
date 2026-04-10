@@ -5,13 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee3dcb7a-ed7d-47df-90f3-b54f3599d71a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/dataloader/dataset_mixvpr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/MixVPR_tester.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/MixVPR_test_model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/MixVPR_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/VPRModel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/aggregators/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/aggregators/convap.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/aggregators/cosplace.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/aggregators/gem.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/aggregators/mixvpr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/backbones/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/backbones/efficientnet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/backbones/resnet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/backbones/swin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/MixVPR/utils/helper.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataloader/test_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader/test_loader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/grid_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_Test_1774879690.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_Test_1774948171.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_Test_1774948199.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_Test_1775663280.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search_ILIAS_Test_1775665339.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,19 +65,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.ILIAS.executor&quot;: &quot;Run&quot;,
-    &quot;Python.grid_search.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test (ILIAS).executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;parameter-tuning&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/model/CLIP&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Console&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.ILIAS.executor": "Run",
+    "Python.grid_search.executor": "Run",
+    "Python.test (ILIAS).executor": "Run",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "parameter-tuning",
+    "grid.search.filter.rows": "true",
+    "last_opened_file_path": "C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/weights",
+    "settings.editor.selected.configurable": "Console"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\brand\Documents\TUe Master\Thesis\SimilarityImageRetrieval\weights" />
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\SimilarityImageRetrieval\model\CLIP" />
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\SimilarityImageRetrieval\dataloader" />
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\SimilarityImageRetrieval\model" />
@@ -76,7 +93,7 @@
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\Superglobal\model\SuperGlobal" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.grid_search">
+  <component name="RunManager" selected="Python.ILIAS">
     <configuration name="ILIAS" type="PythonConfigurationType" factoryName="Python">
       <module name="SimilarityImageRetrieval" />
       <option name="ENV_FILES" value="" />
@@ -159,7 +176,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grid_search.py" />
-      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS' TEST.EVALUATE True" />
+      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS' TEST.EVALUATE True TEST.UPDATE_DATA False TEST.UPDATE_QUERIES False" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -204,7 +221,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test.py" />
-      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS_Test' TEST.EVALUATE True" />
+      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS_Test' TEST.EVALUATE True TEST.UPDATE_DATA True TEST.UPDATE_QUERIES True" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />

@@ -31,7 +31,7 @@ def extract_DINO_features(model, data_dir, dataset, gnd_fn, split, save_path):
             patches = features[:, 1:, :].permute(0, 2, 1)  # (Batch, Dim, Patches)
 
             # Normalize and move to CPU
-            patches = F.normalize(patches, p=2, dim=1).contiguous().cpu().numpy()
+            patches = F.normalize(patches, p=2, dim=1).contiguous().half().cpu().numpy()
             batch_size = patches.shape[0]
 
             # Initialize the HDF5 dataset dynamically on the first batch
@@ -39,7 +39,7 @@ def extract_DINO_features(model, data_dir, dataset, gnd_fn, split, save_path):
                 _, dim, n_patches = patches.shape
                 dset = f.create_dataset('features',
                                         shape=(num_images, dim, n_patches),
-                                        dtype='float32')
+                                        dtype='float16')
 
             # Write batch to disk and advance pointer
             dset[ptr:ptr + batch_size] = patches

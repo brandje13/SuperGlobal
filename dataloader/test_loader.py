@@ -17,6 +17,7 @@ from dataloader.dataset_dino import DataSet_DINO
 from dataloader.dataset_clip import DataSet_CLIP
 from dataloader.dataset_siglip import DataSet_SigLIP
 from dataloader.dataset_convnext import DataSet_ConvNeXtV2
+from dataloader.dataset_mixvpr import DataSet_MixVPR
 
 
 def _construct_loader(model, _DATA_DIR, dataset_name, fn, split, scale_list, batch_size, shuffle, drop_last):
@@ -34,6 +35,8 @@ def _construct_loader(model, _DATA_DIR, dataset_name, fn, split, scale_list, bat
         dataset = DataSet_SigLIP(_DATA_DIR, dataset_name, fn, split)
     elif model == "ConvNeXtV2":
         dataset = DataSet_ConvNeXtV2(_DATA_DIR, dataset_name, fn, split)
+    elif model == "MixVPR":
+        dataset = DataSet_MixVPR(_DATA_DIR, dataset_name, fn, split)
     else:
         dataset = DataSet(_DATA_DIR, dataset_name, fn, split)
 

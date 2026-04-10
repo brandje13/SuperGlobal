@@ -1,5 +1,7 @@
 import os
 
+from model.MixVPR import MixVPR_tester
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import time
@@ -71,6 +73,7 @@ def main():
     # Checkpoint Paths
     sg_ckpt = os.path.join(ckpt_dir, "sg_data.pkl")
     conv_ckpt = os.path.join(ckpt_dir, "convnext_data.pkl")
+    mixvpr_ckpt = os.path.join(ckpt_dir, "mixvpr_data.pkl")
     dino_ckpt = os.path.join(ckpt_dir, "dino_data.pkl")
     clip_ckpt = os.path.join(ckpt_dir, "clip_data.pkl")
     siglip_ckpt = os.path.join(ckpt_dir, "siglip_data.pkl")
@@ -78,6 +81,7 @@ def main():
     # Load existing progress
     sg_data = load_ckpt(sg_ckpt)
     conv_data = load_ckpt(conv_ckpt)
+    mixvpr_data = load_ckpt(mixvpr_ckpt)
     dino_data = load_ckpt(dino_ckpt)
     clip_data = load_ckpt(clip_ckpt)
     siglip_data = load_ckpt(siglip_ckpt)
@@ -116,8 +120,8 @@ def main():
 
         # --- OpenCLIP (Trained at 224 but scales well) ---
         ('laion/CLIP-ViT-L-14-laion2B-s32B-b82K', 224),
-        ('laion/CLIP-ViT-H-14-laion2B-s32B-b79K', 224),
-        ('laion/CLIP-ViT-bigG-14-laion2B-39B-b160k', 224)
+        ('laion/CLIP-ViT-H-14-laion2B-s32B-b79K', 224)#,
+        #('laion/CLIP-ViT-bigG-14-laion2B-39B-b160k', 224)
     ]
 
     SIGLIP_BACKBONES = [
@@ -186,6 +190,23 @@ def main():
             print(f"[!] Error on ConvNeXt {conv_bb}: {e}")
         finally:
             torch.cuda.empty_cache(); gc.collect()
+
+    # ====================================================================================
+    # PHASE 1C: MixVPR (Global Slot)
+    # ====================================================================================
+    mixvpr_bb = 'resnet50_MixVPR'
+    if (mixvpr_bb, 0) not in mixvpr_data:
+        start = time.time()
+        try:
+            ranks, mAP = MixVPR_tester.__main__(gnd, cfg)
+            mixvpr_data[(mixvpr_bb, 0)] = {'family': 'MixVPR', 'ranks': ranks, 'mAP': mAP,
+                                           'time': time.time() - start}
+            save_ckpt(mixvpr_data, mixvpr_ckpt)
+        except Exception as e:
+            print(f"[!] Error on MixVPR {mixvpr_bb}: {e}")
+        finally:
+            torch.cuda.empty_cache();
+            gc.collect()
 
     # ====================================================================================
     # PHASE 2: DINOv2 (Local Slot)
@@ -261,6 +282,11 @@ def main():
     for k, v in conv_data.items():
         clean_key = (k, 0) if isinstance(k, str) else k
         global_pool[clean_key] = v
+
+    for k, v in mixvpr_data.items():
+        clean_key = (k, 0) if isinstance(k, str) else k
+        global_pool[clean_key] = v
+
     local_pool = dino_data  # Currently only DINO occupies this slot
     semantic_pool = {**clip_data, **siglip_data}
 
@@ -303,13 +329,16 @@ def main():
                                 'global_bb': global_bb,
                                 'global_m': global_m,
                                 'global_map': global_info['mAP'],
+                                'global_time': global_info['time'],
                                 'local_family': local_info['family'],
                                 'local_bb': local_bb,
                                 'local_m': local_m,
                                 'local_map': local_info['mAP'],
+                                'local_time': local_info['time'],
                                 'sem_family': sem_info['family'],
                                 'sem_bb': sem_bb,
                                 'sem_map': sem_info['mAP'],
+                                'sem_time': sem_info['time'],
                                 'top_k': k,
                                 'precision': m_metrics['precision'],
                                 'recall': m_metrics['recall'],
