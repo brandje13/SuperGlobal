@@ -148,8 +148,8 @@ def main():
     ]
 
     # Search parameters
-    GLOBAL_M_SEARCH = list(range(0, 1000, 100))  # Shared between SG and ConvNeXt
-    DINO_M_SEARCH = list(range(0, 9000, 1000))
+    GLOBAL_M_SEARCH = list(range(0, 900, 100))
+    DINO_M_SEARCH = list(range(0, 5000, 1000))
     TOP_K_SEARCH = list(range(10, 110, 10))
 
     # ====================================================================================

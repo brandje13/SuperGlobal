@@ -10,15 +10,14 @@ from model.SuperGlobal.utils.SG_utils import test_revisitop
 
 
 @torch.no_grad()
-def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_data, update_queries, top_m_rerank, evaluate,
-              model_id):
+def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_data, update_queries, top_m_rerank,
+              evaluate, model_id):
     torch.backends.cudnn.benchmark = True
     model.eval()
 
     print(f'>> {dataset}: Image Retrieval with DINOv2 ({model_id})')
     safe_model_name = str(model_id).replace('/', '_').replace('\\', '_')
 
-    # Use .h5 instead of .pt
     Q_path = os.path.join(data_dir, dataset, f"DINO_query_{safe_model_name}_{res}.h5")
     X_path = os.path.join(data_dir, dataset, f"DINO_data_{safe_model_name}_{res}.h5")
 
@@ -28,64 +27,150 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     if update_data or not os.path.isfile(X_path):
         extract_DINO_features(model, data_dir, dataset, gnd, "db", X_path)
 
-    # --- LOAD EVERYTHING INTO RAM FOR SPEED ---
-    print(">> Loading features...")
+    file_size_gb = os.path.getsize(X_path) / (1024 ** 3)
+    USE_RAM_MODE = file_size_gb < 20.0
+
+    print(f">> DB Size: {file_size_gb:.2f} GB | Ultra-Fast RAM Mode: {USE_RAM_MODE}")
+    print(">> Loading features and computing Global Descriptors...")
+
     with h5py.File(Q_path, 'r') as f_q:
         Q = f_q['features'][:]
-        print(f"Query Shape: {Q.shape}")
-        Q_tensor = torch.from_numpy(Q).to(device)
-
-        Q_global = torch.mean(Q_tensor, dim=2)
-        Q_global = F.normalize(Q_global, p=2, dim=1)
-
-    with h5py.File(X_path, 'r') as f_x:
-        X = f_x['features'][:]
-        print(f"Database Shape: {X.shape}")
-        X_tensor = torch.from_numpy(X)
+        Q_tensor = torch.from_numpy(Q).to(device).float()
+        Q_global = F.normalize(torch.mean(Q_tensor, dim=2), p=2, dim=1)
 
     # ---------------------------------------------------------
-    # STAGE 1: GLOBAL SEARCH
+    # STAGE 1: GLOBAL SEARCH (VRAM-Safe Chunking)
     # ---------------------------------------------------------
+    # We feed the GPU exactly 250 images at a time (Max ~2GB VRAM spike)
+    vram_safe_chunk = 250
+
+    if USE_RAM_MODE:
+        with h5py.File(X_path, 'r') as f_x:
+            # Loads into CPU RAM safely, NOT GPU VRAM
+            X_tensor_cpu = torch.from_numpy(f_x['features'][:]).float()
+            num_db, dim, n_patches = X_tensor_cpu.shape
+            print(f"Database Shape: {X_tensor_cpu.shape}")
+
+        X_global = torch.zeros((num_db, dim), device=device)
+
+        for start_idx in range(0, num_db, vram_safe_chunk):
+            end_idx = min(start_idx + vram_safe_chunk, num_db)
+            # Push tiny bite to GPU, math it, overwrite it
+            chunk_patches = X_tensor_cpu[start_idx:end_idx].to(device)
+            X_global[start_idx:end_idx] = torch.mean(chunk_patches, dim=2)
+
+        X_global = F.normalize(X_global, p=2, dim=1)
+
+    else:
+        with h5py.File(X_path, 'r') as f_x:
+            num_db, dim, n_patches = f_x['features'].shape
+            print(f"Database Shape: ({num_db}, {dim}, {n_patches})")
+
+            X_global = torch.zeros((num_db, dim), device=device)
+
+            for start_idx in range(0, num_db, vram_safe_chunk):
+                end_idx = min(start_idx + vram_safe_chunk, num_db)
+                chunk_patches = torch.from_numpy(f_x['features'][start_idx:end_idx]).to(device).float()
+                X_global[start_idx:end_idx] = torch.mean(chunk_patches, dim=2)
+
+            X_global = F.normalize(X_global, p=2, dim=1)
+
     print(">> Stage 1: Global Descriptor Search...")
-
-    # Compute Database Global Descriptors directly from the RAM tensor
-    X_global = F.normalize(torch.mean(X_tensor, dim=2), p=2, dim=1).to(device)
-
-    # Global Similarity
     sim_global = torch.mm(Q_global, X_global.t())
-    top_global_scores, top_global_indices = torch.topk(sim_global, k=top_m_rerank, dim=1)
+
+    k_fetch = max(1, top_m_rerank)
+    top_global_scores, top_global_indices = torch.topk(sim_global, k=k_fetch, dim=1)
+
+    if top_m_rerank == 0:
+        ranks = torch.argsort(sim_global, descending=True).cpu().numpy().T
+        map_score = 0.0
+        if evaluate:
+            ks = [10, 25, 100]
+            if not custom:
+                (map_score, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
+                print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map_score * 100, decimals=2)))
+        return ranks, map_score
 
     # ---------------------------------------------------------
-    # STAGE 2: LOCAL RERANKING
+    # STAGE 2: LOCAL RERANKING (Dynamic VRAM Chunking)
     # ---------------------------------------------------------
     print(f">> Stage 2: Reranking Top-{top_m_rerank} candidates with Patch Logic...")
 
     final_ranks = []
     N_q = Q.shape[0]
+    m_patches = int(n_patches * 0.5)
 
-    for i in tqdm(range(N_q), desc="Reranking", mininterval=5.0):
-        q_patches = Q_tensor[i].t().unsqueeze(0)  # (1, 256, 768)
-        candidate_idxs = top_global_indices[i].cpu()
+    # --- DYNAMIC VRAM CALCULATOR ---
+    # Memory for the DB candidate tensor + the resulting Similarity Matrix
+    bytes_per_candidate = (dim * n_patches + n_patches * n_patches) * 4
+    target_vram_bytes = 4 * 1024 * 1024 * 1024  # Target 4 GB spike
 
-        # INSTANT RAM SLICING (No more hard drive bottlenecks)
-        db_candidates = X_tensor[candidate_idxs].to(device)
+    rerank_vram_chunk = max(100, int(target_vram_bytes / bytes_per_candidate))
+    print(f">> Dynamic GPU Allocation: Processing {rerank_vram_chunk} candidates per batch")
 
-        # Patched Math
-        sim_matrix = torch.matmul(q_patches, db_candidates)
-        best_match_per_patch, _ = sim_matrix.max(dim=2)
+    if USE_RAM_MODE:
+        for i in tqdm(range(N_q), desc="Reranking", mininterval=1.0):
+            q_patches = Q_tensor[i].t().unsqueeze(0)
+            candidate_idxs = top_global_indices[i].cpu()
 
-        m_patches = int(Q.shape[2] * 0.5)
-        top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
-        local_scores = top_m_vals.mean(dim=1)
+            # Fetch candidates into CPU RAM
+            db_candidates_full = X_tensor_cpu[candidate_idxs]
 
-        local_sort_order = torch.argsort(local_scores, descending=True)
-        final_top_m_indices = candidate_idxs[local_sort_order.cpu()]
+            local_scores_list = []
+            # Feed candidates to GPU in bites of 200
+            for c_start in range(0, top_m_rerank, rerank_vram_chunk):
+                c_end = min(c_start + rerank_vram_chunk, top_m_rerank)
+                db_chunk = db_candidates_full[c_start:c_end].to(device)
 
-        global_sort_order = torch.argsort(sim_global[i], descending=True).cpu()
-        rest_indices = global_sort_order[top_m_rerank:]
+                sim_matrix = torch.matmul(q_patches, db_chunk)
+                best_match_per_patch, _ = sim_matrix.max(dim=2)
+                top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
+                local_scores_list.append(top_m_vals.mean(dim=1))
 
-        full_rank_list = torch.cat([final_top_m_indices, rest_indices])
-        final_ranks.append(full_rank_list.numpy())
+            local_scores = torch.cat(local_scores_list, dim=0)
+            local_sort_order = torch.argsort(local_scores, descending=True)
+            final_top_m_indices = candidate_idxs[local_sort_order.cpu()]
+
+            global_sort_order = torch.argsort(sim_global[i], descending=True).cpu()
+            rest_indices = global_sort_order[top_m_rerank:]
+
+            final_ranks.append(torch.cat([final_top_m_indices, rest_indices]).numpy())
+
+    else:
+        with h5py.File(X_path, 'r') as f_x:
+            db_dataset = f_x['features']
+
+            for i in tqdm(range(N_q), desc="Reranking", mininterval=5.0):
+                q_patches = Q_tensor[i].t().unsqueeze(0)
+                candidate_idxs = top_global_indices[i].cpu().numpy()
+
+                sorted_idxs = np.sort(candidate_idxs)
+                sort_order = np.argsort(candidate_idxs)
+                unsort_order = np.argsort(sort_order)
+
+                # Fetch from disk straight to CPU RAM, NOT GPU
+                db_candidates_sorted = torch.from_numpy(db_dataset[sorted_idxs.tolist()]).float()
+                db_candidates_full = db_candidates_sorted[unsort_order]
+
+                local_scores_list = []
+                # Feed to GPU in VRAM-safe bites
+                for c_start in range(0, top_m_rerank, rerank_vram_chunk):
+                    c_end = min(c_start + rerank_vram_chunk, top_m_rerank)
+                    db_chunk = db_candidates_full[c_start:c_end].to(device)
+
+                    sim_matrix = torch.matmul(q_patches, db_chunk)
+                    best_match_per_patch, _ = sim_matrix.max(dim=2)
+                    top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
+                    local_scores_list.append(top_m_vals.mean(dim=1))
+
+                local_scores = torch.cat(local_scores_list, dim=0)
+                local_sort_order = torch.argsort(local_scores, descending=True)
+                final_top_m_indices = torch.tensor(candidate_idxs)[local_sort_order.cpu()]
+
+                global_sort_order = torch.argsort(sim_global[i], descending=True).cpu()
+                rest_indices = global_sort_order[top_m_rerank:]
+
+                final_ranks.append(torch.cat([final_top_m_indices, rest_indices]).numpy())
 
     ranks = np.array(final_ranks).T
     map_score = 0.0
