@@ -56,7 +56,7 @@ def main():
     # SAM_top = retrieve_top_k(cfg, SAM_ranks, c.TEST.TOP_K, 'SAM', False)
     #
     DINO_ranks, DINO_map = DINO_tester.__main__(gnd, cfg)
-    DINO_top = retrieve_top_k(cfg, DINO_ranks, c.TEST.TOP_K, 'DINOv2', False)
+    DINO_top = retrieve_top_k(cfg, DINO_ranks, c.TEST.TOP_K, 'DINOv2', True)
     # c.defrost()
     # c.DINO.WEIGHTS = 'vit_base_patch14_dinov2.lvd142m'
     # c.freeze()

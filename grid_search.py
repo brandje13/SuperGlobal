@@ -97,7 +97,7 @@ def main():
         ('vit_small_patch14_dinov2.lvd142m', 224),
         ('vit_base_patch14_dinov2.lvd142m', 224),
         ('vit_large_patch14_dinov2.lvd142m', 224),
-        ('vit_giant_patch14_dinov2.lvd142m', 518),
+        ('vit_giant_patch14_dinov2.lvd142m', 224),
 
         # --- DINOv2 with Registers ---
         ('vit_small_patch14_reg4_dinov2.lvd142m', 224),
@@ -107,8 +107,9 @@ def main():
 
         # --- High-Res Extensions ---
         ('vit_large_patch14_reg4_dinov2.lvd142m', 336),
-        ('vit_giant_patch14_reg4_dinov2.lvd142m', 336),
-        ('vit_giant_patch14_reg4_dinov2.lvd142m', 518)
+        ('vit_giant_patch14_reg4_dinov2.lvd142m', 336)
+        #('vit_giant_patch14_dinov2.lvd142m', 518),
+        #('vit_giant_patch14_reg4_dinov2.lvd142m', 518)
     ]
 
     CLIP_BACKBONES = [
@@ -149,7 +150,7 @@ def main():
 
     # Search parameters
     GLOBAL_M_SEARCH = list(range(0, 900, 100))
-    DINO_M_SEARCH = list(range(0, 5000, 1000))
+    DINO_M_SEARCH = list(range(0, 3000, 1000))
     TOP_K_SEARCH = list(range(10, 110, 10))
 
     # ====================================================================================

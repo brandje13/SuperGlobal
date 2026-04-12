@@ -68,9 +68,9 @@ _C.SupG.rerank = True
 _C.SupG.onemeval = False
 
 _C.DINO = CfgNode()
-_C.DINO.TOP_M = 1000
-_C.DINO.WEIGHTS = "vit_giant_patch14_reg4_dinov2.lvd142m"
-_C.DINO.RESOLUTION = 518
+_C.DINO.TOP_M = 0
+_C.DINO.WEIGHTS = "vit_giant_patch14_dinov2.lvd142m"
+_C.DINO.RESOLUTION = 224
 
 _C.CLIP = CfgNode()
 _C.CLIP.TOP_M = -1
