@@ -19,7 +19,6 @@ from tkfilebrowser import askopenfilenames, askopendirname
 import model.SuperGlobal.CVNet_tester as CVNet_tester
 from model.DINOv2 import DINO_tester
 from model.CLIP import CLIP_tester
-# Assuming standard paths for your new models:
 from model.SigLIP import SigLIP_tester
 from model.ConvNeXtV2 import ConvNeXtV2_tester
 
@@ -46,6 +45,13 @@ def save_ckpt(data, path):
 def main():
     config.load_cfg_fom_args("Grid Search for Image Retrieval Ensemble")
     c.NUM_GPUS = 1
+
+    # ====================================================================================
+    # MASTER SWITCH
+    # Set to True to skip all untested models and jump straight to Phase 4 fusion.
+    # Set to False to resume normal extraction and calculation.
+    # ====================================================================================
+    FUSE_ONLY_CACHED = True
 
     # --- 1. SETUP GROUND TRUTH ---
     if c.TEST.CUSTOM:
@@ -107,9 +113,9 @@ def main():
 
         # --- High-Res Extensions ---
         ('vit_large_patch14_reg4_dinov2.lvd142m', 336),
-        ('vit_giant_patch14_reg4_dinov2.lvd142m', 336)
-        #('vit_giant_patch14_dinov2.lvd142m', 518),
-        #('vit_giant_patch14_reg4_dinov2.lvd142m', 518)
+        ('vit_giant_patch14_reg4_dinov2.lvd142m', 336),
+        ('vit_giant_patch14_dinov2.lvd142m', 518),
+        ('vit_giant_patch14_reg4_dinov2.lvd142m', 518)
     ]
 
     CLIP_BACKBONES = [
@@ -121,8 +127,8 @@ def main():
 
         # --- OpenCLIP (Trained at 224 but scales well) ---
         ('laion/CLIP-ViT-L-14-laion2B-s32B-b82K', 224),
-        ('laion/CLIP-ViT-H-14-laion2B-s32B-b79K', 224)#,
-        #('laion/CLIP-ViT-bigG-14-laion2B-39B-b160k', 224)
+        ('laion/CLIP-ViT-H-14-laion2B-s32B-b79K', 224)  # ,
+        # ('laion/CLIP-ViT-bigG-14-laion2B-39B-b160k', 224)
     ]
 
     SIGLIP_BACKBONES = [
@@ -149,9 +155,10 @@ def main():
     ]
 
     # Search parameters
-    GLOBAL_M_SEARCH = list(range(0, 900, 100))
-    DINO_M_SEARCH = list(range(0, 3000, 1000))
-    TOP_K_SEARCH = list(range(10, 110, 10))
+    GLOBAL_M_SEARCH = list(range(0, 1000, 100))
+    DINO_M_SEARCH = list(range(0, 11000, 1000))
+    #TOP_K_SEARCH = list(range(10, 110, 10))
+    TOP_K_SEARCH = [10, 50, 100]
 
     # ====================================================================================
     # PHASE 1A: SuperGlobal (Global Slot)
@@ -161,6 +168,7 @@ def main():
         c.MODEL.DEPTH = 101 if 'R101' in sg_bb else 50
         for m in GLOBAL_M_SEARCH:
             if (sg_bb, m) in sg_data: continue
+            if FUSE_ONLY_CACHED: continue
 
             c.SupG.TOP_M = m
             start = time.time()
@@ -171,7 +179,8 @@ def main():
             except Exception as e:
                 print(f"[!] Error on SG {sg_bb}: {e}")
             finally:
-                torch.cuda.empty_cache(); gc.collect()
+                torch.cuda.empty_cache();
+                gc.collect()
 
     # ====================================================================================
     # PHASE 1B: ConvNeXt V2 (Global Slot)
@@ -180,6 +189,7 @@ def main():
         c.ConvNeXtV2.WEIGHTS = conv_bb
         c.ConvNeXtV2.RESOLUTION = res
         if (conv_bb, 0) in conv_data: continue
+        if FUSE_ONLY_CACHED: continue
 
         start = time.time()
         try:
@@ -190,24 +200,26 @@ def main():
         except Exception as e:
             print(f"[!] Error on ConvNeXt {conv_bb}: {e}")
         finally:
-            torch.cuda.empty_cache(); gc.collect()
+            torch.cuda.empty_cache();
+            gc.collect()
 
     # ====================================================================================
     # PHASE 1C: MixVPR (Global Slot)
     # ====================================================================================
     mixvpr_bb = 'resnet50_MixVPR'
     if (mixvpr_bb, 0) not in mixvpr_data:
-        start = time.time()
-        try:
-            ranks, mAP = MixVPR_tester.__main__(gnd, cfg)
-            mixvpr_data[(mixvpr_bb, 0)] = {'family': 'MixVPR', 'ranks': ranks, 'mAP': mAP,
-                                           'time': time.time() - start}
-            save_ckpt(mixvpr_data, mixvpr_ckpt)
-        except Exception as e:
-            print(f"[!] Error on MixVPR {mixvpr_bb}: {e}")
-        finally:
-            torch.cuda.empty_cache();
-            gc.collect()
+        if not FUSE_ONLY_CACHED:
+            start = time.time()
+            try:
+                ranks, mAP = MixVPR_tester.__main__(gnd, cfg)
+                mixvpr_data[(mixvpr_bb, 0)] = {'family': 'MixVPR', 'ranks': ranks, 'mAP': mAP,
+                                               'time': time.time() - start}
+                save_ckpt(mixvpr_data, mixvpr_ckpt)
+            except Exception as e:
+                print(f"[!] Error on MixVPR {mixvpr_bb}: {e}")
+            finally:
+                torch.cuda.empty_cache();
+                gc.collect()
 
     # ====================================================================================
     # PHASE 2: DINOv2 (Local Slot)
@@ -223,6 +235,7 @@ def main():
             if (dino_key, m) in dino_data:
                 print(f">> Skipping DINO {dino_key} M={m} (Loaded from checkpoint)")
                 continue
+            if FUSE_ONLY_CACHED: continue
 
             c.DINO.TOP_M = m
             start = time.time()
@@ -243,6 +256,7 @@ def main():
     # ====================================================================================
     for clip_bb, res in CLIP_BACKBONES:
         if clip_bb in clip_data: continue
+        if FUSE_ONLY_CACHED: continue
         c.CLIP.WEIGHTS = clip_bb
         c.CLIP.RESOLUTION = res
         start = time.time()
@@ -253,13 +267,15 @@ def main():
         except Exception as e:
             print(f"[!] Error on CLIP {clip_bb}: {e}")
         finally:
-            torch.cuda.empty_cache(); gc.collect()
+            torch.cuda.empty_cache();
+            gc.collect()
 
     # ====================================================================================
     # PHASE 3B: SigLIP (Semantic Slot)
     # ====================================================================================
     for siglip_bb, res in SIGLIP_BACKBONES:
         if siglip_bb in siglip_data: continue
+        if FUSE_ONLY_CACHED: continue
         c.SigLIP.WEIGHTS = siglip_bb
         c.SigLIP.RESOLUTION = res
         start = time.time()
@@ -270,7 +286,8 @@ def main():
         except Exception as e:
             print(f"[!] Error on SigLIP {siglip_bb}: {e}")
         finally:
-            torch.cuda.empty_cache(); gc.collect()
+            torch.cuda.empty_cache();
+            gc.collect()
 
     # ====================================================================================
     # PHASE 4: DYNAMIC SLOT-BASED FUSION
@@ -292,6 +309,12 @@ def main():
     semantic_pool = {**clip_data, **siglip_data}
 
     total_combos = len(global_pool) * len(local_pool) * len(semantic_pool) * len(TOP_K_SEARCH) * len(MODES)
+
+    if total_combos == 0:
+        print(
+            "\n[!] Error: One or more pools are completely empty. Cannot run 3-way fusion without at least one model in each slot (Global, Local, Semantic).")
+        return
+
     print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
 
     ensemble_results = []
@@ -357,7 +380,7 @@ def main():
             for res in sorted_targets[:20]:
                 # Safe short-names depending on family
                 g_short = res['global_bb'].split('\\')[-1].split('.')[0] if res['global_family'] == 'SuperGlobal' else \
-                res['global_bb']
+                    res['global_bb']
                 l_short = res['local_bb']
                 s_short = res['sem_bb'].split('/')[-1]
 
