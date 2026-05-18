@@ -42,48 +42,29 @@ def main():
         assert c.TEST.DATASET
 
     cfg = config_gnd(c.TEST.DATASET, c.TEST.DATA_DIR, c.TEST.CUSTOM, gnd)
-    #
-    # SG_ranks, SG_map = CVNet_tester.__main__(gnd, cfg)
-    # SG_top = retrieve_top_k(cfg, SG_ranks, c.TEST.TOP_K, 'SuperGlobal', False)
 
-    # Convnext_ranks, Convnext_map = ConvNeXtV2_tester.__main__(gnd, cfg)
-    # Convnext_top = retrieve_top_k(cfg, Convnext_ranks, c.TEST.TOP_K, 'ConvNeXtV2', False)
+    SG_ranks, SG_map = CVNet_tester.__main__(gnd, cfg)
+    SG_top = retrieve_top_k(cfg, SG_ranks, c.TEST.TOP_K, 'SuperGlobal', False)
 
-    # Mixvpr_ranks, Mixvpr_map = MixVPR_tester.__main__(gnd, cfg)
-    # Mixvpr_top = retrieve_top_k(cfg, Mixvpr_ranks, c.TEST.TOP_K, 'MixVPR', False)
-
-    # SAM_ranks, SAM_map = SAM_tester.__main__(gnd, cfg)
-    # SAM_top = retrieve_top_k(cfg, SAM_ranks, c.TEST.TOP_K, 'SAM', False)
-    #
     DINO_ranks, DINO_map = DINO_tester.__main__(gnd, cfg)
-    DINO_top = retrieve_top_k(cfg, DINO_ranks, c.TEST.TOP_K, 'DINOv2', True)
-    # c.defrost()
-    # c.DINO.WEIGHTS = 'vit_base_patch14_dinov2.lvd142m'
-    # c.freeze()
-    # DINO_ranks2, DINO_map2 = DINO_tester.__main__(gnd, cfg)
-    # DINO_top2 = retrieve_top_k(cfg, DINO_ranks2, c.TEST.TOP_K, 'DINOv2', False)
-    #
-    # CLIP_ranks, CLIP_map = CLIP_tester.__main__(gnd, cfg)
-    # CLIP_top = retrieve_top_k(cfg, CLIP_ranks, c.TEST.TOP_K, 'CLIP', False)
-    #
-    # SigLIP_ranks, SigLIP_map = SigLIP_tester.__main__(gnd, cfg)
-    # SigLIP_top = retrieve_top_k(cfg, SigLIP_ranks, c.TEST.TOP_K, 'SigLIP', False)
+    DINO_top = retrieve_top_k(cfg, DINO_ranks, c.TEST.TOP_K, 'DINOv2', False)
 
-    #models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top], ['CLIP', CLIP_top]]
-    #
-    # models = [['ConvNeXtV2', Convnext_top], ['DINOv2', DINO_top], ['SigLIP', SigLIP_top]]
-    #
-    # results_union = merge_results(cfg, models, 'union')
-    # results_intersection = merge_results(cfg, models, 'intersection')
-    # results_majority = merge_results(cfg, models, 'majority')
-    #
-    # save_merged_results(cfg, results_union, models, 'union')
-    # save_merged_results(cfg, results_intersection, models, 'intersection')
-    # save_merged_results(cfg, results_majority, models, 'majority')
-    #
-    # evaluate_final(cfg, models, results_union, 'union')
-    # evaluate_final(cfg, models, results_intersection, 'intersection')
-    # evaluate_final(cfg, models, results_majority, 'majority')
+    SigLIP_ranks, SigLIP_map = SigLIP_tester.__main__(gnd, cfg)
+    SigLIP_top = retrieve_top_k(cfg, SigLIP_ranks, c.TEST.TOP_K, 'SigLIP', False)
+
+    models = [['SuperGlobal', SG_top], ['DINOv2', DINO_top], ['SigLIP', SigLIP_top]]
+
+    results_union = merge_results(cfg, models, 'union')
+    results_intersection = merge_results(cfg, models, 'intersection')
+    results_majority = merge_results(cfg, models, 'majority')
+
+    save_merged_results(cfg, results_union, models, 'union')
+    save_merged_results(cfg, results_intersection, models, 'intersection')
+    save_merged_results(cfg, results_majority, models, 'majority')
+
+    evaluate_final(cfg, models, results_union, 'union')
+    evaluate_final(cfg, models, results_intersection, 'intersection')
+    evaluate_final(cfg, models, results_majority, 'majority')
 
 
 if __name__ == "__main__":

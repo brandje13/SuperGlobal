@@ -50,7 +50,7 @@ def main():
     # Set to True to skip all untested models and jump straight to Phase 4 fusion.
     # Set to False to resume normal extraction and calculation.
     # ====================================================================================
-    FUSE_ONLY_CACHED = True
+    FUSE_ONLY_CACHED = False
 
     # --- 1. SETUP GROUND TRUTH ---
     if c.TEST.CUSTOM:
