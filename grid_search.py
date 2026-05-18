@@ -1,7 +1,5 @@
 import os
 
-from model.MixVPR import MixVPR_tester
-
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import time
@@ -21,6 +19,7 @@ from model.DINOv2 import DINO_tester
 from model.CLIP import CLIP_tester
 from model.SigLIP import SigLIP_tester
 from model.ConvNeXtV2 import ConvNeXtV2_tester
+from model.MixVPR import MixVPR_tester
 
 from utils.config_gnd import config_gnd
 from utils.evaluate_final import evaluate_final
@@ -156,7 +155,7 @@ def main():
 
     # Search parameters
     GLOBAL_M_SEARCH = list(range(0, 1000, 100))
-    DINO_M_SEARCH = list(range(0, 11000, 1000))
+    DINO_M_SEARCH = list(range(0, 1000, 2000))
     #TOP_K_SEARCH = list(range(10, 110, 10))
     TOP_K_SEARCH = [10, 50, 100]
 
