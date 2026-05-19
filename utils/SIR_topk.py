@@ -76,17 +76,16 @@ def add_source_border(img_tensor, is_correct, model_hits, border_width=10):
 
 
 def clean_path(p, cfg):
-    """Cleans file paths to match the Ground Truth format for accurate matching."""
-    p = p.replace('/', '\\')
-    keyword = "queries\\"
+    p = os.path.normpath(p)
+    keyword = "queries"
     if keyword in p:
-        return p[p.find(keyword):]
-    root = cfg['dir_data'].replace('/', '\\')
+        parts = p.split(keyword)
+        return os.path.join(keyword, parts[-1].lstrip(os.sep))
+
+    root = os.path.normpath(cfg['dir_data'])
     if p.startswith(root):
-        p = p.replace(root, '')
-    if p.startswith('.\\'): p = p[2:]
-    if p.startswith('\\'): p = p[1:]
-    return p
+        p = p[len(root):]
+    return p.lstrip(os.sep)
 
 
 def draw_stats_block(canvas, x_offset, y_offset, stats_dict, line_spacing=30):

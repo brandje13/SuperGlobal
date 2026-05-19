@@ -39,7 +39,7 @@ _C.BN.CUSTOM_WEIGHT_DECAY = 0.0
 # ------------------------------------------------------------------------------------ #
 _C.TEST = CfgNode()
 _C.TEST.DATA_DIR = ".\datasets"
-_C.TEST.DATASET = "ILIAS"
+_C.TEST.DATASET = "ILIAS_Test"
 _C.TEST.CUSTOM = False
 _C.TEST.UPDATE_DATA = False
 _C.TEST.UPDATE_QUERIES = False
@@ -48,7 +48,7 @@ _C.TEST.TOP_K = 10
 _C.TEST.WEIGHTS = ".\weights\CVPR2022_CVNet_R101.pyth"
 
 _C.DATA_LOADER = CfgNode()
-_C.DATA_LOADER.NUM_WORKERS = 4
+_C.DATA_LOADER.NUM_WORKERS = 16
 _C.DATA_LOADER.PIN_MEMORY = True
 
 _C.CUDNN = CfgNode()
@@ -68,7 +68,7 @@ _C.SupG.rerank = True
 _C.SupG.onemeval = False
 
 _C.DINO = CfgNode()
-_C.DINO.TOP_M = 0
+_C.DINO.TOP_M = 1000
 _C.DINO.WEIGHTS = "vit_giant_patch14_dinov2.lvd142m"
 _C.DINO.RESOLUTION = 224
 

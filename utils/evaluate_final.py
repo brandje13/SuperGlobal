@@ -1,5 +1,6 @@
 from typing import Set, Any, Dict
 import numpy as np
+import os
 
 
 def evaluate_final(cfg, models, results, mode, silent=False):
@@ -8,17 +9,21 @@ def evaluate_final(cfg, models, results, mode, silent=False):
 
     # --- Helper: Smart Path Cleaner ---
     def clean_path(p):
-        p = p.replace('/', '\\')
-        keyword = "queries\\"
-        if keyword in p:
-            start_index = p.find(keyword)
-            return p[start_index:]
-        root = cfg['dir_data'].replace('/', '\\')
+        # Normalize path to the current OS
+        p = os.path.normpath(p)
+        keyword = "queries"
+
+        # Check for keyword (avoids manual slash handling)
+        if keyword in p.split(os.sep):
+            return os.path.join(keyword, p.split(keyword)[-1].lstrip(os.sep))
+
+        root = os.path.normpath(cfg['dir_data'])
+
+        # Remove root path safely
         if p.startswith(root):
-            p = p.replace(root, '')
-        if p.startswith('.\\'): p = p[2:]
-        if p.startswith('\\'): p = p[1:]
-        return p
+            p = p[len(root):]
+
+        return p.lstrip(os.sep)
 
     # 1. Evaluate Individual Models (Only if not silent)
     if not silent:

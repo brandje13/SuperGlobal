@@ -93,8 +93,8 @@ def main():
 
     # --- 2. SEARCH SPACE DEFINITIONS ---
     SG_BACKBONES = [
-        '.\\weights\\CVPR2022_CVNet_R50.pyth',
-        '.\\weights\\CVPR2022_CVNet_R101.pyth'
+        os.path.join('weights', 'CVPR2022_CVNet_R50.pyth'),
+        os.path.join('weights', 'CVPR2022_CVNet_R101.pyth')
     ]
 
     DINO_BACKBONES = [
@@ -378,8 +378,8 @@ def main():
             sorted_targets = sorted(targets_met, key=lambda x: x['f3'], reverse=True)
             for res in sorted_targets[:20]:
                 # Safe short-names depending on family
-                g_short = res['global_bb'].split('\\')[-1].split('.')[0] if res['global_family'] == 'SuperGlobal' else \
-                    res['global_bb']
+                g_short = os.path.splitext(os.path.basename(res['global_bb']))[0] \
+                    if res['global_family'] == 'SuperGlobal' else res['global_bb']
                 l_short = res['local_bb']
                 s_short = res['sem_bb'].split('/')[-1]
 
@@ -404,7 +404,7 @@ def main():
             dict_writer = csv.DictWriter(output_file, fieldnames=keys)
             dict_writer.writeheader()
             dict_writer.writerows(ensemble_results)
-        print(f">> Export complete! Data saved to {os.getcwd()}\\{csv_filename}")
+        print(f">> Export complete! Data saved to {os.path.abspath(csv_filename)}")
 
 
 if __name__ == "__main__":

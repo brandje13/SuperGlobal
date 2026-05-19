@@ -24,7 +24,7 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
 
     model.load_state_dict(state_dict)
 
-    safe_model_name = str(model_id).split('\\')[-1].split('/')[-1].replace('.pyth', '').replace('.pth', '')
+    safe_model_name = os.path.splitext(os.path.basename(model_id))[0]
     text = f'>> {dataset}: Global Retrieval for scale {scale_list} with CVNet-Global ({safe_model_name})'
     print(text)
 
@@ -49,7 +49,9 @@ def test_model(model, device, cfg, gnd, data_dir, dataset, scale_list, custom, u
 
     print("perform global feature reranking")
     if onemeval:
-        X_expand = torch.load(f"./feats_1m_RN{depth}.pth").cuda()
+        # Cleaned: Join with data_dir rather than using relative ./
+        feat_path = os.path.join(data_dir, f"feats_1m_RN{depth}.pth")
+        X_expand = torch.load(feat_path).cuda()
         X = torch.cat([X, X_expand], 0)
 
     index = faiss.IndexFlatIP(2048)
