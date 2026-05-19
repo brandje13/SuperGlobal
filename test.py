@@ -3,7 +3,6 @@ import os
 
 import config as config
 import model.SuperGlobal.CVNet_tester as CVNet_tester
-from tkfilebrowser import askopenfilenames, askopendirname
 
 from config import cfg as c
 from model.ConvNeXtV2 import ConvNeXtV2_tester
@@ -24,13 +23,7 @@ def main():
     c.NUM_GPUS = 1
     c.freeze()
 
-    if c.TEST.CUSTOM:
-        query_paths = askopenfilenames()
-        data_dir = askopendirname()
-        create_groundtruth(query_paths, data_dir, c.TEST.DATASET)  # TODO: Fix custom dataset param
-        gnd = 'custom.json'
-        dataset = "custom"
-    elif c.TEST.DATASET in ['roxford5k', 'rparis6k']:
+    if c.TEST.DATASET in ['roxford5k', 'rparis6k']:
         gnd = f'gnd_{c.TEST.DATASET}.json'
         create_groundtruth_from_txt(c.TEST.DATA_DIR, c.TEST.DATASET)
     elif not c.TEST.DATASET == "":
