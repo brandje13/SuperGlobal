@@ -11,7 +11,6 @@ from tqdm import tqdm
 
 import config as config
 from config import cfg as c
-from tkfilebrowser import askopenfilenames, askopendirname
 
 # --- IMPORT ALL TESTERS ---
 import model.SuperGlobal.CVNet_tester as CVNet_tester
@@ -53,12 +52,7 @@ def main():
     FUSE_ONLY_CACHED = False
 
     # --- 1. SETUP GROUND TRUTH ---
-    if c.TEST.CUSTOM:
-        query_paths = askopenfilenames()
-        data_dir = askopendirname()
-        create_groundtruth(query_paths, data_dir, c.TEST.DATASET)
-        gnd = 'custom.json'
-    elif c.TEST.DATASET in ['roxford5k', 'rparis6k']:
+    if c.TEST.DATASET in ['roxford5k', 'rparis6k']:
         gnd = f'gnd_{c.TEST.DATASET}.json'
         create_groundtruth_from_txt(c.TEST.DATA_DIR, c.TEST.DATASET)
     elif not c.TEST.DATASET == "":
@@ -126,8 +120,8 @@ def main():
 
         # --- OpenCLIP (Trained at 224 but scales well) ---
         ('laion/CLIP-ViT-L-14-laion2B-s32B-b82K', 224),
-        ('laion/CLIP-ViT-H-14-laion2B-s32B-b79K', 224)  # ,
-        # ('laion/CLIP-ViT-bigG-14-laion2B-39B-b160k', 224)
+        ('laion/CLIP-ViT-H-14-laion2B-s32B-b79K', 224),
+        ('laion/CLIP-ViT-bigG-14-laion2B-39B-b160k', 224)
     ]
 
     SIGLIP_BACKBONES = [
@@ -155,8 +149,9 @@ def main():
 
     # Search parameters
     GLOBAL_M_SEARCH = list(range(0, 1000, 100))
-    DINO_M_SEARCH = list(range(0, 1000, 2000))
-    # TOP_K_SEARCH = list(range(10, 110, 10))
+
+    DINO_M_SEARCH = list(range(0, 11000, 1000))
+    #TOP_K_SEARCH = list(range(10, 110, 10))
     TOP_K_SEARCH = [10, 50, 100]
 
     # ====================================================================================

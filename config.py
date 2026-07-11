@@ -38,14 +38,14 @@ _C.BN.CUSTOM_WEIGHT_DECAY = 0.0
 # Grid Search / Shared Options
 # ------------------------------------------------------------------------------------ #
 _C.TEST = CfgNode()
-_C.TEST.DATA_DIR = ".\datasets"
-_C.TEST.DATASET = "ILIAS_Test"
+_C.TEST.DATA_DIR = "./datasets"
+_C.TEST.DATASET = "ILIAS"
 _C.TEST.CUSTOM = False
 _C.TEST.UPDATE_DATA = False
 _C.TEST.UPDATE_QUERIES = False
-_C.TEST.EVALUATE = False
+_C.TEST.EVALUATE = True
 _C.TEST.TOP_K = 10
-_C.TEST.WEIGHTS = ".\weights\CVPR2022_CVNet_R101.pyth"
+_C.TEST.WEIGHTS = "./weights/CVPR2022_CVNet_R101.pyth"
 
 _C.DATA_LOADER = CfgNode()
 _C.DATA_LOADER.NUM_WORKERS = 16
@@ -103,8 +103,9 @@ def load_cfg(out_dir, cfg_dest="config.yaml"):
 def load_cfg_fom_args(description="Config file options."):
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
+    
     args = parser.parse_args()
-    _C.merge_from_list(args.opts)
+    
+    # Only attempt to merge overrides if the user actually provided them
+    if args.opts:
+        _C.merge_from_list(args.opts)

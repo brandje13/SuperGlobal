@@ -1,8 +1,11 @@
 timm>=0.6.13
-faiss-cpu>=1.7.4
-transformers>=4.30.0
+faiss-cpu==1.8.0
+transformers==4.38.0
 open_clip_torch>=2.0.0
 opencv-python>=4.7.0
 matplotlib>=3.6.0
 numpy<1.28.0
 h5py
+yacs
+pytorch-lightning
+sentencepiece
