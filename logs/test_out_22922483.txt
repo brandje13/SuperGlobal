@@ -1,0 +1,471 @@
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 15.97, M: 22.67, H: 15.97
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.4, M: 22.52, H: 14.4
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.34, M: 22.63, H: 14.34
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.26, M: 22.48, H: 14.26
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.26, M: 22.55, H: 14.26
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.02, M: 22.28, H: 14.02
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.03, M: 22.19, H: 14.03
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 13.87, M: 22.04, H: 13.87
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 13.88, M: 22.03, H: 13.88
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 13.86, M: 22.04, H: 13.86
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 16.47, M: 23.55, H: 16.47
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 15.4, M: 24.16, H: 15.4
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 15.13, M: 23.97, H: 15.13
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 15.1, M: 24.12, H: 15.1
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.96, M: 24.01, H: 14.96
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 15.05, M: 24.03, H: 15.05
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.98, M: 24.13, H: 14.98
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.84, M: 23.96, H: 14.84
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.71, M: 23.76, H: 14.71
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.66, M: 23.62, H: 14.66
+Loading ConvNeXt V2 (convnextv2_atto) via timm...
+>> ILIAS: Pure Global Image Retrieval with ConvNeXt V2 (convnextv2_atto)
+extract query features
+Extracting ConvNeXt V2 features for query...
+extract database features
+Extracting ConvNeXt V2 features for db...
+Query Shape: (1232, 320)
+Database Shape: (29715, 320)
+Retrieval results ILIAS: mAP: 5.61
+Loading ConvNeXt V2 (convnextv2_femto) via timm...
+>> ILIAS: Pure Global Image Retrieval with ConvNeXt V2 (convnextv2_femto)
+extract query features
+Extracting ConvNeXt V2 features for query...
+extract database features
+Extracting ConvNeXt V2 features for db...
+Query Shape: (1232, 384)
+Database Shape: (29715, 384)
+Retrieval results ILIAS: mAP: 6.26
+Loading ConvNeXt V2 (convnextv2_pico) via timm...
+>> ILIAS: Pure Global Image Retrieval with ConvNeXt V2 (convnextv2_pico)
+extract query features
+Extracting ConvNeXt V2 features for query...
+extract database features
+Extracting ConvNeXt V2 features for db...
+Query Shape: (1232, 512)
+Database Shape: (29715, 512)
+Retrieval results ILIAS: mAP: 7.18
+Loading ConvNeXt V2 (convnextv2_nano) via timm...
+>> ILIAS: Pure Global Image Retrieval with ConvNeXt V2 (convnextv2_nano)
+extract query features
+Extracting ConvNeXt V2 features for query...
+extract database features
+Extracting ConvNeXt V2 features for db...
+Query Shape: (1232, 640)
+Database Shape: (29715, 640)
+Retrieval results ILIAS: mAP: 14.17
+Loading ConvNeXt V2 (convnextv2_tiny) via timm...
+>> ILIAS: Pure Global Image Retrieval with ConvNeXt V2 (convnextv2_tiny)
+extract query features
+Extracting ConvNeXt V2 features for query...
+extract database features
+Extracting ConvNeXt V2 features for db...
+Query Shape: (1232, 768)
+Database Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 16.08
+Loading ConvNeXt V2 (convnextv2_base) via timm...
+>> ILIAS: Pure Global Image Retrieval with ConvNeXt V2 (convnextv2_base)
+extract query features
+Extracting ConvNeXt V2 features for query...
+extract database features
+Extracting ConvNeXt V2 features for db...
+Query Shape: (1232, 1024)
+Database Shape: (29715, 1024)
+Retrieval results ILIAS: mAP: 19.2
+Loading ConvNeXt V2 (convnextv2_large) via timm...
+>> ILIAS: Pure Global Image Retrieval with ConvNeXt V2 (convnextv2_large)
+extract query features
+Extracting ConvNeXt V2 features for query...
+extract database features
+Extracting ConvNeXt V2 features for db...
+Query Shape: (1232, 1536)
+Database Shape: (29715, 1536)
+Retrieval results ILIAS: mAP: 22.0
+Loading ConvNeXt V2 (convnextv2_huge) via timm...
+>> ILIAS: Pure Global Image Retrieval with ConvNeXt V2 (convnextv2_huge)
+extract query features
+Extracting ConvNeXt V2 features for query...
+extract database features
+Extracting ConvNeXt V2 features for db...
+Query Shape: (1232, 2816)
+Database Shape: (29715, 2816)
+Retrieval results ILIAS: mAP: 18.21
+Loading Official ResNet50 + MixVPR...
+>> ILIAS: Pure Global Image Retrieval with ResNet50-MixVPR
+extract query features
+Extracting MixVPR features for query...
+extract database features
+Extracting MixVPR features for db...
+Query Shape: (1232, 4096)
+Database Shape: (29715, 4096)
+Retrieval results ILIAS: mAP: 3.39
+Loading DINOv2 (vit_small_patch14_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_small_patch14_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 5.44 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 384, 256])
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 7.75
+Loading DINOv2 (vit_base_patch14_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_base_patch14_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 10.88 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 768, 256])
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 10.8
+Loading DINOv2 (vit_large_patch14_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_large_patch14_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 14.51 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 1024, 256])
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 12.82
+Loading DINOv2 (vit_giant_patch14_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 21.76 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 1536, 256])
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 13.05
+Loading DINOv2 (vit_small_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_small_patch14_reg4_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 5.53 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 384, 260])
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 8.83
+Loading DINOv2 (vit_base_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_base_patch14_reg4_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 11.05 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 768, 260])
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 12.14
+Loading DINOv2 (vit_large_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_large_patch14_reg4_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 14.74 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 1024, 260])
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 12.26
+Loading DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 22.10 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 1536, 260])
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 16.61
+Loading DINOv2 (vit_large_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_large_patch14_reg4_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 32.87 GB | Ultra-Fast RAM Mode: False
+>> Loading features and computing Global Descriptors...
+Database Shape: (29715, 1024, 580)
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 11.83
+Loading DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 49.31 GB | Ultra-Fast RAM Mode: False
+>> Loading features and computing Global Descriptors...
+Database Shape: (29715, 1536, 580)
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 16.9
+Loading DINOv2 (vit_giant_patch14_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 116.39 GB | Ultra-Fast RAM Mode: False
+>> Loading features and computing Global Descriptors...
+Database Shape: (29715, 1536, 1369)
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 12.98
+Loading DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m)
+Extracting DINO features for query...
+Finished streaming query features to disk.
+Extracting DINO features for db...
+Finished streaming db features to disk.
+>> DB Size: 116.73 GB | Ultra-Fast RAM Mode: False
+>> Loading features and computing Global Descriptors...
+Database Shape: (29715, 1536, 1373)
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 16.1
+Loading CLIP (openai/clip-vit-base-patch32) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (openai/clip-vit-base-patch32)
+extract query features (Text)
+Extracting CLIP features for query...
+extract database features (Images)
+Extracting CLIP features for db...
+Query (Text) Shape: (1232, 512)
+Database (Image) Shape: (29715, 512)
+Retrieval results ILIAS: mAP: 13.37
+Loading CLIP (openai/clip-vit-base-patch16) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (openai/clip-vit-base-patch16)
+extract query features (Text)
+Extracting CLIP features for query...
+extract database features (Images)
+Extracting CLIP features for db...
+Query (Text) Shape: (1232, 512)
+Database (Image) Shape: (29715, 512)
+Retrieval results ILIAS: mAP: 19.54
+Loading CLIP (openai/clip-vit-large-patch14) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (openai/clip-vit-large-patch14)
+extract query features (Text)
+Extracting CLIP features for query...
+extract database features (Images)
+Extracting CLIP features for db...
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 28.22
+Loading CLIP (openai/clip-vit-large-patch14-336) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (openai/clip-vit-large-patch14-336)
+extract query features (Text)
+Extracting CLIP features for query...
+extract database features (Images)
+Extracting CLIP features for db...
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 34.65
+Loading CLIP (laion/CLIP-ViT-L-14-laion2B-s32B-b82K) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (laion/CLIP-ViT-L-14-laion2B-s32B-b82K)
+extract query features (Text)
+Extracting CLIP features for query...
+extract database features (Images)
+Extracting CLIP features for db...
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 31.61
+Loading CLIP (laion/CLIP-ViT-H-14-laion2B-s32B-b79K) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (laion/CLIP-ViT-H-14-laion2B-s32B-b79K)
+extract query features (Text)
+Extracting CLIP features for query...
+extract database features (Images)
+Extracting CLIP features for db...
+Query (Text) Shape: (1232, 1024)
+Database (Image) Shape: (29715, 1024)
+Retrieval results ILIAS: mAP: 39.31
+Loading CLIP (laion/CLIP-ViT-bigG-14-laion2B-39B-b160k) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (laion/CLIP-ViT-bigG-14-laion2B-39B-b160k)
+extract query features (Text)
+Extracting CLIP features for query...
+extract database features (Images)
+Extracting CLIP features for db...
+Query (Text) Shape: (1232, 1280)
+Database (Image) Shape: (29715, 1280)
+Retrieval results ILIAS: mAP: 42.05
+Loading SigLIP (google/siglip-base-patch16-224) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-base-patch16-224)
+extract query features (Text)
+Extracting SigLIP features for query...
+extract database features (Images)
+Extracting SigLIP features for db...
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 34.04
+Loading SigLIP (google/siglip-base-patch16-256) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-base-patch16-256)
+extract query features (Text)
+Extracting SigLIP features for query...
+extract database features (Images)
+Extracting SigLIP features for db...
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 35.2
+Loading SigLIP (google/siglip-base-patch16-384) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-base-patch16-384)
+extract query features (Text)
+Extracting SigLIP features for query...
+extract database features (Images)
+Extracting SigLIP features for db...
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 41.87
+Loading SigLIP (google/siglip-large-patch16-256) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-large-patch16-256)
+extract query features (Text)
+Extracting SigLIP features for query...
+extract database features (Images)
+Extracting SigLIP features for db...
+Query (Text) Shape: (1232, 1024)
+Database (Image) Shape: (29715, 1024)
+Retrieval results ILIAS: mAP: 42.96
+Loading SigLIP (google/siglip-large-patch16-384) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-large-patch16-384)
+extract query features (Text)
+Extracting SigLIP features for query...
+extract database features (Images)
+Extracting SigLIP features for db...
+Query (Text) Shape: (1232, 1024)
+Database (Image) Shape: (29715, 1024)
+Retrieval results ILIAS: mAP: 51.79
+Loading SigLIP (google/siglip-so400m-patch14-224) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-so400m-patch14-224)
+extract query features (Text)
+Extracting SigLIP features for query...
+extract database features (Images)
+Extracting SigLIP features for db...
+Query (Text) Shape: (1232, 1152)
+Database (Image) Shape: (29715, 1152)
+Retrieval results ILIAS: mAP: 29.48
+Loading SigLIP (google/siglip-so400m-patch14-384) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-so400m-patch14-384)
+extract query features (Text)
+Extracting SigLIP features for query...
+extract database features (Images)
+Extracting SigLIP features for db...
+Query (Text) Shape: (1232, 1152)
+Database (Image) Shape: (29715, 1152)
+Retrieval results ILIAS: mAP: 53.42
+
+============================================================
+FINAL COMBINATORIAL ANALYSIS (43848 combinations)
+============================================================
+
+****************************************
+CONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)
+****************************************
+No configuration met the 20/50 target on this dataset.
+
+>> Exporting all 43848 combinations to grid_search_ILIAS_1779261878.csv...
+>> Export complete! Data saved to /gpfs/work5/0/prjs2073/SimilarityImageRetrieval/grid_search_ILIAS_1779261878.csv
