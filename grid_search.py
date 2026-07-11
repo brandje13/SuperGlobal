@@ -26,7 +26,7 @@ from utils.evaluate_final import evaluate_final
 from utils.groundtruth import create_groundtruth_from_txt, create_groundtruth
 from utils.SIR_topk import retrieve_top_k
 from utils.merge_results import merge_results
-
+from utils.cleanup import print_vram_usage, find_leaking_tensors
 
 # --- CHECKPOINT HELPERS ---
 def load_ckpt(path):
@@ -156,7 +156,7 @@ def main():
     # Search parameters
     GLOBAL_M_SEARCH = list(range(0, 1000, 100))
     DINO_M_SEARCH = list(range(0, 1000, 2000))
-    #TOP_K_SEARCH = list(range(10, 110, 10))
+    # TOP_K_SEARCH = list(range(10, 110, 10))
     TOP_K_SEARCH = [10, 50, 100]
 
     # ====================================================================================
@@ -171,15 +171,18 @@ def main():
 
             c.SupG.TOP_M = m
             start = time.time()
+
+            print_vram_usage(f"Pre-SG: {sg_bb} | M={m}")
             try:
                 ranks, mAP = CVNet_tester.__main__(gnd, cfg)
+                print_vram_usage(f"Post-SG: {sg_bb} | M={m}")
                 sg_data[(sg_bb, m)] = {'family': 'SuperGlobal', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
                 save_ckpt(sg_data, sg_ckpt)
             except Exception as e:
                 print(f"[!] Error on SG {sg_bb}: {e}")
             finally:
-                torch.cuda.empty_cache();
-                gc.collect()
+                print(f"Scanning for VRAM leaks after SG {sg_bb}...")
+                find_leaking_tensors()
 
     # ====================================================================================
     # PHASE 1B: ConvNeXt V2 (Global Slot)
@@ -191,16 +194,19 @@ def main():
         if FUSE_ONLY_CACHED: continue
 
         start = time.time()
+
+        print_vram_usage(f"Pre-ConvNeXt: {conv_bb} | Res={res}")
         try:
             ranks, mAP = ConvNeXtV2_tester.__main__(gnd, cfg)
+            print_vram_usage(f"Post-ConvNeXt: {conv_bb} | Res={res}")
             conv_data[(conv_bb, 0)] = {'family': 'ConvNeXtV2', 'ranks': ranks, 'mAP': mAP,
                                        'time': time.time() - start}
             save_ckpt(conv_data, conv_ckpt)
         except Exception as e:
             print(f"[!] Error on ConvNeXt {conv_bb}: {e}")
         finally:
-            torch.cuda.empty_cache();
-            gc.collect()
+            print(f"Scanning for VRAM leaks after ConvNeXt {conv_bb}...")
+            find_leaking_tensors()
 
     # ====================================================================================
     # PHASE 1C: MixVPR (Global Slot)
@@ -209,16 +215,19 @@ def main():
     if (mixvpr_bb, 0) not in mixvpr_data:
         if not FUSE_ONLY_CACHED:
             start = time.time()
+
+            print_vram_usage(f"Pre-MixVPR: {mixvpr_bb}")
             try:
                 ranks, mAP = MixVPR_tester.__main__(gnd, cfg)
+                print_vram_usage(f"Post-MixVPR: {mixvpr_bb}")
                 mixvpr_data[(mixvpr_bb, 0)] = {'family': 'MixVPR', 'ranks': ranks, 'mAP': mAP,
                                                'time': time.time() - start}
                 save_ckpt(mixvpr_data, mixvpr_ckpt)
             except Exception as e:
                 print(f"[!] Error on MixVPR {mixvpr_bb}: {e}")
             finally:
-                torch.cuda.empty_cache();
-                gc.collect()
+                print(f"Scanning for VRAM leaks after MixVPR {mixvpr_bb}...")
+                find_leaking_tensors()
 
     # ====================================================================================
     # PHASE 2: DINOv2 (Local Slot)
@@ -238,8 +247,11 @@ def main():
 
             c.DINO.TOP_M = m
             start = time.time()
+
+            print_vram_usage(f"Pre-DINO: {dino_key} | M={m}")
             try:
                 ranks, mAP = DINO_tester.__main__(gnd, cfg)
+                print_vram_usage(f"Post-DINO: {dino_key} | M={m}")
                 # Save using the concatenated key
                 dino_data[(dino_key, m)] = {'family': 'DINOv2', 'ranks': ranks, 'mAP': mAP,
                                             'time': time.time() - start}
@@ -247,8 +259,8 @@ def main():
             except Exception as e:
                 print(f"[!] Error on DINO {dino_key}: {e}")
             finally:
-                torch.cuda.empty_cache();
-                gc.collect()
+                print(f"Scanning for VRAM leaks after DINO {dino_key}...")
+                find_leaking_tensors()
 
     # ====================================================================================
     # PHASE 3A: CLIP (Semantic Slot)
@@ -259,15 +271,18 @@ def main():
         c.CLIP.WEIGHTS = clip_bb
         c.CLIP.RESOLUTION = res
         start = time.time()
+
+        print_vram_usage(f"Pre-CLIP: {clip_bb} | Res={res}")
         try:
             ranks, mAP = CLIP_tester.__main__(gnd, cfg)
+            print_vram_usage(f"Post-CLIP: {clip_bb} | Res={res}")
             clip_data[clip_bb] = {'family': 'CLIP', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
             save_ckpt(clip_data, clip_ckpt)
         except Exception as e:
             print(f"[!] Error on CLIP {clip_bb}: {e}")
         finally:
-            torch.cuda.empty_cache();
-            gc.collect()
+            print(f"Scanning for VRAM leaks after CLIP {clip_bb}...")
+            find_leaking_tensors()
 
     # ====================================================================================
     # PHASE 3B: SigLIP (Semantic Slot)
@@ -278,15 +293,18 @@ def main():
         c.SigLIP.WEIGHTS = siglip_bb
         c.SigLIP.RESOLUTION = res
         start = time.time()
+
+        print_vram_usage(f"Pre-SigLIP: {siglip_bb} | Res={res}")
         try:
             ranks, mAP = SigLIP_tester.__main__(gnd, cfg)
+            print_vram_usage(f"Post-SigLIP: {siglip_bb} | Res={res}")
             siglip_data[siglip_bb] = {'family': 'SigLIP', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
             save_ckpt(siglip_data, siglip_ckpt)
         except Exception as e:
             print(f"[!] Error on SigLIP {siglip_bb}: {e}")
         finally:
-            torch.cuda.empty_cache();
-            gc.collect()
+            print(f"Scanning for VRAM leaks after SigLIP {siglip_bb}...")
+            find_leaking_tensors()
 
     # ====================================================================================
     # PHASE 4: DYNAMIC SLOT-BASED FUSION

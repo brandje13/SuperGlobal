@@ -1,6 +1,7 @@
 import os
 import h5py
 import numpy as np
+import gc
 from tqdm import tqdm
 import torch
 import torch.nn.functional as F
@@ -35,11 +36,11 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     with h5py.File(Q_path, 'r') as f_q:
         Q = f_q['features'][:]
-        # CRITICAL FIX: Keep the 9.65 GB tensor safely on the CPU!
-        Q_tensor_cpu = torch.from_numpy(Q).float()
+        # Retain original float16 data type to conserve system RAM
+        Q_tensor_cpu = torch.from_numpy(Q)
 
-        # Calculate the 1D global vectors on CPU, then pass ONLY the tiny global vectors to GPU
-        Q_global = F.normalize(torch.mean(Q_tensor_cpu, dim=2), p=2, dim=1).to(device)
+        # Cast to float32 only for the GPU operations
+        Q_global = F.normalize(torch.mean(Q_tensor_cpu.float(), dim=2), p=2, dim=1).to(device)
 
     # ---------------------------------------------------------
     # STAGE 1: GLOBAL SEARCH
@@ -48,7 +49,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     if USE_RAM_MODE:
         with h5py.File(X_path, 'r') as f_x:
-            X_tensor_cpu = torch.from_numpy(f_x['features'][:]).float()
+            # Retain original float16 data type to conserve system RAM
+            X_tensor_cpu = torch.from_numpy(f_x['features'][:])
             num_db, dim, n_patches = X_tensor_cpu.shape
             print(f"Database Shape: {X_tensor_cpu.shape}")
 
@@ -56,7 +58,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
         for start_idx in range(0, num_db, vram_safe_chunk):
             end_idx = min(start_idx + vram_safe_chunk, num_db)
-            chunk_patches = X_tensor_cpu[start_idx:end_idx].to(device)
+            # Cast to float32 when shifting chunk to GPU
+            chunk_patches = X_tensor_cpu[start_idx:end_idx].float().to(device)
             X_global[start_idx:end_idx] = torch.mean(chunk_patches, dim=2)
 
         X_global = F.normalize(X_global, p=2, dim=1)
@@ -81,19 +84,34 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     k_fetch = max(1, top_m_rerank)
     top_global_scores, top_global_indices = torch.topk(sim_global, k=k_fetch, dim=1)
 
+    # Move similarity matrix to CPU to free VRAM
+    sim_global = sim_global.cpu()
+
     if top_m_rerank == 0:
-        ranks = torch.argsort(sim_global, descending=True).cpu().numpy().T
+        ranks = torch.argsort(sim_global, descending=True).numpy().T
         map_score = 0.0
         if evaluate:
             ks = [10, 25, 100]
             if not custom:
                 (map_score, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
                 print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map_score * 100, decimals=2)))
+
+        # Free global tensors before returning
+        del Q_global, X_global
+        torch.cuda.empty_cache()
+        gc.collect()
+
         return ranks, map_score
 
     # ---------------------------------------------------------
     # STAGE 2: LOCAL RERANKING (Nested Dynamic Hardware Chunking)
     # ---------------------------------------------------------
+
+    # Free Stage 1 global tensors from VRAM prior to Stage 2 iterations
+    del Q_global, X_global
+    torch.cuda.empty_cache()
+    gc.collect()
+
     print(f">> Stage 2: Reranking Top-{top_m_rerank} candidates with Patch Logic...")
 
     final_ranks = []
@@ -115,8 +133,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     if USE_RAM_MODE:
         for i in tqdm(range(N_q), desc="Reranking", mininterval=1.0):
-            # Send ONLY the current query (8.4 MB) to the GPU
-            q_patches = Q_tensor_cpu[i].to(device).t().unsqueeze(0)
+            # Cast query chunk to float32 before sending to GPU
+            q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
             candidate_idxs = top_global_indices[i].cpu()
 
             db_candidates_full = X_tensor_cpu[candidate_idxs]
@@ -124,7 +142,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
             for c_start in range(0, top_m_rerank, vram_chunk_size):
                 c_end = min(c_start + vram_chunk_size, top_m_rerank)
-                db_chunk = db_candidates_full[c_start:c_end].to(device)
+                # Cast database chunk to float32 before sending to GPU
+                db_chunk = db_candidates_full[c_start:c_end].float().to(device)
 
                 sim_matrix = torch.matmul(q_patches, db_chunk)
                 best_match_per_patch, _ = sim_matrix.max(dim=2)
@@ -135,7 +154,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             local_sort_order = torch.argsort(local_scores, descending=True)
             final_top_m_indices = candidate_idxs[local_sort_order]
 
-            global_sort_order = torch.argsort(sim_global[i], descending=True).cpu()
+            global_sort_order = torch.argsort(sim_global[i], descending=True)
             rest_indices = global_sort_order[top_m_rerank:]
 
             final_ranks.append(torch.cat([final_top_m_indices, rest_indices]).numpy())
@@ -145,8 +164,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             db_dataset = f_x['features']
 
             for i in tqdm(range(N_q), desc="Reranking", mininterval=5.0):
-                # Send ONLY the current query (8.4 MB) to the GPU
-                q_patches = Q_tensor_cpu[i].to(device).t().unsqueeze(0)
+                # Cast query chunk to float32 before sending to GPU
+                q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
                 candidate_idxs = top_global_indices[i].cpu().numpy()
 
                 local_scores = torch.zeros(top_m_rerank)
@@ -158,12 +177,14 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                     cpu_end = min(cpu_start + cpu_chunk_size, top_m_rerank)
                     batch_sorted_idxs = sorted_idxs[cpu_start:cpu_end]
 
-                    db_cpu_chunk = torch.from_numpy(db_dataset[batch_sorted_idxs.tolist()]).float()
+                    # Read into CPU as float16 to preserve RAM footprint
+                    db_cpu_chunk = torch.from_numpy(db_dataset[batch_sorted_idxs.tolist()])
 
                     for vram_start in range(0, (cpu_end - cpu_start), vram_chunk_size):
                         vram_end = min(vram_start + vram_chunk_size, (cpu_end - cpu_start))
 
-                        db_gpu_chunk = db_cpu_chunk[vram_start:vram_end].to(device)
+                        # Cast database chunk to float32 before sending to GPU
+                        db_gpu_chunk = db_cpu_chunk[vram_start:vram_end].float().to(device)
 
                         sim_matrix = torch.matmul(q_patches, db_gpu_chunk)
                         best_match_per_patch, _ = sim_matrix.max(dim=2)
@@ -176,7 +197,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                 local_sort_order = torch.argsort(local_scores, descending=True)
                 final_top_m_indices = torch.tensor(candidate_idxs)[local_sort_order]
 
-                global_sort_order = torch.argsort(sim_global[i], descending=True).cpu()
+                global_sort_order = torch.argsort(sim_global[i], descending=True)
                 rest_indices = global_sort_order[top_m_rerank:]
 
                 final_ranks.append(torch.cat([final_top_m_indices, rest_indices]).numpy())

@@ -33,6 +33,10 @@ class DataSet(torch.utils.data.Dataset):
         self._fn = fn
         self._split = split
         self._construct_db()
+        print("Initializing dataset object")
+
+    def __del__(self):
+        print("Deleting dataset object.")
 
     def _construct_db(self):
         """Constructs the db."""
