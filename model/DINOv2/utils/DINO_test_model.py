@@ -28,7 +28,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
         extract_DINO_features(model, data_dir, dataset, gnd, "db", X_path)
 
     file_size_gb = os.path.getsize(X_path) / (1024 ** 3)
-    USE_RAM_MODE = file_size_gb < 20.0
+    USE_RAM_MODE = file_size_gb < 30.0
 
     print(f">> DB Size: {file_size_gb:.2f} GB | Ultra-Fast RAM Mode: {USE_RAM_MODE}")
     print(">> Loading features and computing Global Descriptors...")
@@ -104,8 +104,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     bytes_per_image_vram = (dim * n_patches + n_patches * n_patches) * 4
 
     # Target 12GB System RAM and 4GB GPU VRAM
-    TARGET_CPU_BYTES = 12 * 1024 * 1024 * 1024
-    TARGET_VRAM_BYTES = 4 * 1024 * 1024 * 1024
+    TARGET_CPU_BYTES = 50 * 1024 * 1024 * 1024
+    TARGET_VRAM_BYTES = 30 * 1024 * 1024 * 1024
 
     cpu_chunk_size = max(100, int(TARGET_CPU_BYTES / bytes_per_image_cpu))
     vram_chunk_size = max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram))

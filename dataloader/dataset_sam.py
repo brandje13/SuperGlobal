@@ -10,7 +10,7 @@
 import cv2
 import torch
 from dataloader.dataset import DataSet
-from segment_anything.utils.transforms import ResizeLongestSide
+#from segment_anything.utils.transforms import ResizeLongestSide
 
 
 class DataSet_SAM(DataSet):
@@ -18,7 +18,7 @@ class DataSet_SAM(DataSet):
 
     def __init__(self, data_path, dataset, fn, split):
         super().__init__(data_path, dataset, fn, split)
-        self.transform = ResizeLongestSide(1024)
+        self.transform = 1024
 
     def __getitem__(self, index):
         # Load the image

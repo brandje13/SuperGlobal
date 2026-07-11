@@ -1006,128 +1006,59 @@
         "01a9fb337a366a1d032fcffd32629e1.jpg",
         "01a9fce1c5fbd983369b44f3a6af28.jpg",
         "01a9fcf12a83b6eba974dfb6a3a8cc1.jpg",
-        "queries\\bold_bimp_000\\pos\\P000_00.jpg",
-        "queries\\bold_bimp_000\\pos\\P000_01.jpg",
-        "queries\\bold_bimp_000\\pos\\P000_02.jpg",
-        "queries\\bold_bimp_000\\pos\\P000_03.jpg",
-        "queries\\bold_bimp_000\\pos\\P000_04.jpg",
-        "queries\\bold_bimp_000\\pos\\P000_05.jpg",
-        "queries\\bold_bimp_000\\pos\\P000_06.jpg",
-        "queries\\bold_bimp_000\\pos\\P000_07.jpg",
-        "queries\\bold_bimp_000\\pos\\P000_08.jpg",
-        "queries\\bold_flep_001\\pos\\P001_00.jpg",
-        "queries\\bold_flep_001\\pos\\P001_01.jpg",
-        "queries\\bold_flep_001\\pos\\P001_02.jpg",
-        "queries\\bold_flep_001\\pos\\P001_03.jpg",
-        "queries\\bold_flep_001\\pos\\P001_04.jpg",
-        "queries\\bold_flep_001\\pos\\P001_05.jpg",
-        "queries\\bold_flep_001\\pos\\P001_06.jpg",
-        "queries\\bold_flep_001\\pos\\P001_07.jpg",
-        "queries\\bold_flep_001\\pos\\P001_08.jpg",
-        "queries\\bold_flim_002\\pos\\P002_00.jpg",
-        "queries\\bold_flim_002\\pos\\P002_01.jpg",
-        "queries\\bold_flim_002\\pos\\P002_02.jpg",
-        "queries\\bold_flim_002\\pos\\P002_03.jpg",
-        "queries\\bold_flim_002\\pos\\P002_04.jpg",
-        "queries\\bold_flim_002\\pos\\P002_05.jpg",
-        "queries\\bold_flim_002\\pos\\P002_06.jpg",
-        "queries\\bold_gim_003\\pos\\P003_00.jpg",
-        "queries\\bold_gim_003\\pos\\P003_01.jpg",
-        "queries\\bold_gim_003\\pos\\P003_02.jpg",
-        "queries\\bold_gim_003\\pos\\P003_03.jpg",
-        "queries\\bold_gim_003\\pos\\P003_04.jpg",
-        "queries\\bold_gim_003\\pos\\P003_05.jpg",
-        "queries\\bold_gim_003\\pos\\P003_06.jpg",
-        "queries\\bold_puff_004\\pos\\P004_00.jpg",
-        "queries\\bold_puff_004\\pos\\P004_01.jpg",
-        "queries\\bold_puff_004\\pos\\P004_02.jpg",
-        "queries\\bold_puff_004\\pos\\P004_03.jpg",
-        "queries\\bold_riff_005\\pos\\P005_00.jpg",
-        "queries\\bold_riff_005\\pos\\P005_01.jpg",
-        "queries\\bold_riff_005\\pos\\P005_02.jpg",
-        "queries\\bold_riff_005\\pos\\P005_03.jpg"
+        "queries/bold_flim_002/pos/P002_00.jpg",
+        "queries/bold_flim_002/pos/P002_01.jpg",
+        "queries/bold_flim_002/pos/P002_02.jpg",
+        "queries/bold_flim_002/pos/P002_03.jpg",
+        "queries/bold_flim_002/pos/P002_04.jpg",
+        "queries/bold_flim_002/pos/P002_05.jpg",
+        "queries/bold_flim_002/pos/P002_06.jpg",
+        "queries/bold_puff_004/pos/P004_00.jpg",
+        "queries/bold_puff_004/pos/P004_01.jpg",
+        "queries/bold_puff_004/pos/P004_02.jpg",
+        "queries/bold_puff_004/pos/P004_03.jpg",
+        "queries/bold_riff_005/pos/P005_00.jpg",
+        "queries/bold_riff_005/pos/P005_01.jpg",
+        "queries/bold_riff_005/pos/P005_02.jpg",
+        "queries/bold_riff_005/pos/P005_03.jpg",
+        "queries/bold_flep_001/pos/P001_00.jpg",
+        "queries/bold_flep_001/pos/P001_01.jpg",
+        "queries/bold_flep_001/pos/P001_02.jpg",
+        "queries/bold_flep_001/pos/P001_03.jpg",
+        "queries/bold_flep_001/pos/P001_04.jpg",
+        "queries/bold_flep_001/pos/P001_05.jpg",
+        "queries/bold_flep_001/pos/P001_06.jpg",
+        "queries/bold_flep_001/pos/P001_07.jpg",
+        "queries/bold_flep_001/pos/P001_08.jpg",
+        "queries/bold_bimp_000/pos/P000_00.jpg",
+        "queries/bold_bimp_000/pos/P000_01.jpg",
+        "queries/bold_bimp_000/pos/P000_02.jpg",
+        "queries/bold_bimp_000/pos/P000_03.jpg",
+        "queries/bold_bimp_000/pos/P000_04.jpg",
+        "queries/bold_bimp_000/pos/P000_05.jpg",
+        "queries/bold_bimp_000/pos/P000_06.jpg",
+        "queries/bold_bimp_000/pos/P000_07.jpg",
+        "queries/bold_bimp_000/pos/P000_08.jpg",
+        "queries/bold_gim_003/pos/P003_00.jpg",
+        "queries/bold_gim_003/pos/P003_01.jpg",
+        "queries/bold_gim_003/pos/P003_02.jpg",
+        "queries/bold_gim_003/pos/P003_03.jpg",
+        "queries/bold_gim_003/pos/P003_04.jpg",
+        "queries/bold_gim_003/pos/P003_05.jpg",
+        "queries/bold_gim_003/pos/P003_06.jpg"
     ],
     "qimlist": [
-        "bold_bimp_000\\query\\Q000_00.jpg",
-        "bold_flep_001\\query\\Q001_00.jpg",
-        "bold_flep_001\\query\\Q001_01.jpg",
-        "bold_flim_002\\query\\Q002_00.jpg",
-        "bold_gim_003\\query\\Q003_00.jpg",
-        "bold_puff_004\\query\\Q004_00.jpg",
-        "bold_riff_005\\query\\Q005_00.jpg"
+        "bold_flim_002/query/Q002_00.jpg",
+        "bold_puff_004/query/Q004_00.jpg",
+        "bold_riff_005/query/Q005_00.jpg",
+        "bold_flep_001/query/Q001_00.jpg",
+        "bold_flep_001/query/Q001_01.jpg",
+        "bold_bimp_000/query/Q000_00.jpg",
+        "bold_gim_003/query/Q003_00.jpg"
     ],
     "gnd": [
         {
-            "query": "bold_bimp_000\\query\\Q000_00.jpg",
-            "bbx": [
-                10.0,
-                5.0,
-                497.0,
-                498.0
-            ],
-            "text": "The painting features bold, swirling brushstrokes in shades of teal, red, and black. The composition is abstract, with dynamic, flowing patterns that create a sense of movement and energy. The colors blend and contrast, giving the piece a vibrant and expressive feel.",
-            "ok": [
-                "queries\\bold_bimp_000\\pos\\P000_00.jpg",
-                "queries\\bold_bimp_000\\pos\\P000_01.jpg",
-                "queries\\bold_bimp_000\\pos\\P000_02.jpg",
-                "queries\\bold_bimp_000\\pos\\P000_03.jpg",
-                "queries\\bold_bimp_000\\pos\\P000_04.jpg",
-                "queries\\bold_bimp_000\\pos\\P000_05.jpg",
-                "queries\\bold_bimp_000\\pos\\P000_06.jpg",
-                "queries\\bold_bimp_000\\pos\\P000_07.jpg",
-                "queries\\bold_bimp_000\\pos\\P000_08.jpg"
-            ],
-            "good": [],
-            "junk": []
-        },
-        {
-            "query": "bold_flep_001\\query\\Q001_00.jpg",
-            "bbx": [
-                123.0,
-                78.0,
-                407.0,
-                272.0
-            ],
-            "text": "This is a compact wireless controller designed for gaming or media control. It features a QWERTY keyboard and two circular button pads. The left pad has volume controls labeled \"V+\" and \"V-\" and media control symbols for play/pause and skip. The right pad has directional arrows surrounding an \"OK\" button. The device is branded with \"Rii\" and has a sleek, black design with orange accents.",
-            "ok": [
-                "queries\\bold_flep_001\\pos\\P001_00.jpg",
-                "queries\\bold_flep_001\\pos\\P001_01.jpg",
-                "queries\\bold_flep_001\\pos\\P001_02.jpg",
-                "queries\\bold_flep_001\\pos\\P001_03.jpg",
-                "queries\\bold_flep_001\\pos\\P001_04.jpg",
-                "queries\\bold_flep_001\\pos\\P001_05.jpg",
-                "queries\\bold_flep_001\\pos\\P001_06.jpg",
-                "queries\\bold_flep_001\\pos\\P001_07.jpg",
-                "queries\\bold_flep_001\\pos\\P001_08.jpg"
-            ],
-            "good": [],
-            "junk": []
-        },
-        {
-            "query": "bold_flep_001\\query\\Q001_01.jpg",
-            "bbx": [
-                0.0,
-                0.0,
-                498.0,
-                147.0
-            ],
-            "text": "This is a compact wireless controller designed for gaming or media control. It features a QWERTY keyboard and two circular button pads. The left pad has volume controls labeled \"V+\" and \"V-\" and media control symbols for play/pause and skip. The right pad has directional arrows surrounding an \"OK\" button. The device is branded with \"Rii\" and has a sleek, black design with orange accents.",
-            "ok": [
-                "queries\\bold_flep_001\\pos\\P001_00.jpg",
-                "queries\\bold_flep_001\\pos\\P001_01.jpg",
-                "queries\\bold_flep_001\\pos\\P001_02.jpg",
-                "queries\\bold_flep_001\\pos\\P001_03.jpg",
-                "queries\\bold_flep_001\\pos\\P001_04.jpg",
-                "queries\\bold_flep_001\\pos\\P001_05.jpg",
-                "queries\\bold_flep_001\\pos\\P001_06.jpg",
-                "queries\\bold_flep_001\\pos\\P001_07.jpg",
-                "queries\\bold_flep_001\\pos\\P001_08.jpg"
-            ],
-            "good": [],
-            "junk": []
-        },
-        {
-            "query": "bold_flim_002\\query\\Q002_00.jpg",
+            "query": "bold_flim_002/query/Q002_00.jpg",
             "bbx": [
                 0.0,
                 0.0,
@@ -1136,40 +1067,19 @@
             ],
             "text": "The image shows a piece of public art made from wooden branches arranged to form the outline of a horse. The branches are attached to a textured wall, creating a rustic and natural appearance.",
             "ok": [
-                "queries\\bold_flim_002\\pos\\P002_00.jpg",
-                "queries\\bold_flim_002\\pos\\P002_01.jpg",
-                "queries\\bold_flim_002\\pos\\P002_02.jpg",
-                "queries\\bold_flim_002\\pos\\P002_03.jpg",
-                "queries\\bold_flim_002\\pos\\P002_04.jpg",
-                "queries\\bold_flim_002\\pos\\P002_05.jpg",
-                "queries\\bold_flim_002\\pos\\P002_06.jpg"
+                "queries/bold_flim_002/pos/P002_00.jpg",
+                "queries/bold_flim_002/pos/P002_01.jpg",
+                "queries/bold_flim_002/pos/P002_02.jpg",
+                "queries/bold_flim_002/pos/P002_03.jpg",
+                "queries/bold_flim_002/pos/P002_04.jpg",
+                "queries/bold_flim_002/pos/P002_05.jpg",
+                "queries/bold_flim_002/pos/P002_06.jpg"
             ],
             "good": [],
             "junk": []
         },
         {
-            "query": "bold_gim_003\\query\\Q003_00.jpg",
-            "bbx": [
-                77.0,
-                165.0,
-                279.0,
-                390.0
-            ],
-            "text": "The image shows a frog sculpture. It is painted in green with a yellow belly and has a glossy finish. The frog is depicted in a relaxed pose, with one arm resting on its belly and the other bent behind its head.",
-            "ok": [
-                "queries\\bold_gim_003\\pos\\P003_00.jpg",
-                "queries\\bold_gim_003\\pos\\P003_01.jpg",
-                "queries\\bold_gim_003\\pos\\P003_02.jpg",
-                "queries\\bold_gim_003\\pos\\P003_03.jpg",
-                "queries\\bold_gim_003\\pos\\P003_04.jpg",
-                "queries\\bold_gim_003\\pos\\P003_05.jpg",
-                "queries\\bold_gim_003\\pos\\P003_06.jpg"
-            ],
-            "good": [],
-            "junk": []
-        },
-        {
-            "query": "bold_puff_004\\query\\Q004_00.jpg",
+            "query": "bold_puff_004/query/Q004_00.jpg",
             "bbx": [
                 56.0,
                 27.0,
@@ -1178,16 +1088,16 @@
             ],
             "text": "The image shows a sculpture of a female figure with arms raised above her head. It is crafted in a glossy, translucent pink material. The figure appears to be emerging from a stylized base that resembles flowing fabric or waves. The sculpture has a modern and artistic design.",
             "ok": [
-                "queries\\bold_puff_004\\pos\\P004_00.jpg",
-                "queries\\bold_puff_004\\pos\\P004_01.jpg",
-                "queries\\bold_puff_004\\pos\\P004_02.jpg",
-                "queries\\bold_puff_004\\pos\\P004_03.jpg"
+                "queries/bold_puff_004/pos/P004_00.jpg",
+                "queries/bold_puff_004/pos/P004_01.jpg",
+                "queries/bold_puff_004/pos/P004_02.jpg",
+                "queries/bold_puff_004/pos/P004_03.jpg"
             ],
             "good": [],
             "junk": []
         },
         {
-            "query": "bold_riff_005\\query\\Q005_00.jpg",
+            "query": "bold_riff_005/query/Q005_00.jpg",
             "bbx": [
                 58.0,
                 59.0,
@@ -1196,14 +1106,104 @@
             ],
             "text": "The image shows a postage stamp featuring a shield-shaped emblem with the text \"FUEGO FC.\" The emblem has a red and black outline, with stylized red flames at the bottom and black diagonal lines above. The background of the emblem is green. The stamp has a perforated edge.",
             "ok": [
-                "queries\\bold_riff_005\\pos\\P005_00.jpg",
-                "queries\\bold_riff_005\\pos\\P005_01.jpg",
-                "queries\\bold_riff_005\\pos\\P005_02.jpg",
-                "queries\\bold_riff_005\\pos\\P005_03.jpg"
+                "queries/bold_riff_005/pos/P005_00.jpg",
+                "queries/bold_riff_005/pos/P005_01.jpg",
+                "queries/bold_riff_005/pos/P005_02.jpg",
+                "queries/bold_riff_005/pos/P005_03.jpg"
+            ],
+            "good": [],
+            "junk": []
+        },
+        {
+            "query": "bold_flep_001/query/Q001_00.jpg",
+            "bbx": [
+                123.0,
+                78.0,
+                407.0,
+                272.0
+            ],
+            "text": "This is a compact wireless controller designed for gaming or media control. It features a QWERTY keyboard and two circular button pads. The left pad has volume controls labeled \"V+\" and \"V-\" and media control symbols for play/pause and skip. The right pad has directional arrows surrounding an \"OK\" button. The device is branded with \"Rii\" and has a sleek, black design with orange accents.",
+            "ok": [
+                "queries/bold_flep_001/pos/P001_00.jpg",
+                "queries/bold_flep_001/pos/P001_01.jpg",
+                "queries/bold_flep_001/pos/P001_02.jpg",
+                "queries/bold_flep_001/pos/P001_03.jpg",
+                "queries/bold_flep_001/pos/P001_04.jpg",
+                "queries/bold_flep_001/pos/P001_05.jpg",
+                "queries/bold_flep_001/pos/P001_06.jpg",
+                "queries/bold_flep_001/pos/P001_07.jpg",
+                "queries/bold_flep_001/pos/P001_08.jpg"
+            ],
+            "good": [],
+            "junk": []
+        },
+        {
+            "query": "bold_flep_001/query/Q001_01.jpg",
+            "bbx": [
+                0.0,
+                0.0,
+                498.0,
+                147.0
+            ],
+            "text": "This is a compact wireless controller designed for gaming or media control. It features a QWERTY keyboard and two circular button pads. The left pad has volume controls labeled \"V+\" and \"V-\" and media control symbols for play/pause and skip. The right pad has directional arrows surrounding an \"OK\" button. The device is branded with \"Rii\" and has a sleek, black design with orange accents.",
+            "ok": [
+                "queries/bold_flep_001/pos/P001_00.jpg",
+                "queries/bold_flep_001/pos/P001_01.jpg",
+                "queries/bold_flep_001/pos/P001_02.jpg",
+                "queries/bold_flep_001/pos/P001_03.jpg",
+                "queries/bold_flep_001/pos/P001_04.jpg",
+                "queries/bold_flep_001/pos/P001_05.jpg",
+                "queries/bold_flep_001/pos/P001_06.jpg",
+                "queries/bold_flep_001/pos/P001_07.jpg",
+                "queries/bold_flep_001/pos/P001_08.jpg"
+            ],
+            "good": [],
+            "junk": []
+        },
+        {
+            "query": "bold_bimp_000/query/Q000_00.jpg",
+            "bbx": [
+                10.0,
+                5.0,
+                497.0,
+                498.0
+            ],
+            "text": "The painting features bold, swirling brushstrokes in shades of teal, red, and black. The composition is abstract, with dynamic, flowing patterns that create a sense of movement and energy. The colors blend and contrast, giving the piece a vibrant and expressive feel.",
+            "ok": [
+                "queries/bold_bimp_000/pos/P000_00.jpg",
+                "queries/bold_bimp_000/pos/P000_01.jpg",
+                "queries/bold_bimp_000/pos/P000_02.jpg",
+                "queries/bold_bimp_000/pos/P000_03.jpg",
+                "queries/bold_bimp_000/pos/P000_04.jpg",
+                "queries/bold_bimp_000/pos/P000_05.jpg",
+                "queries/bold_bimp_000/pos/P000_06.jpg",
+                "queries/bold_bimp_000/pos/P000_07.jpg",
+                "queries/bold_bimp_000/pos/P000_08.jpg"
+            ],
+            "good": [],
+            "junk": []
+        },
+        {
+            "query": "bold_gim_003/query/Q003_00.jpg",
+            "bbx": [
+                77.0,
+                165.0,
+                279.0,
+                390.0
+            ],
+            "text": "The image shows a frog sculpture. It is painted in green with a yellow belly and has a glossy finish. The frog is depicted in a relaxed pose, with one arm resting on its belly and the other bent behind its head.",
+            "ok": [
+                "queries/bold_gim_003/pos/P003_00.jpg",
+                "queries/bold_gim_003/pos/P003_01.jpg",
+                "queries/bold_gim_003/pos/P003_02.jpg",
+                "queries/bold_gim_003/pos/P003_03.jpg",
+                "queries/bold_gim_003/pos/P003_04.jpg",
+                "queries/bold_gim_003/pos/P003_05.jpg",
+                "queries/bold_gim_003/pos/P003_06.jpg"
             ],
             "good": [],
             "junk": []
         }
     ],
-    "path": ".\\datasets\\ILIAS_Test"
+    "path": "./datasets/ILIAS_Test"
 }
