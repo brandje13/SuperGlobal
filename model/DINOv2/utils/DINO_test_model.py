@@ -133,22 +133,14 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     total_vram = torch.cuda.get_device_properties(device).total_memory
     allocated_vram = torch.cuda.memory_allocated(device)
+
+    # 15% safety buffer for VRAM, 20% safety buffer for CPU RAM
     safe_available_vram = (total_vram - allocated_vram) * 0.85
     TARGET_VRAM_BYTES = int(safe_available_vram)
-
-    cgroup_mem_limit_path = '/sys/fs/cgroup/memory/memory.limit_in_bytes'
-    cgroup_mem_usage_path = '/sys/fs/cgroup/memory/memory.usage_in_bytes'
-
-    available_ram = psutil.virtual_memory().available
-
-    if os.path.exists(cgroup_mem_limit_path) and os.path.exists(cgroup_mem_usage_path):
-        with open(cgroup_mem_limit_path, 'r') as f_limit, open(cgroup_mem_usage_path, 'r') as f_usage:
-            cgroup_limit = int(f_limit.read().strip())
-            cgroup_usage = int(f_usage.read().strip())
-            if cgroup_limit < (1024 ** 4):
-                available_ram = min(available_ram, cgroup_limit - cgroup_usage)
-
     TARGET_CPU_BYTES = int(available_ram * 0.80)
+
+    print(
+        f">> Dynamic Allocations | CPU Target: {TARGET_CPU_BYTES / (1024 ** 3):.2f} GB | VRAM Target: {TARGET_VRAM_BYTES / (1024 ** 3):.2f} GB")
 
     cpu_chunk_size = max(100, int(TARGET_CPU_BYTES / bytes_per_image_cpu))
     vram_chunk_size = max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram))
@@ -159,7 +151,9 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     if USE_RAM_MODE:
         for i in tqdm(range(N_q), desc="Reranking", mininterval=1.0):
             q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
-            candidate_idxs = top_global_indices[i]
+
+            # Explicitly move to CPU here to prevent indexing crash
+            candidate_idxs = top_global_indices[i].cpu()
 
             local_scores = torch.zeros(top_m_rerank)
 
@@ -176,7 +170,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                 local_scores[c_start:c_end] = top_m_vals.mean(dim=1).cpu()
 
             local_sort_order = torch.argsort(local_scores, descending=True)
-            final_top_m_indices = candidate_idxs[local_sort_order].cpu()
+            final_top_m_indices = candidate_idxs[local_sort_order]
 
             global_sort_order = torch.argsort(sim_global[i], descending=True)
             rest_indices = global_sort_order[top_m_rerank:]
@@ -189,12 +183,15 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
             for i in tqdm(range(N_q), desc="Reranking", mininterval=5.0):
                 q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
-                candidate_idxs = top_global_indices[i].cpu().numpy()
+
+                # Setup CPU tensors and numpy arrays cleanly
+                candidate_idxs_tensor = top_global_indices[i].cpu()
+                candidate_idxs_np = candidate_idxs_tensor.numpy()
 
                 local_scores = torch.zeros(top_m_rerank)
 
-                sort_order = np.argsort(candidate_idxs)
-                sorted_idxs = candidate_idxs[sort_order]
+                sort_order = np.argsort(candidate_idxs_np)
+                sorted_idxs = candidate_idxs_np[sort_order]
 
                 for cpu_start in range(0, top_m_rerank, cpu_chunk_size):
                     cpu_end = min(cpu_start + cpu_chunk_size, top_m_rerank)
@@ -216,7 +213,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                         local_scores[original_rank_positions] = top_m_vals.mean(dim=1).cpu()
 
                 local_sort_order = torch.argsort(local_scores, descending=True)
-                final_top_m_indices = torch.tensor(candidate_idxs)[local_sort_order]
+                final_top_m_indices = candidate_idxs_tensor[local_sort_order]
 
                 global_sort_order = torch.argsort(sim_global[i], descending=True)
                 rest_indices = global_sort_order[top_m_rerank:]
