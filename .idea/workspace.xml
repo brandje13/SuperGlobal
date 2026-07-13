@@ -5,14 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee3dcb7a-ed7d-47df-90f3-b54f3599d71a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/utils/cleanup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/SimilarityImageRetrieval.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SimilarityImageRetrieval.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataloader/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader/dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/DINO_tester.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Grid Search.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Grid Search.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DINOv2/utils/DINO_test_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/submit_slurm.bash" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,18 +46,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.ILIAS.executor": "Run",
-    "Python.grid_search.executor": "Debug",
-    "Python.test (ILIAS).executor": "Run",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Snellius",
-    "grid.search.filter.rows": "true",
-    "last_opened_file_path": "C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/weights",
-    "settings.editor.selected.configurable": "Console"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.ILIAS.executor&quot;: &quot;Run&quot;,
+    &quot;Python.grid_search.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.test (ILIAS).executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Snellius&quot;,
+    &quot;grid.search.filter.rows&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/weights&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Console&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\SimilarityImageRetrieval\weights" />
