@@ -148,7 +148,7 @@ def main():
     ]
 
     # Search parameters
-    GLOBAL_M_SEARCH = list(range(0, 1000, 100))
+    GLOBAL_M_SEARCH = list(range(0, 1100, 100))
 
     DINO_M_SEARCH = list(range(0, 11000, 1000))
     #TOP_K_SEARCH = list(range(10, 110, 10))

@@ -1,0 +1,201 @@
+[Pre-SG: weights/CVPR2022_CVNet_R50.pyth | M=1000] VRAM Allocated: 0.00 MB | VRAM Reserved: 0.00 MB
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R50)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 13.87, M: 22.1, H: 13.87
+[Post-SG: weights/CVPR2022_CVNet_R50.pyth | M=1000] VRAM Allocated: 8.12 MB | VRAM Reserved: 25140.00 MB
+Scanning for VRAM leaks after SG weights/CVPR2022_CVNet_R50.pyth...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-SG: weights/CVPR2022_CVNet_R101.pyth | M=1000] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+=> creating CVNet_Rerank model
+>> ILIAS: Global Retrieval for scale 3 with CVNet-Global (CVPR2022_CVNet_R101)
+extract query features
+extract database features
+perform global feature reranking
+Retrieval results ILIAS: mAP E: 14.61, M: 23.66, H: 14.61
+[Post-SG: weights/CVPR2022_CVNet_R101.pyth | M=1000] VRAM Allocated: 8.12 MB | VRAM Reserved: 21302.00 MB
+Scanning for VRAM leaks after SG weights/CVPR2022_CVNet_R101.pyth...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+[Pre-DINO: vit_giant_patch14_dinov2.lvd142m_224 | M=8000] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading DINOv2 (vit_giant_patch14_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_dinov2.lvd142m)
+>> DB Size: 21.76 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 1536, 256])
+>> Stage 1: Global Descriptor Search...
+>> Stage 2: Reranking Top-8000 candidates with Patch Logic...
+>> Hardware Engine Scaling [Res: 224 | Patches: 256]
+>> Batching strategy: CPU Chunk = 34133, VRAM Chunk = 17554
+[!] Error on DINO vit_giant_patch14_dinov2.lvd142m_224: CUDA out of memory. Tried to allocate 11.72 GiB. GPU 0 has a total capacty of 39.49 GiB of which 10.50 GiB is free. Including non-PyTorch memory, this process has 28.98 GiB memory in use. Of the allocated memory 18.39 GiB is allocated by PyTorch, and 10.10 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+Scanning for VRAM leaks after DINO vit_giant_patch14_dinov2.lvd142m_224...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-DINO: vit_giant_patch14_dinov2.lvd142m_224 | M=9000] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading DINOv2 (vit_giant_patch14_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_dinov2.lvd142m)
+>> DB Size: 21.76 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 1536, 256])
+>> Stage 1: Global Descriptor Search...
+>> Stage 2: Reranking Top-9000 candidates with Patch Logic...
+>> Hardware Engine Scaling [Res: 224 | Patches: 256]
+>> Batching strategy: CPU Chunk = 34133, VRAM Chunk = 17554
+[!] Error on DINO vit_giant_patch14_dinov2.lvd142m_224: CUDA out of memory. Tried to allocate 13.18 GiB. GPU 0 has a total capacty of 39.49 GiB of which 7.57 GiB is free. Including non-PyTorch memory, this process has 31.91 GiB memory in use. Of the allocated memory 20.12 GiB is allocated by PyTorch, and 11.30 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+Scanning for VRAM leaks after DINO vit_giant_patch14_dinov2.lvd142m_224...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-DINO: vit_giant_patch14_dinov2.lvd142m_224 | M=10000] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading DINOv2 (vit_giant_patch14_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_dinov2.lvd142m)
+>> DB Size: 21.76 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 1536, 256])
+>> Stage 1: Global Descriptor Search...
+>> Stage 2: Reranking Top-10000 candidates with Patch Logic...
+>> Hardware Engine Scaling [Res: 224 | Patches: 256]
+>> Batching strategy: CPU Chunk = 34133, VRAM Chunk = 17554
+[!] Error on DINO vit_giant_patch14_dinov2.lvd142m_224: CUDA out of memory. Tried to allocate 14.65 GiB. GPU 0 has a total capacty of 39.49 GiB of which 4.64 GiB is free. Including non-PyTorch memory, this process has 34.84 GiB memory in use. Of the allocated memory 21.84 GiB is allocated by PyTorch, and 12.51 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+Scanning for VRAM leaks after DINO vit_giant_patch14_dinov2.lvd142m_224...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+[Pre-DINO: vit_giant_patch14_reg4_dinov2.lvd142m_224 | M=8000] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m)
+>> DB Size: 22.10 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 1536, 260])
+>> Stage 1: Global Descriptor Search...
+>> Stage 2: Reranking Top-8000 candidates with Patch Logic...
+>> Hardware Engine Scaling [Res: 224 | Patches: 260]
+>> Batching strategy: CPU Chunk = 33608, VRAM Chunk = 17245
+[!] Error on DINO vit_giant_patch14_reg4_dinov2.lvd142m_224: CUDA out of memory. Tried to allocate 11.90 GiB. GPU 0 has a total capacty of 39.49 GiB of which 10.12 GiB is free. Including non-PyTorch memory, this process has 29.36 GiB memory in use. Of the allocated memory 18.64 GiB is allocated by PyTorch, and 10.23 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+Scanning for VRAM leaks after DINO vit_giant_patch14_reg4_dinov2.lvd142m_224...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-DINO: vit_giant_patch14_reg4_dinov2.lvd142m_224 | M=9000] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m)
+>> DB Size: 22.10 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 1536, 260])
+>> Stage 1: Global Descriptor Search...
+>> Stage 2: Reranking Top-9000 candidates with Patch Logic...
+>> Hardware Engine Scaling [Res: 224 | Patches: 260]
+>> Batching strategy: CPU Chunk = 33608, VRAM Chunk = 17245
+[!] Error on DINO vit_giant_patch14_reg4_dinov2.lvd142m_224: CUDA out of memory. Tried to allocate 13.39 GiB. GPU 0 has a total capacty of 39.49 GiB of which 7.15 GiB is free. Including non-PyTorch memory, this process has 32.34 GiB memory in use. Of the allocated memory 20.40 GiB is allocated by PyTorch, and 11.45 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+Scanning for VRAM leaks after DINO vit_giant_patch14_reg4_dinov2.lvd142m_224...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-DINO: vit_giant_patch14_reg4_dinov2.lvd142m_224 | M=10000] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m)
+>> DB Size: 22.10 GB | Ultra-Fast RAM Mode: True
+>> Loading features and computing Global Descriptors...
+Database Shape: torch.Size([29715, 1536, 260])
+>> Stage 1: Global Descriptor Search...
+>> Stage 2: Reranking Top-10000 candidates with Patch Logic...
+>> Hardware Engine Scaling [Res: 224 | Patches: 260]
+>> Batching strategy: CPU Chunk = 33608, VRAM Chunk = 17245
+[!] Error on DINO vit_giant_patch14_reg4_dinov2.lvd142m_224: CUDA out of memory. Tried to allocate 14.88 GiB. GPU 0 has a total capacty of 39.49 GiB of which 4.17 GiB is free. Including non-PyTorch memory, this process has 35.31 GiB memory in use. Of the allocated memory 22.15 GiB is allocated by PyTorch, and 12.67 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+Scanning for VRAM leaks after DINO vit_giant_patch14_reg4_dinov2.lvd142m_224...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_336 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_336 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_336 M=2000 (Loaded from checkpoint)
+[Pre-DINO: vit_large_patch14_reg4_dinov2.lvd142m_336 | M=3000] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading DINOv2 (vit_large_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_large_patch14_reg4_dinov2.lvd142m)
+>> DB Size: 32.87 GB | Ultra-Fast RAM Mode: False
+>> Loading features and computing Global Descriptors...
+Database Shape: (29715, 1024, 580)
+>> Stage 1: Global Descriptor Search...
+>> Stage 2: Reranking Top-3000 candidates with Patch Logic...
+>> Hardware Engine Scaling [Res: 336 | Patches: 580]
+>> Batching strategy: CPU Chunk = 22598, VRAM Chunk = 8656

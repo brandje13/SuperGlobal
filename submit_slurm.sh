@@ -4,7 +4,7 @@
 #SBATCH --gpus=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=18
-#SBATCH --time=48:00:00
+#SBATCH --time=12:00:00
 #SBATCH --output=logs/test_out_%A.txt
 #SBATCH --error=logs/test_err_%A.txt
 
