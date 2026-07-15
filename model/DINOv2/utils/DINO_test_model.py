@@ -32,7 +32,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     file_size_bytes = os.path.getsize(X_path)
     file_size_gb = file_size_bytes / (1024 ** 3)
 
-    # --- DYNAMIC SYSTEM RAM CHECK ---
     cgroup_mem_limit_path = '/sys/fs/cgroup/memory/memory.limit_in_bytes'
     cgroup_mem_usage_path = '/sys/fs/cgroup/memory/memory.usage_in_bytes'
 
@@ -45,7 +44,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             if cgroup_limit < (1024 ** 4):
                 available_ram = min(available_ram, cgroup_limit - cgroup_usage)
 
-    # Allow RAM mode if the DB size is less than 60% of our available system RAM
     USE_RAM_MODE = file_size_bytes < (available_ram * 0.60)
 
     print(f">> DB Size: {file_size_gb:.2f} GB | Ultra-Fast RAM Mode: {USE_RAM_MODE}")
@@ -64,8 +62,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     if USE_RAM_MODE:
         with h5py.File(X_path, 'r') as f_x:
-            # Pin the memory of the CPU database tensor to enable fast, asynchronous PCIe copies
-            X_tensor_cpu = torch.from_numpy(f_x['features'][:]).pin_memory()
+            X_tensor_cpu = torch.from_numpy(f_x['features'][:])
             num_db, dim, n_patches = X_tensor_cpu.shape
             print(f"Database Shape: {X_tensor_cpu.shape}")
 
@@ -110,6 +107,9 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                 print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map_score * 100, decimals=2)))
 
         del Q_global, X_global
+        if 'X_tensor_cpu' in locals(): del X_tensor_cpu
+        if 'Q_tensor_cpu' in locals(): del Q_tensor_cpu
+
         torch.cuda.empty_cache()
         gc.collect()
 
@@ -135,7 +135,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     total_vram = torch.cuda.get_device_properties(device).total_memory
     allocated_vram = torch.cuda.memory_allocated(device)
 
-    # Maintain high safety allowance (85%) because pre-allocation guarantees flat VRAM limits
     safe_available_vram = (total_vram - allocated_vram) * 0.85
     TARGET_VRAM_BYTES = int(safe_available_vram)
     TARGET_CPU_BYTES = int(available_ram * 0.80)
@@ -143,14 +142,12 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     print(
         f">> Dynamic Allocations | CPU Target: {TARGET_CPU_BYTES / (1024 ** 3):.2f} GB | VRAM Target: {TARGET_VRAM_BYTES / (1024 ** 3):.2f} GB")
 
-    # Clamp calculated chunk sizes to avoid over-allocating static buffers beyond what is required
     cpu_chunk_size = min(top_m_rerank, max(100, int(TARGET_CPU_BYTES / bytes_per_image_cpu)))
     vram_chunk_size = min(top_m_rerank, max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram)))
 
     print(f">> Hardware Engine Scaling [Res: {res} | Patches: {n_patches}]")
     print(f">> Batching strategy: CPU Chunk = {cpu_chunk_size}, VRAM Chunk = {vram_chunk_size}")
 
-    # Initialize a static GPU buffer to completely stabilize VRAM allocation overhead
     db_gpu_buffer = torch.zeros((vram_chunk_size, dim, n_patches), dtype=torch.float32, device=device)
 
     if USE_RAM_MODE:
@@ -166,7 +163,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
                 chunk_candidate_idxs = candidate_idxs[c_start:c_end]
 
-                # Direct in-place copy from pinned CPU memory to static GPU buffer
                 db_gpu_buffer[:current_batch_size].copy_(X_tensor_cpu[chunk_candidate_idxs], non_blocking=True)
                 db_chunk = db_gpu_buffer[:current_batch_size]
 
@@ -203,24 +199,24 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                     cpu_end = min(cpu_start + cpu_chunk_size, top_m_rerank)
                     batch_sorted_idxs = sorted_idxs[cpu_start:cpu_end]
 
-                    # Read from disk, then pin the memory to accelerate sub-loop GPU writes
-                    db_cpu_chunk = torch.from_numpy(db_dataset[batch_sorted_idxs.tolist()]).pin_memory()
+                    db_cpu_chunk = torch.from_numpy(db_dataset[batch_sorted_idxs.tolist()])
 
                     for vram_start in range(0, (cpu_end - cpu_start), vram_chunk_size):
                         vram_end = min(vram_start + vram_chunk_size, (cpu_end - cpu_start))
                         current_batch_size = vram_end - vram_start
 
-                        # Direct in-place copy from pinned chunk to static GPU buffer
                         db_gpu_buffer[:current_batch_size].copy_(db_cpu_chunk[vram_start:vram_end], non_blocking=True)
-                        db_chunk = db_gpu_buffer[:current_batch_size]
+                        db_gpu_chunk = db_gpu_buffer[:current_batch_size]
 
-                        sim_matrix = torch.matmul(q_patches, db_chunk)
+                        sim_matrix = torch.matmul(q_patches, db_gpu_chunk)
                         best_match_per_patch, _ = sim_matrix.max(dim=2)
                         top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
 
                         global_offsets = np.arange(cpu_start + vram_start, cpu_start + vram_end)
                         original_rank_positions = sort_order[global_offsets]
                         local_scores[original_rank_positions] = top_m_vals.mean(dim=1).cpu()
+
+                    del db_cpu_chunk
 
                 local_sort_order = torch.argsort(local_scores, descending=True)
                 final_top_m_indices = candidate_idxs_tensor[local_sort_order]
@@ -233,6 +229,12 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     ranks = np.array(final_ranks).T
     map_score = 0.0
 
+    if evaluate:
+        ks = [10, 25, 100]
+        if not custom:
+            (map_score, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
+            print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map_score * 100, decimals=2)))
+
     if 'X_tensor_cpu' in locals():
         del X_tensor_cpu
     if 'Q_tensor_cpu' in locals():
@@ -242,11 +244,5 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     gc.collect()
     torch.cuda.empty_cache()
-
-    if evaluate:
-        ks = [10, 25, 100]
-        if not custom:
-            (map_score, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
-            print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map_score * 100, decimals=2)))
 
     return ranks, map_score
