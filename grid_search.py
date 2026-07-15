@@ -96,7 +96,7 @@ def main():
         ('vit_small_patch14_dinov2.lvd142m', 224),
         ('vit_base_patch14_dinov2.lvd142m', 224),
         ('vit_large_patch14_dinov2.lvd142m', 224),
-        ('vit_giant_patch14_dinov2.lvd142m', 224),
+        #('vit_giant_patch14_dinov2.lvd142m', 224),
 
         # --- DINOv2 with Registers ---
         ('vit_small_patch14_reg4_dinov2.lvd142m', 224),
