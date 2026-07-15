@@ -8,6 +8,8 @@ import csv
 import gc
 import pickle
 from tqdm import tqdm
+import numpy as np
+from concurrent.futures import ProcessPoolExecutor
 
 import config as config
 from config import cfg as c
@@ -27,7 +29,7 @@ from utils.SIR_topk import retrieve_top_k
 from utils.merge_results import merge_results
 from utils.cleanup import print_vram_usage, find_leaking_tensors
 
-# --- CHECKPOINT HELPERS ---
+
 def load_ckpt(path):
     if os.path.exists(path):
         with open(path, 'rb') as f:
@@ -40,15 +42,63 @@ def save_ckpt(data, path):
         pickle.dump(data, f)
 
 
+# Helper target for multiprocessing
+def evaluate_combo_chunk(args):
+    """
+    Evaluates a chunk of combinations. Keeping it as a separate module-level
+    function allows Python's multiprocessing pool to serialize and distribute the load.
+    """
+    chunk, cfg, global_pool_cached, local_pool_cached, semantic_pool_cached, MODES = args
+    results = []
+
+    for (g_key, l_key, sem_bb, k, mode) in chunk:
+        g_top = global_pool_cached[(g_key, k)]
+        l_top = local_pool_cached[(l_key, k)]
+        sem_top = semantic_pool_cached[(sem_bb, k)]
+
+        g_info = global_pool_cached[g_key]
+        l_info = local_pool_cached[l_key]
+        sem_info = semantic_pool_cached[sem_bb]
+
+        models = [
+            [g_info['family'], g_top],
+            [l_info['family'], l_top],
+            [sem_info['family'], sem_top]
+        ]
+
+        merged_res = merge_results(cfg, models, mode)
+        m_metrics = evaluate_final(cfg, models, merged_res, mode, silent=True)
+
+        results.append({
+            'mode': mode,
+            'global_family': g_info['family'],
+            'global_bb': g_key[0],
+            'global_m': g_key[1],
+            'global_map': g_info['mAP'],
+            'global_time': g_info['time'],
+            'local_family': l_info['family'],
+            'local_bb': l_key[0],
+            'local_m': l_key[1],
+            'local_map': l_info['mAP'],
+            'local_time': l_info['time'],
+            'sem_family': sem_info['family'],
+            'sem_bb': sem_bb,
+            'sem_map': sem_info['mAP'],
+            'sem_time': sem_info['time'],
+            'top_k': k,
+            'precision': m_metrics['precision'],
+            'recall': m_metrics['recall'],
+            'f3': m_metrics['f3'],
+            'total_time': g_info['time'] + l_info['time'] + sem_info['time']
+        })
+    return results
+
+
 def main():
     config.load_cfg_fom_args("Grid Search for Image Retrieval Ensemble")
     c.NUM_GPUS = 1
 
-    # ====================================================================================
-    # MASTER SWITCH
     # Set to True to skip all untested models and jump straight to Phase 4 fusion.
-    # Set to False to resume normal extraction and calculation.
-    # ====================================================================================
     FUSE_ONLY_CACHED = False
 
     # --- 1. SETUP GROUND TRUTH ---
@@ -92,19 +142,14 @@ def main():
     ]
 
     DINO_BACKBONES = [
-        # --- Standard DINOv2 (224 Baseline) ---
         ('vit_small_patch14_dinov2.lvd142m', 224),
         ('vit_base_patch14_dinov2.lvd142m', 224),
         ('vit_large_patch14_dinov2.lvd142m', 224),
         ('vit_giant_patch14_dinov2.lvd142m', 224),
-
-        # --- DINOv2 with Registers ---
         ('vit_small_patch14_reg4_dinov2.lvd142m', 224),
         ('vit_base_patch14_reg4_dinov2.lvd142m', 224),
         ('vit_large_patch14_reg4_dinov2.lvd142m', 224),
         ('vit_giant_patch14_reg4_dinov2.lvd142m', 224),
-
-        # --- High-Res Extensions ---
         ('vit_large_patch14_reg4_dinov2.lvd142m', 336),
         ('vit_giant_patch14_reg4_dinov2.lvd142m', 336),
         ('vit_giant_patch14_dinov2.lvd142m', 518),
@@ -112,20 +157,16 @@ def main():
     ]
 
     CLIP_BACKBONES = [
-        # --- OpenAI (224 Native) ---
         ('openai/clip-vit-base-patch32', 224),
         ('openai/clip-vit-base-patch16', 224),
         ('openai/clip-vit-large-patch14', 224),
         ('openai/clip-vit-large-patch14-336', 336),
-
-        # --- OpenCLIP (Trained at 224 but scales well) ---
         ('laion/CLIP-ViT-L-14-laion2B-s32B-b82K', 224),
         ('laion/CLIP-ViT-H-14-laion2B-s32B-b79K', 224),
         ('laion/CLIP-ViT-bigG-14-laion2B-39B-b160k', 224)
     ]
 
     SIGLIP_BACKBONES = [
-        # --- Resolution is baked into the string ---
         ('google/siglip-base-patch16-224', 224),
         ('google/siglip-base-patch16-256', 256),
         ('google/siglip-base-patch16-384', 384),
@@ -136,7 +177,6 @@ def main():
     ]
 
     CONVNEXT_BACKBONES = [
-        # --- Standard V2 Scaling (all 224 native) ---
         ('convnextv2_atto', 224),
         ('convnextv2_femto', 224),
         ('convnextv2_pico', 224),
@@ -147,11 +187,8 @@ def main():
         ('convnextv2_huge', 224)
     ]
 
-    # Search parameters
     GLOBAL_M_SEARCH = list(range(0, 1100, 100))
-
     DINO_M_SEARCH = list(range(0, 11000, 1000))
-    #TOP_K_SEARCH = list(range(10, 110, 10))
     TOP_K_SEARCH = [10, 50, 100]
 
     # ====================================================================================
@@ -230,8 +267,6 @@ def main():
     for dino_bb, res in DINO_BACKBONES:
         c.DINO.WEIGHTS = dino_bb
         c.DINO.RESOLUTION = res
-
-        # Concatenate the resolution onto the string to make it unique
         dino_key = f"{dino_bb}_{res}"
 
         for m in DINO_M_SEARCH:
@@ -247,7 +282,6 @@ def main():
             try:
                 ranks, mAP = DINO_tester.__main__(gnd, cfg)
                 print_vram_usage(f"Post-DINO: {dino_key} | M={m}")
-                # Save using the concatenated key
                 dino_data[(dino_key, m)] = {'family': 'DINOv2', 'ranks': ranks, 'mAP': mAP,
                                             'time': time.time() - start}
                 save_ckpt(dino_data, dino_ckpt)
@@ -302,11 +336,10 @@ def main():
             find_leaking_tensors()
 
     # ====================================================================================
-    # PHASE 4: DYNAMIC SLOT-BASED FUSION
+    # PHASE 4: OPTIMIZED DYNAMIC SLOT-BASED FUSION
     # ====================================================================================
     MODES = ['union', 'intersection', 'majority']
 
-    # Pool the slots together
     global_pool = {}
     global_pool.update(sg_data)
     for k, v in conv_data.items():
@@ -317,7 +350,7 @@ def main():
         clean_key = (k, 0) if isinstance(k, str) else k
         global_pool[clean_key] = v
 
-    local_pool = dino_data  # Currently only DINO occupies this slot
+    local_pool = dino_data
     semantic_pool = {**clip_data, **siglip_data}
 
     total_combos = len(global_pool) * len(local_pool) * len(semantic_pool) * len(TOP_K_SEARCH) * len(MODES)
@@ -329,84 +362,74 @@ def main():
 
     print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
 
+    # --- OPTIMIZATION: PRE-CACHE TOP-K REPRESENTATIONS IN HOST MEMORY ---
+    print(">> Pre-calculating and caching Top-K representations...")
+    global_pool_cached = {}
+    local_pool_cached = {}
+    semantic_pool_cached = {}
+
+    for g_key, g_info in global_pool.items():
+        global_pool_cached[g_key] = g_info
+        for k in TOP_K_SEARCH:
+            global_pool_cached[(g_key, k)] = retrieve_top_k(cfg, g_info['ranks'], k, g_info['family'], True)
+
+    for l_key, l_info in local_pool.items():
+        local_pool_cached[l_key] = l_info
+        for k in TOP_K_SEARCH:
+            local_pool_cached[(l_key, k)] = retrieve_top_k(cfg, l_info['ranks'], k, l_info['family'], True)
+
+    for s_key, s_info in semantic_pool.items():
+        semantic_pool_cached[s_key] = s_info
+        for k in TOP_K_SEARCH:
+            semantic_pool_cached[(s_key, k)] = retrieve_top_k(cfg, s_info['ranks'], k, s_info['family'], True)
+
+    # Prepare combinations to distribute
+    combinations = []
+    for g_key in global_pool.keys():
+        for l_key in local_pool.keys():
+            for s_key in semantic_pool.keys():
+                for k in TOP_K_SEARCH:
+                    for mode in MODES:
+                        combinations.append((g_key, l_key, s_key, k, mode))
+
+    # --- MULTIPROCESSING EXECUTION ---
+    # Retrieve physical core counts on Snellius gcn nodes (36 cores/socket, 72 cores total)
+    num_workers = min(64, os.cpu_count() or 4)
+    print(f">> Dispatching grid search to {num_workers} CPU cores...")
+
+    # Segment combinations into chunks for worker nodes to process
+    chunk_size = max(1, len(combinations) // (num_workers * 4))
+    chunks = [combinations[i:i + chunk_size] for i in range(0, len(combinations), chunk_size)]
+
+    tasks = [(chunk, cfg, global_pool_cached, local_pool_cached, semantic_pool_cached, MODES) for chunk in chunks]
+
     ensemble_results = []
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        futures = [executor.submit(evaluate_combo_chunk, task) for task in tasks]
 
-    with tqdm(total=total_combos, desc="Fusing Ensembles", unit="combo") as pbar:
-        # 1. Iterate over Global Slot
-        for (global_bb, global_m), global_info in global_pool.items():
+        # Display progression tracking
+        for future in tqdm(futures, desc="Fusing Ensembles (Parallelized)", unit="chunk"):
+            ensemble_results.extend(future.result())
 
-            # 2. Iterate over Local Slot
-            for (local_bb, local_m), local_info in local_pool.items():
+    # --- FIND THE BEST PATH TO 20/50 ---
+    print(f"\n{'*' * 40}\nCONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)\n{'*' * 40}")
+    targets_met = [r for r in ensemble_results if r['precision'] >= 0.20 and r['recall'] >= 0.50]
 
-                # 3. Iterate over Semantic Slot
-                for sem_bb, sem_info in semantic_pool.items():
+    if targets_met:
+        sorted_targets = sorted(targets_met, key=lambda x: x['f3'], reverse=True)
+        for res in sorted_targets[:20]:
+            g_short = os.path.splitext(os.path.basename(res['global_bb']))[0] \
+                if res['global_family'] == 'SuperGlobal' else res['global_bb']
+            l_short = res['local_bb']
+            s_short = res['sem_bb'].split('/')[-1]
 
-                    total_inf_time = global_info['time'] + local_info['time'] + sem_info['time']
-
-                    for k in TOP_K_SEARCH:
-                        # Pass the dynamic family name (e.g., 'ConvNeXtV2' or 'SuperGlobal') to retrieve_top_k
-                        global_top = retrieve_top_k(cfg, global_info['ranks'], k, global_info['family'], True)
-                        local_top = retrieve_top_k(cfg, local_info['ranks'], k, local_info['family'], True)
-                        sem_top = retrieve_top_k(cfg, sem_info['ranks'], k, sem_info['family'], True)
-
-                        models = [
-                            [global_info['family'], global_top],
-                            [local_info['family'], local_top],
-                            [sem_info['family'], sem_top]
-                        ]
-
-                        for mode in MODES:
-                            merged_res = merge_results(cfg, models, mode)
-                            m_metrics = evaluate_final(cfg, models, merged_res, mode, silent=True)
-
-                            ensemble_results.append({
-                                'mode': mode,
-                                'global_family': global_info['family'],
-                                'global_bb': global_bb,
-                                'global_m': global_m,
-                                'global_map': global_info['mAP'],
-                                'global_time': global_info['time'],
-                                'local_family': local_info['family'],
-                                'local_bb': local_bb,
-                                'local_m': local_m,
-                                'local_map': local_info['mAP'],
-                                'local_time': local_info['time'],
-                                'sem_family': sem_info['family'],
-                                'sem_bb': sem_bb,
-                                'sem_map': sem_info['mAP'],
-                                'sem_time': sem_info['time'],
-                                'top_k': k,
-                                'precision': m_metrics['precision'],
-                                'recall': m_metrics['recall'],
-                                'f3': m_metrics['f3'],
-                                'total_time': total_inf_time
-                            })
-                            pbar.update(1)
-
-        # --- FIND THE BEST PATH TO 20/50 ---
-        print(f"\n{'*' * 40}\nCONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)\n{'*' * 40}")
-        targets_met = [r for r in ensemble_results if r['precision'] >= 0.20 and r['recall'] >= 0.50]
-
-        if targets_met:
-            sorted_targets = sorted(targets_met, key=lambda x: x['f3'], reverse=True)
-            for res in sorted_targets[:20]:
-                # Safe short-names depending on family
-                g_short = os.path.splitext(os.path.basename(res['global_bb']))[0] \
-                    if res['global_family'] == 'SuperGlobal' else res['global_bb']
-                l_short = res['local_bb']
-                s_short = res['sem_bb'].split('/')[-1]
-
-                print(
-                    f"[{res['mode'].upper()}] K:{res['top_k']} | G:{g_short}({res['global_m']}), L:{l_short}({res['local_m']}), S:{s_short} | "
-                    f"P:{res['precision']:.2%}, R:{res['recall']:.2%}, F3:{res['f3']:.4f} | "
-                    f"mAPs [G:{res['global_map']:.2f}, L:{res['local_map']:.2f}, S:{res['sem_map']:.2f}] | "
-                    f"Time:{res['total_time']:.1f}s")
-        else:
-            print("No configuration met the 20/50 target on this dataset.")
-
-    # --- EXPORT LOGIC ---
-    # The export logic remains the same, but your CSV headers will now reflect
-    # 'global_bb' and 'sem_bb' instead of strictly 'sg_bb' and 'clip_bb'.
+            print(
+                f"[{res['mode'].upper()}] K:{res['top_k']} | G:{g_short}({res['global_m']}), L:{l_short}({res['local_m']}), S:{s_short} | "
+                f"P:{res['precision']:.2%}, R:{res['recall']:.2%}, F3:{res['f3']:.4f} | "
+                f"mAPs [G:{res['global_map']:.2f}, L:{res['local_map']:.2f}, S:{res['sem_map']:.2f}] | "
+                f"Time:{res['total_time']:.1f}s")
+    else:
+        print("No configuration met the 20/50 target on this dataset.")
 
     csv_filename = f"grid_search_{c.TEST.DATASET}_{int(time.time())}.csv"
     print(f"\n>> Exporting all {len(ensemble_results)} combinations to {csv_filename}...")

@@ -6,6 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="ee3dcb7a-ed7d-47df-90f3-b54f3599d71a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/ILIAS_Test/gnd_ILIAS_Test.json" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/ILIAS_Test/gnd_ILIAS_Test.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/grid_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,18 +46,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.ILIAS.executor&quot;: &quot;Run&quot;,
-    &quot;Python.grid_search.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.test (ILIAS).executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Snellius&quot;,
-    &quot;grid.search.filter.rows&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/weights&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Console&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.ILIAS.executor": "Run",
+    "Python.grid_search.executor": "Run",
+    "Python.test (ILIAS).executor": "Run",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Snellius",
+    "grid.search.filter.rows": "true",
+    "last_opened_file_path": "C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/weights",
+    "settings.editor.selected.configurable": "Console"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\SimilarityImageRetrieval\weights" />
@@ -155,7 +157,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grid_search.py" />
-      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS' TEST.EVALUATE True TEST.UPDATE_DATA False TEST.UPDATE_QUERIES False" />
+      <option name="PARAMETERS" value="TEST.DATASET 'ILIAS_Test' TEST.EVALUATE True TEST.UPDATE_DATA False TEST.UPDATE_QUERIES False" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
