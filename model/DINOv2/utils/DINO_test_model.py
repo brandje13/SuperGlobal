@@ -64,7 +64,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     if USE_RAM_MODE:
         with h5py.File(X_path, 'r') as f_x:
-            X_tensor_cpu = torch.from_numpy(f_x['features'][:])
+            # Pin the memory of the CPU database tensor to enable fast, asynchronous PCIe copies
+            X_tensor_cpu = torch.from_numpy(f_x['features'][:]).pin_memory()
             num_db, dim, n_patches = X_tensor_cpu.shape
             print(f"Database Shape: {X_tensor_cpu.shape}")
 
@@ -134,7 +135,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     total_vram = torch.cuda.get_device_properties(device).total_memory
     allocated_vram = torch.cuda.memory_allocated(device)
 
-    # 15% safety buffer for VRAM, 20% safety buffer for CPU RAM
+    # Maintain high safety allowance (85%) because pre-allocation guarantees flat VRAM limits
     safe_available_vram = (total_vram - allocated_vram) * 0.85
     TARGET_VRAM_BYTES = int(safe_available_vram)
     TARGET_CPU_BYTES = int(available_ram * 0.80)
@@ -142,26 +143,32 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     print(
         f">> Dynamic Allocations | CPU Target: {TARGET_CPU_BYTES / (1024 ** 3):.2f} GB | VRAM Target: {TARGET_VRAM_BYTES / (1024 ** 3):.2f} GB")
 
-    cpu_chunk_size = max(100, int(TARGET_CPU_BYTES / bytes_per_image_cpu))
-    vram_chunk_size = max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram))
+    # Clamp calculated chunk sizes to avoid over-allocating static buffers beyond what is required
+    cpu_chunk_size = min(top_m_rerank, max(100, int(TARGET_CPU_BYTES / bytes_per_image_cpu)))
+    vram_chunk_size = min(top_m_rerank, max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram)))
 
     print(f">> Hardware Engine Scaling [Res: {res} | Patches: {n_patches}]")
     print(f">> Batching strategy: CPU Chunk = {cpu_chunk_size}, VRAM Chunk = {vram_chunk_size}")
 
+    # Initialize a static GPU buffer to completely stabilize VRAM allocation overhead
+    db_gpu_buffer = torch.zeros((vram_chunk_size, dim, n_patches), dtype=torch.float32, device=device)
+
     if USE_RAM_MODE:
         for i in tqdm(range(N_q), desc="Reranking", mininterval=1.0):
             q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
-
-            # Explicitly move to CPU here to prevent indexing crash
             candidate_idxs = top_global_indices[i].cpu()
 
             local_scores = torch.zeros(top_m_rerank)
 
             for c_start in range(0, top_m_rerank, vram_chunk_size):
                 c_end = min(c_start + vram_chunk_size, top_m_rerank)
+                current_batch_size = c_end - c_start
 
                 chunk_candidate_idxs = candidate_idxs[c_start:c_end]
-                db_chunk = X_tensor_cpu[chunk_candidate_idxs].float().to(device)
+
+                # Direct in-place copy from pinned CPU memory to static GPU buffer
+                db_gpu_buffer[:current_batch_size].copy_(X_tensor_cpu[chunk_candidate_idxs], non_blocking=True)
+                db_chunk = db_gpu_buffer[:current_batch_size]
 
                 sim_matrix = torch.matmul(q_patches, db_chunk)
                 best_match_per_patch, _ = sim_matrix.max(dim=2)
@@ -184,7 +191,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             for i in tqdm(range(N_q), desc="Reranking", mininterval=5.0):
                 q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
 
-                # Setup CPU tensors and numpy arrays cleanly
                 candidate_idxs_tensor = top_global_indices[i].cpu()
                 candidate_idxs_np = candidate_idxs_tensor.numpy()
 
@@ -197,14 +203,18 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                     cpu_end = min(cpu_start + cpu_chunk_size, top_m_rerank)
                     batch_sorted_idxs = sorted_idxs[cpu_start:cpu_end]
 
-                    db_cpu_chunk = torch.from_numpy(db_dataset[batch_sorted_idxs.tolist()])
+                    # Read from disk, then pin the memory to accelerate sub-loop GPU writes
+                    db_cpu_chunk = torch.from_numpy(db_dataset[batch_sorted_idxs.tolist()]).pin_memory()
 
                     for vram_start in range(0, (cpu_end - cpu_start), vram_chunk_size):
                         vram_end = min(vram_start + vram_chunk_size, (cpu_end - cpu_start))
+                        current_batch_size = vram_end - vram_start
 
-                        db_gpu_chunk = db_cpu_chunk[vram_start:vram_end].float().to(device)
+                        # Direct in-place copy from pinned chunk to static GPU buffer
+                        db_gpu_buffer[:current_batch_size].copy_(db_cpu_chunk[vram_start:vram_end], non_blocking=True)
+                        db_chunk = db_gpu_buffer[:current_batch_size]
 
-                        sim_matrix = torch.matmul(q_patches, db_gpu_chunk)
+                        sim_matrix = torch.matmul(q_patches, db_chunk)
                         best_match_per_patch, _ = sim_matrix.max(dim=2)
                         top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
 
