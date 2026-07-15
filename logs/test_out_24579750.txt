@@ -1,0 +1,238 @@
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=2000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=3000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=4000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=5000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=6000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=7000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=8000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=9000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=10000 (Loaded from checkpoint)
+[Pre-CLIP: openai/clip-vit-base-patch32 | Res=224] VRAM Allocated: 0.00 MB | VRAM Reserved: 0.00 MB
+Loading CLIP (openai/clip-vit-base-patch32) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (openai/clip-vit-base-patch32)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 512)
+Database (Image) Shape: (29715, 512)
+Retrieval results ILIAS: mAP: 13.37
+[Post-CLIP: openai/clip-vit-base-patch32 | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 1950.00 MB
+Scanning for VRAM leaks after CLIP openai/clip-vit-base-patch32...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-CLIP: openai/clip-vit-base-patch16 | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading CLIP (openai/clip-vit-base-patch16) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (openai/clip-vit-base-patch16)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 512)
+Database (Image) Shape: (29715, 512)
+Retrieval results ILIAS: mAP: 19.54
+[Post-CLIP: openai/clip-vit-base-patch16 | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 1950.00 MB
+Scanning for VRAM leaks after CLIP openai/clip-vit-base-patch16...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-CLIP: openai/clip-vit-large-patch14 | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading CLIP (openai/clip-vit-large-patch14) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (openai/clip-vit-large-patch14)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 28.22
+[Post-CLIP: openai/clip-vit-large-patch14 | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 3028.00 MB
+Scanning for VRAM leaks after CLIP openai/clip-vit-large-patch14...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-CLIP: openai/clip-vit-large-patch14-336 | Res=336] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading CLIP (openai/clip-vit-large-patch14-336) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (openai/clip-vit-large-patch14-336)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 34.65
+[Post-CLIP: openai/clip-vit-large-patch14-336 | Res=336] VRAM Allocated: 8.12 MB | VRAM Reserved: 3048.00 MB
+Scanning for VRAM leaks after CLIP openai/clip-vit-large-patch14-336...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-CLIP: laion/CLIP-ViT-L-14-laion2B-s32B-b82K | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading CLIP (laion/CLIP-ViT-L-14-laion2B-s32B-b82K) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (laion/CLIP-ViT-L-14-laion2B-s32B-b82K)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 31.61
+[Post-CLIP: laion/CLIP-ViT-L-14-laion2B-s32B-b82K | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 3028.00 MB
+Scanning for VRAM leaks after CLIP laion/CLIP-ViT-L-14-laion2B-s32B-b82K...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-CLIP: laion/CLIP-ViT-H-14-laion2B-s32B-b79K | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading CLIP (laion/CLIP-ViT-H-14-laion2B-s32B-b79K) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (laion/CLIP-ViT-H-14-laion2B-s32B-b79K)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 1024)
+Database (Image) Shape: (29715, 1024)
+Retrieval results ILIAS: mAP: 39.31
+[Post-CLIP: laion/CLIP-ViT-H-14-laion2B-s32B-b79K | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 5292.00 MB
+Scanning for VRAM leaks after CLIP laion/CLIP-ViT-H-14-laion2B-s32B-b79K...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-CLIP: laion/CLIP-ViT-bigG-14-laion2B-39B-b160k | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading CLIP (laion/CLIP-ViT-bigG-14-laion2B-39B-b160k) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with CLIP (laion/CLIP-ViT-bigG-14-laion2B-39B-b160k)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 1280)
+Database (Image) Shape: (29715, 1280)
+Retrieval results ILIAS: mAP: 42.05
+[Post-CLIP: laion/CLIP-ViT-bigG-14-laion2B-39B-b160k | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 11516.00 MB
+Scanning for VRAM leaks after CLIP laion/CLIP-ViT-bigG-14-laion2B-39B-b160k...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-SigLIP: google/siglip-base-patch16-224 | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading SigLIP (google/siglip-base-patch16-224) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-base-patch16-224)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 34.04
+[Post-SigLIP: google/siglip-base-patch16-224 | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 2224.00 MB
+Scanning for VRAM leaks after SigLIP google/siglip-base-patch16-224...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-SigLIP: google/siglip-base-patch16-256 | Res=256] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading SigLIP (google/siglip-base-patch16-256) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-base-patch16-256)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 35.2
+[Post-SigLIP: google/siglip-base-patch16-256 | Res=256] VRAM Allocated: 8.12 MB | VRAM Reserved: 2224.00 MB
+Scanning for VRAM leaks after SigLIP google/siglip-base-patch16-256...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-SigLIP: google/siglip-base-patch16-384 | Res=384] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading SigLIP (google/siglip-base-patch16-384) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-base-patch16-384)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 768)
+Database (Image) Shape: (29715, 768)
+Retrieval results ILIAS: mAP: 41.87
+[Post-SigLIP: google/siglip-base-patch16-384 | Res=384] VRAM Allocated: 8.12 MB | VRAM Reserved: 2224.00 MB
+Scanning for VRAM leaks after SigLIP google/siglip-base-patch16-384...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-SigLIP: google/siglip-large-patch16-256 | Res=256] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading SigLIP (google/siglip-large-patch16-256) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-large-patch16-256)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 1024)
+Database (Image) Shape: (29715, 1024)
+Retrieval results ILIAS: mAP: 42.96
+[Post-SigLIP: google/siglip-large-patch16-256 | Res=256] VRAM Allocated: 8.12 MB | VRAM Reserved: 3904.00 MB
+Scanning for VRAM leaks after SigLIP google/siglip-large-patch16-256...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-SigLIP: google/siglip-large-patch16-384 | Res=384] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading SigLIP (google/siglip-large-patch16-384) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-large-patch16-384)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 1024)
+Database (Image) Shape: (29715, 1024)
+Retrieval results ILIAS: mAP: 51.79
+[Post-SigLIP: google/siglip-large-patch16-384 | Res=384] VRAM Allocated: 8.12 MB | VRAM Reserved: 3904.00 MB
+Scanning for VRAM leaks after SigLIP google/siglip-large-patch16-384...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-SigLIP: google/siglip-so400m-patch14-224 | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading SigLIP (google/siglip-so400m-patch14-224) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-so400m-patch14-224)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 1152)
+Database (Image) Shape: (29715, 1152)
+Retrieval results ILIAS: mAP: 29.48
+[Post-SigLIP: google/siglip-so400m-patch14-224 | Res=224] VRAM Allocated: 8.12 MB | VRAM Reserved: 5234.00 MB
+Scanning for VRAM leaks after SigLIP google/siglip-so400m-patch14-224...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-SigLIP: google/siglip-so400m-patch14-384 | Res=384] VRAM Allocated: 8.12 MB | VRAM Reserved: 20.00 MB
+Loading SigLIP (google/siglip-so400m-patch14-384) via HuggingFace...
+>> ILIAS: Pure Text-to-Image Retrieval with SigLIP (google/siglip-so400m-patch14-384)
+extract query features (Text)
+extract database features (Images)
+Query (Text) Shape: (1232, 1152)
+Database (Image) Shape: (29715, 1152)
+Retrieval results ILIAS: mAP: 53.42
+[Post-SigLIP: google/siglip-so400m-patch14-384 | Res=384] VRAM Allocated: 8.12 MB | VRAM Reserved: 5234.00 MB
+Scanning for VRAM leaks after SigLIP google/siglip-so400m-patch14-384...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+
+============================================================
+FINAL COMBINATORIAL ANALYSIS (332010 combinations)
+============================================================
