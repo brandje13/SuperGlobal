@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee3dcb7a-ed7d-47df-90f3-b54f3599d71a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datasets/ILIAS_Test/gnd_ILIAS_Test.json" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/ILIAS_Test/gnd_ILIAS_Test.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grid_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/grid_search.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,18 +44,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.ILIAS.executor": "Run",
-    "Python.grid_search.executor": "Run",
-    "Python.test (ILIAS).executor": "Run",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Snellius",
-    "grid.search.filter.rows": "true",
-    "last_opened_file_path": "C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/weights",
-    "settings.editor.selected.configurable": "Console"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.ILIAS.executor&quot;: &quot;Run&quot;,
+    &quot;Python.grid_search.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test (ILIAS).executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Snellius&quot;,
+    &quot;grid.search.filter.rows&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/brand/Documents/TUe Master/Thesis/SimilarityImageRetrieval/weights&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Console&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\brand\Documents\TUe Master\Thesis\SimilarityImageRetrieval\weights" />
@@ -374,15 +372,15 @@
     </configuration>
     <list>
       <item itemvalue="Python.ILIAS" />
+      <item itemvalue="Python.check_sam" />
       <item itemvalue="Python.grid_search" />
+      <item itemvalue="Python.groundtruth_creator" />
       <item itemvalue="Python.test (ILIAS)" />
       <item itemvalue="Python.test" />
-      <item itemvalue="Python.check_sam" />
-      <item itemvalue="Python.groundtruth_creator" />
-      <item itemvalue="Python tests.Python tests in check_sam.py" />
       <item itemvalue="Shell Script.Test (Custom)" />
       <item itemvalue="Shell Script.Test (No pooling)" />
       <item itemvalue="Shell Script.Test" />
+      <item itemvalue="Python tests.Python tests in check_sam.py" />
     </list>
     <recent_temporary>
       <list>

@@ -233,6 +233,16 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     ranks = np.array(final_ranks).T
     map_score = 0.0
 
+    if 'X_tensor_cpu' in locals():
+        del X_tensor_cpu
+    if 'Q_tensor_cpu' in locals():
+        del Q_tensor_cpu
+    if 'db_gpu_buffer' in locals():
+        del db_gpu_buffer
+
+    gc.collect()
+    torch.cuda.empty_cache()
+
     if evaluate:
         ks = [10, 25, 100]
         if not custom:
