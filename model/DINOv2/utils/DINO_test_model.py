@@ -62,7 +62,14 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     if USE_RAM_MODE:
         with h5py.File(X_path, 'r') as f_x:
-            X_tensor_cpu = torch.from_numpy(f_x['features'][:])
+            db_shape = f_x['features'].shape
+            np_dtype = f_x['features'].dtype
+            pt_dtype = torch.from_numpy(np.empty(0, dtype=np_dtype)).dtype
+
+            print(f">> Pre-allocating {db_shape} pinned tensor to bypass RAM spikes...")
+            X_tensor_cpu = torch.empty(db_shape, dtype=pt_dtype).pin_memory()
+            f_x['features'].read_direct(X_tensor_cpu.numpy())
+
             num_db, dim, n_patches = X_tensor_cpu.shape
             print(f"Database Shape: {X_tensor_cpu.shape}")
 
@@ -139,19 +146,14 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     TARGET_VRAM_BYTES = int(safe_available_vram)
     TARGET_CPU_BYTES = int(available_ram * 0.80)
 
-    remaining_safe_cpu_bytes = TARGET_CPU_BYTES - file_size_bytes
-    max_safe_cpu_chunk = max(100, int(remaining_safe_cpu_bytes / bytes_per_image_cpu))
-    raw_vram_chunk = int(TARGET_VRAM_BYTES / bytes_per_image_vram)
+    print(
+        f">> Dynamic Allocations | CPU Target: {TARGET_CPU_BYTES / (1024 ** 3):.2f} GB | VRAM Target: {TARGET_VRAM_BYTES / (1024 ** 3):.2f} GB")
 
-    cpu_chunk_size = min(top_m_rerank, max_safe_cpu_chunk)
-    vram_chunk_size = min(top_m_rerank, raw_vram_chunk, max_safe_cpu_chunk)
+    cpu_chunk_size = min(top_m_rerank, max(100, int(TARGET_CPU_BYTES / bytes_per_image_cpu)))
+    vram_chunk_size = min(top_m_rerank, max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram)))
 
-    print(f">> Dynamic Allocations | CPU Target: {TARGET_CPU_BYTES / (1024 ** 3):.2f} GB | VRAM Target: {TARGET_VRAM_BYTES / (1024 ** 3):.2f} GB")
     print(f">> Hardware Engine Scaling [Res: {res} | Patches: {n_patches}]")
-    print(f">> Batching strategy: Staging Buffer = {vram_chunk_size}, VRAM Chunk = {vram_chunk_size}")
-
-    if USE_RAM_MODE:
-        db_cpu_staging = torch.empty((vram_chunk_size, dim, n_patches), dtype=X_tensor_cpu.dtype)
+    print(f">> Batching strategy: CPU Chunk = {cpu_chunk_size}, VRAM Chunk = {vram_chunk_size}")
 
     db_gpu_buffer = torch.zeros((vram_chunk_size, dim, n_patches), dtype=torch.float32, device=device)
 
@@ -160,26 +162,33 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
             candidate_idxs = top_global_indices[i].cpu()
 
+            # 1. Sort indices to prevent CPU RAM thrashing (Mirroring your Disk-mode logic)
+            sort_order = torch.argsort(candidate_idxs)
+            sorted_candidate_idxs = candidate_idxs[sort_order]
+
             local_scores = torch.zeros(top_m_rerank)
 
             for c_start in range(0, top_m_rerank, vram_chunk_size):
                 c_end = min(c_start + vram_chunk_size, top_m_rerank)
                 current_batch_size = c_end - c_start
 
-                chunk_candidate_idxs = candidate_idxs[c_start:c_end]
+                # Slice from the sequentially sorted array
+                chunk_candidate_idxs = sorted_candidate_idxs[c_start:c_end].tolist()
 
-                # Extract into the new dynamically typed staging buffer
-                torch.index_select(X_tensor_cpu, 0, chunk_candidate_idxs, out=db_cpu_staging[:current_batch_size])
+                # 2. Your original Zero-Allocation DMA loop (Now executing straight down the RAM sticks)
+                for local_idx, db_idx in enumerate(chunk_candidate_idxs):
+                    db_gpu_buffer[local_idx].copy_(X_tensor_cpu[db_idx], non_blocking=True)
 
-                # copy_() automatically handles the float16 to float32 type casting during the GPU transfer
-                db_gpu_buffer[:current_batch_size].copy_(db_cpu_staging[:current_batch_size], non_blocking=True)
                 db_chunk = db_gpu_buffer[:current_batch_size]
 
                 sim_matrix = torch.matmul(q_patches, db_chunk)
                 best_match_per_patch, _ = sim_matrix.max(dim=2)
                 top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
 
-                local_scores[c_start:c_end] = top_m_vals.mean(dim=1).cpu()
+                # 3. Re-map the calculated batch scores back to their original global rank positions
+                global_offsets = torch.arange(c_start, c_end)
+                original_rank_positions = sort_order[global_offsets]
+                local_scores[original_rank_positions] = top_m_vals.mean(dim=1).cpu()
 
                 del sim_matrix, best_match_per_patch, top_m_vals
 
@@ -190,7 +199,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             rest_indices = global_sort_order[top_m_rerank:]
 
             final_ranks.append(torch.cat([final_top_m_indices, rest_indices]).numpy())
-
     else:
         with h5py.File(X_path, 'r') as f_x:
             db_dataset = f_x['features']
@@ -254,8 +262,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
         del Q_tensor_cpu
     if 'db_gpu_buffer' in locals():
         del db_gpu_buffer
-    if 'db_cpu_staging' in locals():
-        del db_cpu_staging
 
     gc.collect()
     torch.cuda.empty_cache()
