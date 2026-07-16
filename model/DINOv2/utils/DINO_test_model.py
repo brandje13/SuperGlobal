@@ -35,7 +35,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     cgroup_mem_limit_path = '/sys/fs/cgroup/memory/memory.limit_in_bytes'
     cgroup_mem_usage_path = '/sys/fs/cgroup/memory/memory.usage_in_bytes'
 
-    available_ram = psutil.virtual_memory().available * 0.25
+    available_ram = psutil.virtual_memory().available * 0.4
 
     if os.path.exists(cgroup_mem_limit_path) and os.path.exists(cgroup_mem_usage_path):
         with open(cgroup_mem_limit_path, 'r') as f_limit, open(cgroup_mem_usage_path, 'r') as f_usage:
@@ -67,7 +67,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             pt_dtype = torch.from_numpy(np.empty(0, dtype=np_dtype)).dtype
 
             print(f">> Pre-allocating {db_shape} pinned tensor to bypass RAM spikes...")
-            X_tensor_cpu = torch.empty(db_shape, dtype=pt_dtype).pin_memory()
+            X_tensor_cpu = torch.empty(db_shape, dtype=pt_dtype)#.pin_memory()
             f_x['features'].read_direct(X_tensor_cpu.numpy())
 
             num_db, dim, n_patches = X_tensor_cpu.shape
