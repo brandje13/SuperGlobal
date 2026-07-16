@@ -158,6 +158,9 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     db_gpu_buffer = torch.zeros((vram_chunk_size, dim, n_patches), dtype=torch.float32, device=device)
 
     if USE_RAM_MODE:
+        micro_batch_size = min(top_m_rerank, 1000)
+        db_cpu_gather_buffer = torch.empty((micro_batch_size, dim, n_patches), dtype=X_tensor_cpu.dtype).pin_memory()
+
         for i in tqdm(range(N_q), desc="Reranking", mininterval=1.0):
             q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
             candidate_idxs = top_global_indices[i].cpu()
@@ -168,10 +171,20 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                 c_end = min(c_start + vram_chunk_size, top_m_rerank)
                 current_batch_size = c_end - c_start
 
-                chunk_candidate_idxs = candidate_idxs[c_start:c_end].tolist()
+                chunk_candidate_idxs = candidate_idxs[c_start:c_end]
 
-                for local_idx, db_idx in enumerate(chunk_candidate_idxs):
-                    db_gpu_buffer[local_idx].copy_(X_tensor_cpu[db_idx], non_blocking=True)
+                # --- FAST MICRO-BATCHING ---
+                for mb_start in range(0, current_batch_size, micro_batch_size):
+                    mb_end = min(mb_start + micro_batch_size, current_batch_size)
+                    mb_size = mb_end - mb_start
+
+                    mb_idxs = chunk_candidate_idxs[mb_start:mb_end]
+
+                    # 1. Zero-Allocation Gather: Pluck data from RAM directly into our pinned buffer
+                    torch.index_select(X_tensor_cpu, 0, mb_idxs, out=db_cpu_gather_buffer[:mb_size])
+
+                    # 2. High-Speed Bulk DMA: Blast 1,000 images to the GPU in one shot
+                    db_gpu_buffer[mb_start:mb_end].copy_(db_cpu_gather_buffer[:mb_size], non_blocking=True)
 
                 db_chunk = db_gpu_buffer[:current_batch_size]
 
@@ -254,6 +267,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
         del Q_tensor_cpu
     if 'db_gpu_buffer' in locals():
         del db_gpu_buffer
+    if 'db_cpu_gather_buffer' in locals():
+        del db_cpu_gather_buffer
 
     gc.collect()
     torch.cuda.empty_cache()
