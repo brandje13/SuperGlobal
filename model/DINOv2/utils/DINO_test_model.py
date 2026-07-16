@@ -62,7 +62,14 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     if USE_RAM_MODE:
         with h5py.File(X_path, 'r') as f_x:
-            X_tensor_cpu = torch.from_numpy(f_x['features'][:])
+            db_shape = f_x['features'].shape
+            np_dtype = f_x['features'].dtype
+            pt_dtype = torch.from_numpy(np.empty(0, dtype=np_dtype)).dtype
+
+            print(f">> Pre-allocating {db_shape} pinned tensor to bypass RAM spikes...")
+            X_tensor_cpu = torch.empty(db_shape, dtype=pt_dtype).pin_memory()
+            f_x['features'].read_direct(X_tensor_cpu.numpy())
+
             num_db, dim, n_patches = X_tensor_cpu.shape
             print(f"Database Shape: {X_tensor_cpu.shape}")
 
@@ -172,6 +179,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
                 local_scores[c_start:c_end] = top_m_vals.mean(dim=1).cpu()
 
+                del sim_matrix, best_match_per_patch, top_m_vals
+
             local_sort_order = torch.argsort(local_scores, descending=True)
             final_top_m_indices = candidate_idxs[local_sort_order]
 
@@ -199,7 +208,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                     cpu_end = min(cpu_start + cpu_chunk_size, top_m_rerank)
                     batch_sorted_idxs = sorted_idxs[cpu_start:cpu_end]
 
-                    db_cpu_chunk = torch.from_numpy(db_dataset[batch_sorted_idxs.tolist()])
+                    db_cpu_chunk = torch.from_numpy(db_dataset[batch_sorted_idxs.tolist()]).pin_memory()
 
                     for vram_start in range(0, (cpu_end - cpu_start), vram_chunk_size):
                         vram_end = min(vram_start + vram_chunk_size, (cpu_end - cpu_start))
@@ -215,6 +224,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                         global_offsets = np.arange(cpu_start + vram_start, cpu_start + vram_end)
                         original_rank_positions = sort_order[global_offsets]
                         local_scores[original_rank_positions] = top_m_vals.mean(dim=1).cpu()
+
+                        del sim_matrix, best_match_per_patch, top_m_vals
 
                     del db_cpu_chunk
 
