@@ -35,7 +35,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     cgroup_mem_limit_path = '/sys/fs/cgroup/memory/memory.limit_in_bytes'
     cgroup_mem_usage_path = '/sys/fs/cgroup/memory/memory.usage_in_bytes'
 
-    available_ram = psutil.virtual_memory().available
+    available_ram = psutil.virtual_memory().available * 0.25
 
     if os.path.exists(cgroup_mem_limit_path) and os.path.exists(cgroup_mem_usage_path):
         with open(cgroup_mem_limit_path, 'r') as f_limit, open(cgroup_mem_usage_path, 'r') as f_usage:
