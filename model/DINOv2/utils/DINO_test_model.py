@@ -151,7 +151,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     print(f">> Batching strategy: Staging Buffer = {vram_chunk_size}, VRAM Chunk = {vram_chunk_size}")
 
     if USE_RAM_MODE:
-        db_cpu_pinned = torch.empty((vram_chunk_size, dim, n_patches), dtype=torch.float32).pin_memory()
+        db_cpu_staging = torch.empty((vram_chunk_size, dim, n_patches), dtype=X_tensor_cpu.dtype)
 
     db_gpu_buffer = torch.zeros((vram_chunk_size, dim, n_patches), dtype=torch.float32, device=device)
 
@@ -168,9 +168,11 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
                 chunk_candidate_idxs = candidate_idxs[c_start:c_end]
 
-                torch.index_select(X_tensor_cpu, 0, chunk_candidate_idxs, out=db_cpu_pinned[:current_batch_size])
+                # Extract into the new dynamically typed staging buffer
+                torch.index_select(X_tensor_cpu, 0, chunk_candidate_idxs, out=db_cpu_staging[:current_batch_size])
 
-                db_gpu_buffer[:current_batch_size].copy_(db_cpu_pinned[:current_batch_size], non_blocking=True)
+                # copy_() automatically handles the float16 to float32 type casting during the GPU transfer
+                db_gpu_buffer[:current_batch_size].copy_(db_cpu_staging[:current_batch_size], non_blocking=True)
                 db_chunk = db_gpu_buffer[:current_batch_size]
 
                 sim_matrix = torch.matmul(q_patches, db_chunk)
@@ -252,8 +254,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
         del Q_tensor_cpu
     if 'db_gpu_buffer' in locals():
         del db_gpu_buffer
-    if 'db_cpu_pinned' in locals():
-        del db_cpu_pinned
+    if 'db_cpu_staging' in locals():
+        del db_cpu_staging
 
     gc.collect()
     torch.cuda.empty_cache()
