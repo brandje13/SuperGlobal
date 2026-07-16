@@ -168,9 +168,11 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                 c_end = min(c_start + vram_chunk_size, top_m_rerank)
                 current_batch_size = c_end - c_start
 
-                chunk_candidate_idxs = candidate_idxs[c_start:c_end]
+                chunk_candidate_idxs = candidate_idxs[c_start:c_end].tolist()
 
-                db_gpu_buffer[:current_batch_size].copy_(X_tensor_cpu[chunk_candidate_idxs], non_blocking=True)
+                for local_idx, db_idx in enumerate(chunk_candidate_idxs):
+                    db_gpu_buffer[local_idx].copy_(X_tensor_cpu[db_idx], non_blocking=True)
+
                 db_chunk = db_gpu_buffer[:current_batch_size]
 
                 sim_matrix = torch.matmul(q_patches, db_chunk)
