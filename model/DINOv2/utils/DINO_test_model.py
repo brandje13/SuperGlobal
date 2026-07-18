@@ -198,8 +198,13 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
             final_ranks.append(torch.cat([final_top_m_indices, rest_indices]).numpy())
 
+
     else:
-        nvme_stream_chunk = max(100, int(TARGET_CPU_BYTES / bytes_per_image_cpu))
+        # Cap NVMe chunk to ~15 GB max to leave plenty of breathing room and avoid Slurm OOMs
+        SAFE_CPU_BYTES = min(int(available_ram * 0.40), 15 * 1024 ** 3)
+        nvme_stream_chunk = max(100, int(SAFE_CPU_BYTES / bytes_per_image_cpu))
+
+        # Calculate safe batch sizes for the Matrix Multiplication step
         bmm_vram_chunk = max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram))
 
         print(f">> Inverted Streaming Mode: NVMe Chunk = {nvme_stream_chunk}, VRAM Batch = {bmm_vram_chunk}")
@@ -213,45 +218,41 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
             for db_start in tqdm(range(0, num_db, nvme_stream_chunk), desc="Streaming DB", mininterval=2.0):
                 db_end = min(db_start + nvme_stream_chunk, num_db)
-
                 mask = (top_global_indices_cpu >= db_start) & (top_global_indices_cpu < db_end)
+
                 if not mask.any():
                     continue
 
-                db_chunk_cpu = torch.from_numpy(db_dataset[db_start:db_end]).pin_memory()
-                db_chunk_vram = db_chunk_cpu.to(device, non_blocking=True).float()
-
+                # Load to CPU, NO pin_memory() so we don't duplicate the massive RAM footprint
+                db_chunk_cpu = torch.from_numpy(db_dataset[db_start:db_end])
                 q_idxs, m_idxs = torch.where(mask)
                 rel_db_idxs = top_global_indices_cpu[q_idxs, m_idxs] - db_start
                 num_matches = len(q_idxs)
 
+                # Batch out the VRAM transfers so we don't flood the GPU
                 for b_start in range(0, num_matches, bmm_vram_chunk):
                     b_end = min(b_start + bmm_vram_chunk, num_matches)
-
                     batch_q_idxs = q_idxs[b_start:b_end]
                     batch_rel_db_idxs = rel_db_idxs[b_start:b_end]
                     batch_m_idxs = m_idxs[b_start:b_end]
-
                     batch_q = Q_tensor_pinned[batch_q_idxs].to(device, non_blocking=True).float().transpose(1, 2)
-                    batch_db = db_chunk_vram[batch_rel_db_idxs]
 
+                    # Only move this specific batch of DB images to VRAM
+                    batch_db = db_chunk_cpu[batch_rel_db_idxs].to(device, non_blocking=True).float()
                     sim_matrix = torch.bmm(batch_q, batch_db)
                     best_match_per_patch, _ = sim_matrix.max(dim=2)
                     top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
-
                     local_scores[batch_q_idxs, batch_m_idxs] = top_m_vals.mean(dim=1).cpu()
 
                     del batch_q, batch_db, sim_matrix, best_match_per_patch, top_m_vals
 
-                del db_chunk_cpu, db_chunk_vram
+                del db_chunk_cpu
 
         for i in range(N_q):
             local_sort_order = torch.argsort(local_scores[i], descending=True)
             final_top_m_indices = top_global_indices_cpu[i][local_sort_order]
-
             global_sort_order = torch.argsort(sim_global[i], descending=True)
             rest_indices = global_sort_order[top_m_rerank:]
-
             final_ranks.append(torch.cat([final_top_m_indices, rest_indices]).numpy())
 
     ranks = np.array(final_ranks).T
