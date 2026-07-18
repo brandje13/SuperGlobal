@@ -1,0 +1,29 @@
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_336 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_336 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_336 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_336 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_518 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_518 M=1000 (Loaded from checkpoint)
+[Pre-DINO: vit_giant_patch14_reg4_dinov2.lvd142m_518 | M=0] VRAM Allocated: 0.00 MB | VRAM Reserved: 0.00 MB
+Loading DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m)
+>> Local NVMe path not found for this model. Defaulting to network storage: ./datasets/ILIAS/DINO_data_vit_giant_patch14_reg4_dinov2.lvd142m_518.h5
+>> DB Size: 116.73 GB | Ultra-Fast RAM Mode: False
+>> Loading features and computing Global Descriptors...
+Database Shape: (29715, 1536, 1373)

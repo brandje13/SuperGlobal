@@ -1,0 +1,47 @@
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_336 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_336 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_336 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_336 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_518 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_518 M=1000 (Loaded from checkpoint)
+[Pre-DINO: vit_giant_patch14_reg4_dinov2.lvd142m_518 | M=0] VRAM Allocated: 0.00 MB | VRAM Reserved: 0.00 MB
+Loading DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m)
+>> Rerouted database read to local NVMe: /scratch-local/nvandenbrand.24679296/dino_db/DINO_data_vit_giant_patch14_reg4_dinov2.lvd142m_518.h5
+>> DB Size: 116.73 GB | Ultra-Fast RAM Mode: False
+>> Loading features and computing Global Descriptors...
+Database Shape: (29715, 1536, 1373)
+>> Stage 1: Global Descriptor Search...
+Retrieval results ILIAS: mAP: 16.1
+[Post-DINO: vit_giant_patch14_reg4_dinov2.lvd142m_518 | M=0] VRAM Allocated: 8.12 MB | VRAM Reserved: 176.00 MB
+Scanning for VRAM leaks after DINO vit_giant_patch14_reg4_dinov2.lvd142m_518...
+Total active CUDA tensors in memory: 0
+Total identifiable VRAM held by active tensors: 0.00 MB
+[Pre-DINO: vit_giant_patch14_reg4_dinov2.lvd142m_518 | M=1000] VRAM Allocated: 8.12 MB | VRAM Reserved: 176.00 MB
+Loading DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m) via timm...
+>> ILIAS: Image Retrieval with DINOv2 (vit_giant_patch14_reg4_dinov2.lvd142m)
+>> Rerouted database read to local NVMe: /scratch-local/nvandenbrand.24679296/dino_db/DINO_data_vit_giant_patch14_reg4_dinov2.lvd142m_518.h5
+>> DB Size: 116.73 GB | Ultra-Fast RAM Mode: False
+>> Loading features and computing Global Descriptors...
+Database Shape: (29715, 1536, 1373)
+>> Stage 1: Global Descriptor Search...
+>> Stage 2: Reranking Top-1000 candidates with Patch Logic...
+>> Dynamic Allocations | CPU Target: 84.14 GB | VRAM Target: 28.49 GB
+>> Hardware Engine Scaling [Res: 518 | Patches: 1373]
+>> Batching strategy: CPU Chunk = 1000, VRAM Chunk = 1000
