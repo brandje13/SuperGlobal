@@ -9,7 +9,7 @@ import gc
 import pickle
 from tqdm import tqdm
 import numpy as np
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 import config as config
 from config import cfg as c
@@ -42,12 +42,15 @@ def save_ckpt(data, path):
         pickle.dump(data, f)
 
 
-# Helper target for multiprocessing
 def evaluate_combo_chunk(args):
     """
     Evaluates a chunk of combinations. Keeping it as a separate module-level
     function allows Python's multiprocessing pool to serialize and distribute the load.
     """
+    # --- SURGICAL THREAD LOCK ---
+    # Prevents worker processes from inheriting PyTorch's multithreading and thrashing the CPU
+    torch.set_num_threads(1)
+
     chunk, cfg, global_pool_cached, local_pool_cached, semantic_pool_cached, MODES = args
     results = []
 
@@ -368,25 +371,21 @@ def main():
     local_pool_cached = {}
     semantic_pool_cached = {}
 
-    # FIX: Explicitly save the correct base keys before we delete the original pools
     global_base_keys = list(global_pool.keys())
     local_base_keys = list(local_pool.keys())
     semantic_base_keys = list(semantic_pool.keys())
 
     for g_key, g_info in global_pool.items():
-        # Strip 'ranks' to prevent the multiprocessing Memory Bomb
         global_pool_cached[g_key] = {k: v for k, v in g_info.items() if k != 'ranks'}
         for k in TOP_K_SEARCH:
             global_pool_cached[(g_key, k)] = retrieve_top_k(cfg, g_info['ranks'], k, g_info['family'], True)
 
     for l_key, l_info in local_pool.items():
-        # Strip 'ranks'
         local_pool_cached[l_key] = {k: v for k, v in l_info.items() if k != 'ranks'}
         for k in TOP_K_SEARCH:
             local_pool_cached[(l_key, k)] = retrieve_top_k(cfg, l_info['ranks'], k, l_info['family'], True)
 
     for s_key, s_info in semantic_pool.items():
-        # Strip 'ranks'
         semantic_pool_cached[s_key] = {k: v for k, v in s_info.items() if k != 'ranks'}
         for k in TOP_K_SEARCH:
             semantic_pool_cached[(s_key, k)] = retrieve_top_k(cfg, s_info['ranks'], k, s_info['family'], True)
@@ -417,12 +416,18 @@ def main():
 
     tasks = [(chunk, cfg, global_pool_cached, local_pool_cached, semantic_pool_cached, MODES) for chunk in chunks]
 
+    # --- SURGICAL THREAD LOCK ---
+    # Dynamically drop PyTorch to 1 thread right before multiprocessing begins,
+    # allowing Phases 1-3 to use all cores but preventing Phase 4 from thrashing.
+    torch.set_num_threads(1)
+
     ensemble_results = []
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         futures = [executor.submit(evaluate_combo_chunk, task) for task in tasks]
 
-        # Display progression tracking
-        for future in tqdm(futures, desc="Fusing Ensembles (Parallelized)", unit="chunk"):
+        # Display progression tracking using as_completed for real-time smooth updates
+        for future in tqdm(as_completed(futures), total=len(futures), desc="Fusing Ensembles (Parallelized)",
+                           unit="chunk"):
             ensemble_results.extend(future.result())
 
     # --- FIND THE BEST PATH TO 20/50 ---
