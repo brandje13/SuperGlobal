@@ -223,14 +223,13 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                 if not mask.any():
                     continue
 
-                # Load to CPU, NO pin_memory() so we don't duplicate the massive RAM footprint
                 db_chunk_cpu = torch.from_numpy(db_dataset[db_start:db_end])
                 q_idxs, m_idxs = torch.where(mask)
                 rel_db_idxs = top_global_indices_cpu[q_idxs, m_idxs] - db_start
                 num_matches = len(q_idxs)
 
                 # Batch out the VRAM transfers so we don't flood the GPU
-                for b_start in range(0, num_matches, bmm_vram_chunk):
+                for b_start in tqdm(range(0, num_matches, bmm_vram_chunk), desc="VRAM Batches", leave=False):
                     b_end = min(b_start + bmm_vram_chunk, num_matches)
                     batch_q_idxs = q_idxs[b_start:b_end]
                     batch_rel_db_idxs = rel_db_idxs[b_start:b_end]

@@ -394,7 +394,7 @@ def main():
 
     # --- MULTIPROCESSING EXECUTION ---
     # Retrieve physical core counts on Snellius gcn nodes (36 cores/socket, 72 cores total)
-    num_workers = int(os.environ.get('SLURM_CPUS_PER_TASK', 4))
+    num_workers = min(6, int(os.environ.get('SLURM_CPUS_PER_TASK', 4)))
     print(f">> Dispatching grid search to {num_workers} CPU cores...")
 
     # Segment combinations into chunks for worker nodes to process
