@@ -36,6 +36,13 @@ SHARED_LOCAL_POOL = {}
 SHARED_SEMANTIC_POOL = {}
 
 
+# --- GLOBAL SHARED MEMORY FOR WORKERS ---
+SHARED_CFG = None
+SHARED_GLOBAL_POOL = {}
+SHARED_LOCAL_POOL = {}
+SHARED_SEMANTIC_POOL = {}
+
+
 def load_ckpt(path):
     if os.path.exists(path):
         with open(path, 'rb') as f:
@@ -54,7 +61,11 @@ def worker_initializer(cache_path):
     Loads the pre-calculated dictionaries from disk to avoid OOM queue pickling.
     """
     global SHARED_CFG, SHARED_GLOBAL_POOL, SHARED_LOCAL_POOL, SHARED_SEMANTIC_POOL
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> eb00ffe (Whatever)
     os.environ['OMP_NUM_THREADS'] = '1'
     os.environ['MKL_NUM_THREADS'] = '1'
     os.environ['OPENBLAS_NUM_THREADS'] = '1'
@@ -377,15 +388,23 @@ def main():
     total_combos = len(global_pool) * len(local_pool) * len(semantic_pool) * len(TOP_K_SEARCH) * len(MODES)
 
     if total_combos == 0:
+<<<<<<< HEAD
         print(
             "\n[!] Error: One or more pools are completely empty. Cannot run 3-way fusion without at least one model in each slot.")
+=======
+        print("\n[!] Error: One or more pools are completely empty. Cannot run 3-way fusion without at least one model in each slot.")
+>>>>>>> eb00ffe (Whatever)
         return
 
     print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
 
     # --- OPTIMIZATION: PRE-CACHE TOP-K REPRESENTATIONS & SAVE TO DISK ---
     print(">> Pre-calculating Top-K representations and writing worker cache to disk...")
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> eb00ffe (Whatever)
     dict_global_pool = {}
     dict_local_pool = {}
     dict_semantic_pool = {}
@@ -432,6 +451,7 @@ def main():
     tasks = [combinations[i:i + chunk_size] for i in range(0, len(combinations), chunk_size)]
 
     ensemble_results = []
+<<<<<<< HEAD
 
     # Forces PyTorch into a safe 'spawn' mode compatible with pre-initialized CUDA
     mp_context = mp.get_context('spawn')
@@ -440,6 +460,15 @@ def main():
                                  desc="Fusing Ensembles", unit="chunk"):
             ensemble_results.extend(result_chunk)
 
+=======
+    
+    # Forces PyTorch into a safe 'spawn' mode compatible with pre-initialized CUDA
+    mp_context = mp.get_context('spawn')
+    with mp_context.Pool(processes=safe_workers, initializer=worker_initializer, initargs=(cache_path,)) as pool:
+        for result_chunk in tqdm(pool.imap_unordered(evaluate_combo_chunk, tasks), total=len(tasks), desc="Fusing Ensembles", unit="chunk"):
+            ensemble_results.extend(result_chunk)
+
+>>>>>>> eb00ffe (Whatever)
     # Clean up the temporary cache file
     if os.path.exists(cache_path):
         os.remove(cache_path)
