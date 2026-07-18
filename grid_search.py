@@ -368,39 +368,40 @@ def main():
     local_pool_cached = {}
     semantic_pool_cached = {}
 
+    # FIX: Explicitly save the correct base keys before we delete the original pools
+    global_base_keys = list(global_pool.keys())
+    local_base_keys = list(local_pool.keys())
+    semantic_base_keys = list(semantic_pool.keys())
+
     for g_key, g_info in global_pool.items():
-        # FIX: Strip the massive 'ranks' array from the metadata so it doesn't get pickled
+        # Strip 'ranks' to prevent the multiprocessing Memory Bomb
         global_pool_cached[g_key] = {k: v for k, v in g_info.items() if k != 'ranks'}
         for k in TOP_K_SEARCH:
             global_pool_cached[(g_key, k)] = retrieve_top_k(cfg, g_info['ranks'], k, g_info['family'], True)
 
     for l_key, l_info in local_pool.items():
-        # FIX: Strip 'ranks'
+        # Strip 'ranks'
         local_pool_cached[l_key] = {k: v for k, v in l_info.items() if k != 'ranks'}
         for k in TOP_K_SEARCH:
             local_pool_cached[(l_key, k)] = retrieve_top_k(cfg, l_info['ranks'], k, l_info['family'], True)
 
     for s_key, s_info in semantic_pool.items():
-        # FIX: Strip 'ranks'
+        # Strip 'ranks'
         semantic_pool_cached[s_key] = {k: v for k, v in s_info.items() if k != 'ranks'}
         for k in TOP_K_SEARCH:
             semantic_pool_cached[(s_key, k)] = retrieve_top_k(cfg, s_info['ranks'], k, s_info['family'], True)
 
-    # FIX: Purge the original massive checkpoint pools from System RAM completely
+    # Purge the original massive checkpoint pools from System RAM completely
     del global_pool
     del local_pool
     del semantic_pool
     gc.collect()
 
-    # Prepare combinations to distribute
+    # Prepare combinations to distribute using our safe lists
     combinations = []
-    for g_key in global_pool_cached.keys():
-        # We must filter out the tuple keys (the top-k caches) to safely iterate over the base models
-        if isinstance(g_key, tuple): continue
-        for l_key in local_pool_cached.keys():
-            if isinstance(l_key, tuple): continue
-            for s_key in semantic_pool_cached.keys():
-                if isinstance(s_key, tuple): continue
+    for g_key in global_base_keys:
+        for l_key in local_base_keys:
+            for s_key in semantic_base_keys:
                 for k in TOP_K_SEARCH:
                     for mode in MODES:
                         combinations.append((g_key, l_key, s_key, k, mode))
