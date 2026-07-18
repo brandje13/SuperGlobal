@@ -1,0 +1,4 @@
+mkdir: cannot create directory ‘/scratch-node/nvandenbrand’: Permission denied
+cp: cannot create regular file '/scratch-node/nvandenbrand/24679178/': No such file or directory
+cp: cannot create regular file '/scratch-node/nvandenbrand/24679178/': No such file or directory
+[2026-07-16T16:35:27.206] error: *** JOB 24679178 ON gcn61 CANCELLED AT 2026-07-16T16:35:27 DUE to SIGNAL Terminated ***

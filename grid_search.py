@@ -188,7 +188,7 @@ def main():
     ]
 
     GLOBAL_M_SEARCH = list(range(0, 1100, 100))
-    DINO_M_SEARCH = list(range(0, 11000, 1000))
+    DINO_M_SEARCH = list(range(0, 2000, 1000))
     TOP_K_SEARCH = [10, 50, 100]
 
     # ====================================================================================
