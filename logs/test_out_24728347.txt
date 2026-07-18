@@ -1,0 +1,30 @@
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_small_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_base_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_224 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_336 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_large_patch14_reg4_dinov2.lvd142m_336 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_336 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_336 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_518 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_dinov2.lvd142m_518 M=1000 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_518 M=0 (Loaded from checkpoint)
+>> Skipping DINO vit_giant_patch14_reg4_dinov2.lvd142m_518 M=1000 (Loaded from checkpoint)
+
+============================================================
+FINAL COMBINATORIAL ANALYSIS (410130 combinations)
+============================================================
+>> Pre-calculating and caching Top-K representations...
+>> Dispatching grid search to 4 CPU cores...
