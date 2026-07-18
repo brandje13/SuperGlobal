@@ -24,7 +24,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     Q_path = os.path.join(data_dir, dataset, f"DINO_query_{safe_model_name}_{res}.h5")
     X_path = os.path.join(data_dir, dataset, f"DINO_data_{safe_model_name}_{res}.h5")
 
-    # Extract missing query or database features if they are not already cached on disk
     if update_queries or not os.path.isfile(Q_path):
         extract_DINO_features(model, data_dir, dataset, gnd, "query", Q_path)
 
@@ -37,10 +36,8 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     cgroup_mem_limit_path = '/sys/fs/cgroup/memory/memory.limit_in_bytes'
     cgroup_mem_usage_path = '/sys/fs/cgroup/memory/memory.usage_in_bytes'
 
-    # SLURM typically restricts physical RAM per GPU evenly, so we conservatively scale the reported system memory
     available_ram = psutil.virtual_memory().available * 0.25
 
-    # Check Linux cgroups to determine true containerized memory limits if enforced by the HPC scheduler
     if os.path.exists(cgroup_mem_limit_path) and os.path.exists(cgroup_mem_usage_path):
         with open(cgroup_mem_limit_path, 'r') as f_limit, open(cgroup_mem_usage_path, 'r') as f_usage:
             cgroup_limit = int(f_limit.read().strip())
@@ -48,15 +45,12 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             if cgroup_limit < (1024 ** 4):
                 available_ram = min(available_ram, cgroup_limit - cgroup_usage)
 
-    # Define a safe upper limit for RAM usage to prevent OOM crashes on large datasets
     USE_RAM_MODE = (file_size_bytes < (available_ram * 0.60))
 
-    # Intercept network paths for oversized datasets and reroute to local NVMe storage if the file was staged
     if not USE_RAM_MODE:
         local_db_dir = os.environ.get("LOCAL_DB_PATH")
         if local_db_dir:
             scratch_path = os.path.join(local_db_dir, f"DINO_data_{safe_model_name}_{res}.h5")
-            # Validate the file exists in the scratch directory before overriding the network path
             if os.path.isfile(scratch_path):
                 X_path = scratch_path
                 print(f">> Rerouted database read to local NVMe: {X_path}")
@@ -66,15 +60,11 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     print(f">> DB Size: {file_size_gb:.2f} GB | Ultra-Fast RAM Mode: {USE_RAM_MODE}")
     print(">> Loading features and computing Global Descriptors...")
 
-    # Load query features into CPU memory and compute L2-normalized global descriptors
     with h5py.File(Q_path, 'r') as f_q:
         Q = f_q['features'][:]
         Q_tensor_cpu = torch.from_numpy(Q)
         Q_global = F.normalize(torch.mean(Q_tensor_cpu.float(), dim=2), p=2, dim=1).to(device)
 
-    # ---------------------------------------------------------
-    # STAGE 1: GLOBAL SEARCH
-    # ---------------------------------------------------------
     vram_safe_chunk = 250
 
     if USE_RAM_MODE:
@@ -83,7 +73,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             np_dtype = f_x['features'].dtype
             pt_dtype = torch.from_numpy(np.empty(0, dtype=np_dtype)).dtype
 
-            # Pre-allocate standard unpinned memory for the database to prevent cgroup 'ulimit' OOM kills
             X_tensor_cpu = torch.empty(db_shape, dtype=pt_dtype)
             f_x['features'].read_direct(X_tensor_cpu.numpy())
 
@@ -100,7 +89,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
         X_global = F.normalize(X_global, p=2, dim=1)
 
     else:
-        # Disk-backed global descriptor calculation using H5Py lazy loading for oversized datasets
         with h5py.File(X_path, 'r') as f_x:
             num_db, dim, n_patches = f_x['features'].shape
             print(f"Database Shape: ({num_db}, {dim}, {n_patches})")
@@ -116,7 +104,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     print(">> Stage 1: Global Descriptor Search...")
 
-    # Compute dot-product similarity between all queries and database global descriptors
     sim_global = torch.mm(Q_global, X_global.t())
 
     k_fetch = max(1, top_m_rerank)
@@ -124,7 +111,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
     sim_global = sim_global.cpu()
 
-    # Bypass local reranking if M=0, triggering early evaluation and memory cleanup
     if top_m_rerank == 0:
         ranks = torch.argsort(sim_global, descending=True).numpy().T
         map_score = 0.0
@@ -143,10 +129,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
         return ranks, map_score
 
-    # ---------------------------------------------------------
-    # STAGE 2: LOCAL RERANKING (Nested Dynamic Hardware Chunking)
-    # ---------------------------------------------------------
-
     del Q_global, X_global
     torch.cuda.empty_cache()
     gc.collect()
@@ -160,7 +142,6 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     bytes_per_image_cpu = dim * n_patches * 4
     bytes_per_image_vram = (dim * n_patches + n_patches * n_patches) * 4
 
-    # Calculate dynamic chunk boundaries based on available hardware capacity
     total_vram = torch.cuda.get_device_properties(device).total_memory
     allocated_vram = torch.cuda.memory_allocated(device)
 
@@ -171,22 +152,18 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
     print(
         f">> Dynamic Allocations | CPU Target: {TARGET_CPU_BYTES / (1024 ** 3):.2f} GB | VRAM Target: {TARGET_VRAM_BYTES / (1024 ** 3):.2f} GB")
 
-    cpu_chunk_size = min(top_m_rerank, max(100, int(TARGET_CPU_BYTES / bytes_per_image_cpu)))
-
-    # Enforce a hard cap of 1000 on VRAM chunks to prevent cudaMalloc blocking delays on massive calculation tensors
-    vram_chunk_size = min(top_m_rerank, max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram)), 1000)
-
-    print(f">> Hardware Engine Scaling [Res: {res} | Patches: {n_patches}]")
-    print(f">> Batching strategy: CPU Chunk = {cpu_chunk_size}, VRAM Chunk = {vram_chunk_size}")
-
-    db_gpu_buffer = torch.zeros((vram_chunk_size, dim, n_patches), dtype=torch.float32, device=device)
-
     if USE_RAM_MODE:
+        cpu_chunk_size = min(top_m_rerank, max(100, int(TARGET_CPU_BYTES / bytes_per_image_cpu)))
+        vram_chunk_size = min(top_m_rerank, max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram)), 1000)
+
+        print(f">> RAM Mode Batching: CPU Chunk = {cpu_chunk_size}, VRAM Chunk = {vram_chunk_size}")
+
+        db_gpu_buffer = torch.zeros((vram_chunk_size, dim, n_patches), dtype=torch.float32, device=device)
+
         for i in tqdm(range(N_q), desc="Reranking", mininterval=1.0):
             q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
             candidate_idxs = top_global_indices[i].cpu()
 
-            # Sequentially sort indices to prevent CPU L3 cache thrashing across the RAM array
             sort_order = torch.argsort(candidate_idxs)
             sorted_candidate_idxs = candidate_idxs[sort_order]
 
@@ -198,18 +175,15 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
                 chunk_candidate_idxs = sorted_candidate_idxs[c_start:c_end].tolist()
 
-                # Stream 0-byte memory views directly to the GPU via DMA to bypass advanced indexing RAM spikes
                 for local_idx, db_idx in enumerate(chunk_candidate_idxs):
                     db_gpu_buffer[local_idx].copy_(X_tensor_cpu[db_idx], non_blocking=True)
 
                 db_chunk = db_gpu_buffer[:current_batch_size]
 
-                # Compute dense local patch similarities between query and database candidates
                 sim_matrix = torch.matmul(q_patches, db_chunk)
                 best_match_per_patch, _ = sim_matrix.max(dim=2)
                 top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
 
-                # Re-map the calculated batch scores back to their original pre-sorted global rank positions
                 global_offsets = torch.arange(c_start, c_end)
                 original_rank_positions = sort_order[global_offsets]
                 local_scores[original_rank_positions] = top_m_vals.mean(dim=1).cpu()
@@ -225,54 +199,60 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             final_ranks.append(torch.cat([final_top_m_indices, rest_indices]).numpy())
 
     else:
-        # Disk-Backed Mode: Stream candidate chunks securely from HDF5 to survive RAM limitations
+        nvme_stream_chunk = max(100, int(TARGET_CPU_BYTES / bytes_per_image_cpu))
+        bmm_vram_chunk = max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram))
+
+        print(f">> Inverted Streaming Mode: NVMe Chunk = {nvme_stream_chunk}, VRAM Batch = {bmm_vram_chunk}")
+
+        local_scores = torch.zeros((N_q, top_m_rerank), dtype=torch.float32)
+        Q_tensor_pinned = Q_tensor_cpu.pin_memory()
+        top_global_indices_cpu = top_global_indices.cpu()
+
         with h5py.File(X_path, 'r') as f_x:
             db_dataset = f_x['features']
 
-            for i in tqdm(range(N_q), desc="Reranking", mininterval=5.0):
-                q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
+            for db_start in tqdm(range(0, num_db, nvme_stream_chunk), desc="Streaming DB", mininterval=2.0):
+                db_end = min(db_start + nvme_stream_chunk, num_db)
 
-                candidate_idxs_tensor = top_global_indices[i].cpu()
-                candidate_idxs_np = candidate_idxs_tensor.numpy()
+                mask = (top_global_indices_cpu >= db_start) & (top_global_indices_cpu < db_end)
+                if not mask.any():
+                    continue
 
-                local_scores = torch.zeros(top_m_rerank)
+                db_chunk_cpu = torch.from_numpy(db_dataset[db_start:db_end]).pin_memory()
+                db_chunk_vram = db_chunk_cpu.to(device, non_blocking=True).float()
 
-                sort_order = np.argsort(candidate_idxs_np)
-                sorted_idxs = candidate_idxs_np[sort_order]
+                q_idxs, m_idxs = torch.where(mask)
+                rel_db_idxs = top_global_indices_cpu[q_idxs, m_idxs] - db_start
+                num_matches = len(q_idxs)
 
-                for cpu_start in range(0, top_m_rerank, cpu_chunk_size):
-                    cpu_end = min(cpu_start + cpu_chunk_size, top_m_rerank)
-                    batch_sorted_idxs = sorted_idxs[cpu_start:cpu_end]
+                for b_start in range(0, num_matches, bmm_vram_chunk):
+                    b_end = min(b_start + bmm_vram_chunk, num_matches)
 
-                    # Extract sequentially from disk and pin the intermediate CPU staging array for fast GPU transfers
-                    db_cpu_chunk = torch.from_numpy(db_dataset[batch_sorted_idxs.tolist()]).pin_memory()
+                    batch_q_idxs = q_idxs[b_start:b_end]
+                    batch_rel_db_idxs = rel_db_idxs[b_start:b_end]
+                    batch_m_idxs = m_idxs[b_start:b_end]
 
-                    for vram_start in range(0, (cpu_end - cpu_start), vram_chunk_size):
-                        vram_end = min(vram_start + vram_chunk_size, (cpu_end - cpu_start))
-                        current_batch_size = vram_end - vram_start
+                    batch_q = Q_tensor_pinned[batch_q_idxs].to(device, non_blocking=True).float().transpose(1, 2)
+                    batch_db = db_chunk_vram[batch_rel_db_idxs]
 
-                        db_gpu_buffer[:current_batch_size].copy_(db_cpu_chunk[vram_start:vram_end], non_blocking=True)
-                        db_gpu_chunk = db_gpu_buffer[:current_batch_size]
+                    sim_matrix = torch.bmm(batch_q, batch_db)
+                    best_match_per_patch, _ = sim_matrix.max(dim=2)
+                    top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
 
-                        sim_matrix = torch.matmul(q_patches, db_gpu_chunk)
-                        best_match_per_patch, _ = sim_matrix.max(dim=2)
-                        top_m_vals, _ = torch.topk(best_match_per_patch, m_patches, dim=1)
+                    local_scores[batch_q_idxs, batch_m_idxs] = top_m_vals.mean(dim=1).cpu()
 
-                        global_offsets = np.arange(cpu_start + vram_start, cpu_start + vram_end)
-                        original_rank_positions = sort_order[global_offsets]
-                        local_scores[original_rank_positions] = top_m_vals.mean(dim=1).cpu()
+                    del batch_q, batch_db, sim_matrix, best_match_per_patch, top_m_vals
 
-                        del sim_matrix, best_match_per_patch, top_m_vals
+                del db_chunk_cpu, db_chunk_vram
 
-                    del db_cpu_chunk
+        for i in range(N_q):
+            local_sort_order = torch.argsort(local_scores[i], descending=True)
+            final_top_m_indices = top_global_indices_cpu[i][local_sort_order]
 
-                local_sort_order = torch.argsort(local_scores, descending=True)
-                final_top_m_indices = candidate_idxs_tensor[local_sort_order]
+            global_sort_order = torch.argsort(sim_global[i], descending=True)
+            rest_indices = global_sort_order[top_m_rerank:]
 
-                global_sort_order = torch.argsort(sim_global[i], descending=True)
-                rest_indices = global_sort_order[top_m_rerank:]
-
-                final_ranks.append(torch.cat([final_top_m_indices, rest_indices]).numpy())
+            final_ranks.append(torch.cat([final_top_m_indices, rest_indices]).numpy())
 
     ranks = np.array(final_ranks).T
     map_score = 0.0
@@ -283,13 +263,14 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
             (map_score, _, _, _), (_, _, _, _), (_, _, _, _) = test_revisitop(cfg, ks, [ranks, ranks, ranks])
             print('Retrieval results {}: mAP: {}'.format(dataset, np.around(map_score * 100, decimals=2)))
 
-    # Force strict memory cleanup of deep tensors before exiting function scope
     if 'X_tensor_cpu' in locals():
         del X_tensor_cpu
     if 'Q_tensor_cpu' in locals():
         del Q_tensor_cpu
     if 'db_gpu_buffer' in locals():
         del db_gpu_buffer
+    if 'Q_tensor_pinned' in locals():
+        del Q_tensor_pinned
 
     gc.collect()
     torch.cuda.empty_cache()
