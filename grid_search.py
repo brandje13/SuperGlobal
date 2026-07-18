@@ -4,12 +4,12 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import time
 import torch
-import torch.multiprocessing as mp
 import csv
 import gc
 import pickle
 from tqdm import tqdm
 import numpy as np
+from concurrent.futures import ProcessPoolExecutor
 
 import config as config
 from config import cfg as c
@@ -29,12 +29,6 @@ from utils.SIR_topk import retrieve_top_k
 from utils.merge_results import merge_results
 from utils.cleanup import print_vram_usage, find_leaking_tensors
 
-# --- GLOBAL SHARED MEMORY FOR WORKERS ---
-SHARED_CFG = None
-SHARED_GLOBAL_POOL = {}
-SHARED_LOCAL_POOL = {}
-SHARED_SEMANTIC_POOL = {}
-
 
 def load_ckpt(path):
     if os.path.exists(path):
@@ -48,41 +42,23 @@ def save_ckpt(data, path):
         pickle.dump(data, f)
 
 
-def worker_initializer(cache_path):
+# Helper target for multiprocessing
+def evaluate_combo_chunk(args):
     """
-    Runs once per worker when the 'spawn' process boots.
-    Loads the pre-calculated dictionaries from disk to avoid OOM queue pickling.
+    Evaluates a chunk of combinations. Keeping it as a separate module-level
+    function allows Python's multiprocessing pool to serialize and distribute the load.
     """
-    global SHARED_CFG, SHARED_GLOBAL_POOL, SHARED_LOCAL_POOL, SHARED_SEMANTIC_POOL
-
-    os.environ['OMP_NUM_THREADS'] = '1'
-    os.environ['MKL_NUM_THREADS'] = '1'
-    os.environ['OPENBLAS_NUM_THREADS'] = '1'
-    torch.set_num_threads(1)
-
-    with open(cache_path, 'rb') as f:
-        cache = pickle.load(f)
-
-    SHARED_CFG = cache['cfg']
-    SHARED_GLOBAL_POOL = cache['global']
-    SHARED_LOCAL_POOL = cache['local']
-    SHARED_SEMANTIC_POOL = cache['semantic']
-
-
-def evaluate_combo_chunk(chunk):
-    """
-    Evaluates a chunk of combinations using local variables populated by the initializer.
-    """
+    chunk, cfg, global_pool_cached, local_pool_cached, semantic_pool_cached, MODES = args
     results = []
 
     for (g_key, l_key, sem_bb, k, mode) in chunk:
-        g_top = SHARED_GLOBAL_POOL[(g_key, k)]
-        l_top = SHARED_LOCAL_POOL[(l_key, k)]
-        sem_top = SHARED_SEMANTIC_POOL[(sem_bb, k)]
+        g_top = global_pool_cached[(g_key, k)]
+        l_top = local_pool_cached[(l_key, k)]
+        sem_top = semantic_pool_cached[(sem_bb, k)]
 
-        g_info = SHARED_GLOBAL_POOL[g_key]
-        l_info = SHARED_LOCAL_POOL[l_key]
-        sem_info = SHARED_SEMANTIC_POOL[sem_bb]
+        g_info = global_pool_cached[g_key]
+        l_info = local_pool_cached[l_key]
+        sem_info = semantic_pool_cached[sem_bb]
 
         models = [
             [g_info['family'], g_top],
@@ -90,8 +66,8 @@ def evaluate_combo_chunk(chunk):
             [sem_info['family'], sem_top]
         ]
 
-        merged_res = merge_results(SHARED_CFG, models, mode)
-        m_metrics = evaluate_final(SHARED_CFG, models, merged_res, mode, silent=True)
+        merged_res = merge_results(cfg, models, mode)
+        m_metrics = evaluate_final(cfg, models, merged_res, mode, silent=True)
 
         results.append({
             'mode': mode,
@@ -122,6 +98,7 @@ def main():
     config.load_cfg_fom_args("Grid Search for Image Retrieval Ensemble")
     c.NUM_GPUS = 1
 
+    # Set to True to skip all untested models and jump straight to Phase 4 fusion.
     FUSE_ONLY_CACHED = False
 
     # --- 1. SETUP GROUND TRUTH ---
@@ -142,6 +119,7 @@ def main():
     ckpt_dir = os.path.join(c.TEST.DATA_DIR, c.TEST.DATASET, "checkpoints")
     os.makedirs(ckpt_dir, exist_ok=True)
 
+    # Checkpoint Paths
     sg_ckpt = os.path.join(ckpt_dir, "sg_data.pkl")
     conv_ckpt = os.path.join(ckpt_dir, "convnext_data.pkl")
     mixvpr_ckpt = os.path.join(ckpt_dir, "mixvpr_data.pkl")
@@ -149,6 +127,7 @@ def main():
     clip_ckpt = os.path.join(ckpt_dir, "clip_data.pkl")
     siglip_ckpt = os.path.join(ckpt_dir, "siglip_data.pkl")
 
+    # Load existing progress
     sg_data = load_ckpt(sg_ckpt)
     conv_data = load_ckpt(conv_ckpt)
     mixvpr_data = load_ckpt(mixvpr_ckpt)
@@ -209,7 +188,7 @@ def main():
     ]
 
     GLOBAL_M_SEARCH = list(range(0, 1100, 100))
-    DINO_M_SEARCH = list(range(0, 2000, 1000))
+    DINO_M_SEARCH = list(range(0, 11000, 1000))
     TOP_K_SEARCH = [10, 50, 100]
 
     # ====================================================================================
@@ -378,44 +357,33 @@ def main():
 
     if total_combos == 0:
         print(
-            "\n[!] Error: One or more pools are completely empty. Cannot run 3-way fusion without at least one model in each slot.")
+            "\n[!] Error: One or more pools are completely empty. Cannot run 3-way fusion without at least one model in each slot (Global, Local, Semantic).")
         return
 
     print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
 
-    # --- OPTIMIZATION: PRE-CACHE TOP-K REPRESENTATIONS & SAVE TO DISK ---
-    print(">> Pre-calculating Top-K representations and writing worker cache to disk...")
-
-    dict_global_pool = {}
-    dict_local_pool = {}
-    dict_semantic_pool = {}
+    # --- OPTIMIZATION: PRE-CACHE TOP-K REPRESENTATIONS IN HOST MEMORY ---
+    print(">> Pre-calculating and caching Top-K representations...")
+    global_pool_cached = {}
+    local_pool_cached = {}
+    semantic_pool_cached = {}
 
     for g_key, g_info in global_pool.items():
-        dict_global_pool[g_key] = g_info
+        global_pool_cached[g_key] = g_info
         for k in TOP_K_SEARCH:
-            dict_global_pool[(g_key, k)] = retrieve_top_k(cfg, g_info['ranks'], k, g_info['family'], True)
+            global_pool_cached[(g_key, k)] = retrieve_top_k(cfg, g_info['ranks'], k, g_info['family'], True)
 
     for l_key, l_info in local_pool.items():
-        dict_local_pool[l_key] = l_info
+        local_pool_cached[l_key] = l_info
         for k in TOP_K_SEARCH:
-            dict_local_pool[(l_key, k)] = retrieve_top_k(cfg, l_info['ranks'], k, l_info['family'], True)
+            local_pool_cached[(l_key, k)] = retrieve_top_k(cfg, l_info['ranks'], k, l_info['family'], True)
 
     for s_key, s_info in semantic_pool.items():
-        dict_semantic_pool[s_key] = s_info
+        semantic_pool_cached[s_key] = s_info
         for k in TOP_K_SEARCH:
-            dict_semantic_pool[(s_key, k)] = retrieve_top_k(cfg, s_info['ranks'], k, s_info['family'], True)
+            semantic_pool_cached[(s_key, k)] = retrieve_top_k(cfg, s_info['ranks'], k, s_info['family'], True)
 
-    cache_path = os.path.join(ckpt_dir, "temp_worker_cache.pkl")
-    cache_data = {
-        'cfg': cfg,
-        'global': dict_global_pool,
-        'local': dict_local_pool,
-        'semantic': dict_semantic_pool
-    }
-    with open(cache_path, 'wb') as f:
-        pickle.dump(cache_data, f)
-
-    # --- MULTIPROCESSING EXECUTION (SPAWN) ---
+    # Prepare combinations to distribute
     combinations = []
     for g_key in global_pool.keys():
         for l_key in local_pool.keys():
@@ -424,25 +392,24 @@ def main():
                     for mode in MODES:
                         combinations.append((g_key, l_key, s_key, k, mode))
 
-    slurm_cpus = int(os.environ.get('SLURM_CPUS_PER_TASK', 12))
-    safe_workers = min(12, slurm_cpus)
-    print(f">> Dispatching grid search to {safe_workers} CPU cores (Spawn method to avoid CUDA deadlocks)...")
+    # --- MULTIPROCESSING EXECUTION ---
+    # Retrieve physical core counts on Snellius gcn nodes (36 cores/socket, 72 cores total)
+    num_workers = int(os.environ.get('SLURM_CPUS_PER_TASK', 4))
+    print(f">> Dispatching grid search to {num_workers} CPU cores...")
 
-    chunk_size = 500  # Kept low so the progress bar is highly responsive
-    tasks = [combinations[i:i + chunk_size] for i in range(0, len(combinations), chunk_size)]
+    # Segment combinations into chunks for worker nodes to process
+    chunk_size = max(1, len(combinations) // (num_workers * 4))
+    chunks = [combinations[i:i + chunk_size] for i in range(0, len(combinations), chunk_size)]
+
+    tasks = [(chunk, cfg, global_pool_cached, local_pool_cached, semantic_pool_cached, MODES) for chunk in chunks]
 
     ensemble_results = []
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        futures = [executor.submit(evaluate_combo_chunk, task) for task in tasks]
 
-    # Forces PyTorch into a safe 'spawn' mode compatible with pre-initialized CUDA
-    mp_context = mp.get_context('spawn')
-    with mp_context.Pool(processes=safe_workers, initializer=worker_initializer, initargs=(cache_path,)) as pool:
-        for result_chunk in tqdm(pool.imap_unordered(evaluate_combo_chunk, tasks), total=len(tasks),
-                                 desc="Fusing Ensembles", unit="chunk"):
-            ensemble_results.extend(result_chunk)
-
-    # Clean up the temporary cache file
-    if os.path.exists(cache_path):
-        os.remove(cache_path)
+        # Display progression tracking
+        for future in tqdm(futures, desc="Fusing Ensembles (Parallelized)", unit="chunk"):
+            ensemble_results.extend(future.result())
 
     # --- FIND THE BEST PATH TO 20/50 ---
     print(f"\n{'*' * 40}\nCONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)\n{'*' * 40}")
