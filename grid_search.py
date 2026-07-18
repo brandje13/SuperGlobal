@@ -9,7 +9,6 @@ import gc
 import pickle
 from tqdm import tqdm
 import numpy as np
-import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 import config as config
@@ -464,8 +463,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # --- LINUX FORK DEADLOCK FIX ---
-    # Force the multiprocessing module to use 'spawn' to prevent worker processes
-    # from inheriting locked PyTorch mutexes and freezing indefinitely.
-    mp.set_start_method('spawn', force=True)
     main()
