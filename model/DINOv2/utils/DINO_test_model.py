@@ -205,7 +205,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
         nvme_stream_chunk = max(100, int(SAFE_CPU_BYTES / bytes_per_image_cpu))
 
         # Calculate safe batch sizes for the Matrix Multiplication step
-        bmm_vram_chunk = max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram))
+        bmm_vram_chunk = min(250, max(50, int(TARGET_VRAM_BYTES / bytes_per_image_vram)))
 
         print(f">> Inverted Streaming Mode: NVMe Chunk = {nvme_stream_chunk}, VRAM Batch = {bmm_vram_chunk}")
 
