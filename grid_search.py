@@ -99,7 +99,7 @@ def main():
     c.NUM_GPUS = 1
 
     # Set to True to skip all untested models and jump straight to Phase 4 fusion.
-    FUSE_ONLY_CACHED = False
+    FUSE_ONLY_CACHED = True
 
     # --- 1. SETUP GROUND TRUTH ---
     if c.TEST.DATASET in ['roxford5k', 'rparis6k']:
@@ -188,7 +188,7 @@ def main():
     ]
 
     GLOBAL_M_SEARCH = list(range(0, 1100, 100))
-    DINO_M_SEARCH = list(range(0, 2000, 1000))
+    DINO_M_SEARCH = list(range(0, 11000, 1000))
     TOP_K_SEARCH = [10, 50, 100]
 
     # ====================================================================================
@@ -394,7 +394,7 @@ def main():
 
     # --- MULTIPROCESSING EXECUTION ---
     # Retrieve physical core counts on Snellius gcn nodes (36 cores/socket, 72 cores total)
-    num_workers = int(os.environ.get('SLURM_CPUS_PER_TASK', 4))
+    num_workers = max(os.cpu_count(), 4)
     print(f">> Dispatching grid search to {num_workers} CPU cores...")
 
     # Segment combinations into chunks for worker nodes to process
