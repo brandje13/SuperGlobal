@@ -160,7 +160,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
 
         db_gpu_buffer = torch.zeros((vram_chunk_size, dim, n_patches), dtype=torch.float32, device=device)
 
-        for i in tqdm(range(N_q), desc="Reranking", mininters=1000, maxinterval=1800.0, ascii=True):
+        for i in tqdm(range(N_q), desc="Reranking", miniters=1000, maxinterval=1800.0, ascii=True):
             q_patches = Q_tensor_cpu[i].float().to(device).t().unsqueeze(0)
             candidate_idxs = top_global_indices[i].cpu()
 
@@ -216,7 +216,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
         with h5py.File(X_path, 'r') as f_x:
             db_dataset = f_x['features']
 
-            for db_start in tqdm(range(0, num_db, nvme_stream_chunk), desc="Streaming DB", mininters=1000, maxinterval=1800.0, ascii=True):
+            for db_start in tqdm(range(0, num_db, nvme_stream_chunk), desc="Streaming DB", miniters=1000, maxinterval=1800.0, ascii=True):
                 db_end = min(db_start + nvme_stream_chunk, num_db)
                 mask = (top_global_indices_cpu >= db_start) & (top_global_indices_cpu < db_end)
 
@@ -229,7 +229,7 @@ def test_DINO(model, device, cfg, gnd, data_dir, dataset, res, custom, update_da
                 num_matches = len(q_idxs)
 
                 # Batch out the VRAM transfers so we don't flood the GPU
-                for b_start in tqdm(range(0, num_matches, bmm_vram_chunk), desc="VRAM Batches", leave=False, mininters=1000, maxinterval=1800.0, ascii=True):
+                for b_start in tqdm(range(0, num_matches, bmm_vram_chunk), desc="VRAM Batches", leave=False, miniters=1000, maxinterval=1800.0, ascii=True):
                     b_end = min(b_start + bmm_vram_chunk, num_matches)
                     batch_q_idxs = q_idxs[b_start:b_end]
                     batch_rel_db_idxs = rel_db_idxs[b_start:b_end]

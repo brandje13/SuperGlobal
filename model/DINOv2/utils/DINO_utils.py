@@ -17,7 +17,7 @@ def extract_DINO_features(model, data_dir, dataset, gnd_fn, split, save_path):
         dset = None
         ptr = 0
 
-        for batch in tqdm(test_loader, mininters=1000, maxinterval=1800.0, ascii=True):
+        for batch in tqdm(test_loader, miniters=1000, maxinterval=1800.0, ascii=True):
             if isinstance(batch, (list, tuple)):
                 im = batch[0]
             else:
