@@ -106,7 +106,7 @@ def evaluate_combo_chunk(chunk):
         # --- FUSION EXECUTION ---
         num_models = len(models)
         if num_models == 1:
-            merged_res = models[0][1]
+            merged_res = {query: data['top_k'] for query, data in models[0][1].items()}
         else:
             merged_res = merge_results(cfg, models, mode)
 
@@ -228,8 +228,8 @@ def main():
         ('convnextv2_huge', 224)
     ]
 
-    GLOBAL_M_SEARCH = list(range(0, 1100, 100))
-    DINO_M_SEARCH = list(range(0, 11000, 1000))
+    GLOBAL_M_SEARCH = list(range(0, 100, 100))
+    DINO_M_SEARCH = list(range(0, 1000, 1000))
     TOP_K_SEARCH = [10, 50, 100]
 
     # ====================================================================================
