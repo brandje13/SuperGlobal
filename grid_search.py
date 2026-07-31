@@ -31,7 +31,6 @@ from utils.merge_results import merge_results
 from utils.cleanup import print_vram_usage, find_leaking_tensors
 
 # --- GLOBAL CACHE FOR WORKERS ---
-# This ensures the massive dictionary is loaded exactly once per CPU core.
 WORKER_CACHE = {}
 
 
@@ -48,10 +47,6 @@ def save_ckpt(data, path):
 
 
 def init_worker(cache_path):
-    """
-    Runs ONCE when a worker process boots up.
-    Loads the data into the worker's private RAM so it doesn't thrash the disk.
-    """
     global WORKER_CACHE
     torch.set_num_threads(1)
     with open(cache_path, 'rb') as f:
@@ -61,6 +56,7 @@ def init_worker(cache_path):
 def evaluate_combo_chunk(chunk):
     """
     Evaluates combinations using the pre-loaded global WORKER_CACHE.
+    Supports 1-way, 2-way, and 3-way dynamic ensembles.
     """
     global WORKER_CACHE
     cfg = WORKER_CACHE['cfg']
@@ -70,45 +66,74 @@ def evaluate_combo_chunk(chunk):
 
     results = []
 
-    for (g_key, l_key, sem_bb, k, mode) in chunk:
-        g_top = global_pool_cached[(g_key, k)]
-        l_top = local_pool_cached[(l_key, k)]
-        sem_top = semantic_pool_cached[(sem_bb, k)]
+    for (g_key, l_key, s_key, k, mode) in chunk:
+        models = []
+        total_time = 0.0
 
-        g_info = global_pool_cached[g_key]
-        l_info = local_pool_cached[l_key]
-        sem_info = semantic_pool_cached[sem_bb]
+        # --- GLOBAL SLOT ---
+        if g_key is not None:
+            g_top = global_pool_cached[(g_key, k)]
+            g_info = global_pool_cached[g_key]
+            models.append([g_info['family'], g_top])
+            g_fam, g_bb_str, g_m = g_info['family'], g_key[0], g_key[1]
+            g_map, g_time = g_info['mAP'], g_info['time']
+            total_time += g_time
+        else:
+            g_fam, g_bb_str, g_m, g_map, g_time = 'None', 'None', 0, 0.0, 0.0
 
-        models = [
-            [g_info['family'], g_top],
-            [l_info['family'], l_top],
-            [sem_info['family'], sem_top]
-        ]
+        # --- LOCAL SLOT ---
+        if l_key is not None:
+            l_top = local_pool_cached[(l_key, k)]
+            l_info = local_pool_cached[l_key]
+            models.append([l_info['family'], l_top])
+            l_fam, l_bb_str, l_m = l_info['family'], l_key[0], l_key[1]
+            l_map, l_time = l_info['mAP'], l_info['time']
+            total_time += l_time
+        else:
+            l_fam, l_bb_str, l_m, l_map, l_time = 'None', 'None', 0, 0.0, 0.0
 
-        merged_res = merge_results(cfg, models, mode)
+        # --- SEMANTIC SLOT ---
+        if s_key is not None:
+            s_top = semantic_pool_cached[(s_key, k)]
+            s_info = semantic_pool_cached[s_key]
+            models.append([s_info['family'], s_top])
+            s_fam, s_bb_str = s_info['family'], s_key
+            s_map, s_time = s_info['mAP'], s_info['time']
+            total_time += s_time
+        else:
+            s_fam, s_bb_str, s_map, s_time = 'None', 'None', 0.0, 0.0
+
+        # --- FUSION EXECUTION ---
+        num_models = len(models)
+        if num_models == 1:
+            merged_res = {query: data['top_k'] for query, data in models[0][1].items()}
+        else:
+            merged_res = merge_results(cfg, models, mode)
+
         m_metrics = evaluate_final(cfg, models, merged_res, mode, silent=True)
 
         results.append({
+            'combo_type': f"{num_models}-way",
             'mode': mode,
-            'global_family': g_info['family'],
-            'global_bb': g_key[0],
-            'global_m': g_key[1],
-            'global_map': g_info['mAP'],
-            'global_time': g_info['time'],
-            'local_family': l_info['family'],
-            'local_bb': l_key[0],
-            'local_m': l_key[1],
-            'local_map': l_info['mAP'],
-            'local_time': l_info['time'],
-            'sem_family': sem_info['family'],
-            'sem_bb': sem_bb,
-            'sem_map': sem_info['mAP'],
-            'sem_time': sem_info['time'],
+            'global_family': g_fam,
+            'global_bb': g_bb_str,
+            'global_m': g_m,
+            'global_map': g_map,
+            'global_time': g_time,
+            'local_family': l_fam,
+            'local_bb': l_bb_str,
+            'local_m': l_m,
+            'local_map': l_map,
+            'local_time': l_time,
+            'sem_family': s_fam,
+            'sem_bb': s_bb_str,
+            'sem_map': s_map,
+            'sem_time': s_time,
             'top_k': k,
             'precision': m_metrics['precision'],
             'recall': m_metrics['recall'],
             'f3': m_metrics['f3'],
-            'total_time': g_info['time'] + l_info['time'] + sem_info['time']
+            'total_time': total_time
         })
     return results
 
@@ -203,8 +228,8 @@ def main():
         ('convnextv2_huge', 224)
     ]
 
-    GLOBAL_M_SEARCH = list(range(0, 1100, 100))
-    DINO_M_SEARCH = list(range(0, 11000, 1000))
+    GLOBAL_M_SEARCH = list(range(0, 100, 100))
+    DINO_M_SEARCH = list(range(0, 1000, 1000))
     TOP_K_SEARCH = [10, 50, 100]
 
     # ====================================================================================
@@ -229,7 +254,6 @@ def main():
             except Exception as e:
                 print(f"[!] Error on SG {sg_bb}: {e}")
             finally:
-                print(f"Scanning for VRAM leaks after SG {sg_bb}...")
                 find_leaking_tensors()
 
     # ====================================================================================
@@ -253,7 +277,6 @@ def main():
         except Exception as e:
             print(f"[!] Error on ConvNeXt {conv_bb}: {e}")
         finally:
-            print(f"Scanning for VRAM leaks after ConvNeXt {conv_bb}...")
             find_leaking_tensors()
 
     # ====================================================================================
@@ -274,18 +297,59 @@ def main():
             except Exception as e:
                 print(f"[!] Error on MixVPR {mixvpr_bb}: {e}")
             finally:
-                print(f"Scanning for VRAM leaks after MixVPR {mixvpr_bb}...")
                 find_leaking_tensors()
 
     # ====================================================================================
-    # PHASE 2: DINOv2 (Local Slot)
+    # PHASE 2A: CLIP (Semantic Slot)
     # ====================================================================================
-    for dino_bb, res in DINO_BACKBONES:
-        c.DINO.WEIGHTS = dino_bb
-        c.DINO.RESOLUTION = res
-        dino_key = f"{dino_bb}_{res}"
+    for clip_bb, res in CLIP_BACKBONES:
+        if clip_bb in clip_data: continue
+        if FUSE_ONLY_CACHED: continue
+        c.CLIP.WEIGHTS = clip_bb
+        c.CLIP.RESOLUTION = res
+        start = time.time()
 
-        for m in DINO_M_SEARCH:
+        print_vram_usage(f"Pre-CLIP: {clip_bb} | Res={res}")
+        try:
+            ranks, mAP = CLIP_tester.__main__(gnd, cfg)
+            print_vram_usage(f"Post-CLIP: {clip_bb} | Res={res}")
+            clip_data[clip_bb] = {'family': 'CLIP', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
+            save_ckpt(clip_data, clip_ckpt)
+        except Exception as e:
+            print(f"[!] Error on CLIP {clip_bb}: {e}")
+        finally:
+            find_leaking_tensors()
+
+    # ====================================================================================
+    # PHASE 2B: SigLIP (Semantic Slot)
+    # ====================================================================================
+    for siglip_bb, res in SIGLIP_BACKBONES:
+        if siglip_bb in siglip_data: continue
+        if FUSE_ONLY_CACHED: continue
+        c.SigLIP.WEIGHTS = siglip_bb
+        c.SigLIP.RESOLUTION = res
+        start = time.time()
+
+        print_vram_usage(f"Pre-SigLIP: {siglip_bb} | Res={res}")
+        try:
+            ranks, mAP = SigLIP_tester.__main__(gnd, cfg)
+            print_vram_usage(f"Post-SigLIP: {siglip_bb} | Res={res}")
+            siglip_data[siglip_bb] = {'family': 'SigLIP', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
+            save_ckpt(siglip_data, siglip_ckpt)
+        except Exception as e:
+            print(f"[!] Error on SigLIP {siglip_bb}: {e}")
+        finally:
+            find_leaking_tensors()
+
+    # ====================================================================================
+    # PHASE 3: DINOv2 (Local Slot)
+    # ====================================================================================
+    for m in DINO_M_SEARCH:
+        for dino_bb, res in DINO_BACKBONES:
+            c.DINO.WEIGHTS = dino_bb
+            c.DINO.RESOLUTION = res
+            dino_key = f"{dino_bb}_{res}"
+
             if (dino_key, m) in dino_data:
                 print(f">> Skipping DINO {dino_key} M={m} (Loaded from checkpoint)")
                 continue
@@ -304,52 +368,7 @@ def main():
             except Exception as e:
                 print(f"[!] Error on DINO {dino_key}: {e}")
             finally:
-                print(f"Scanning for VRAM leaks after DINO {dino_key}...")
                 find_leaking_tensors()
-
-    # ====================================================================================
-    # PHASE 3A: CLIP (Semantic Slot)
-    # ====================================================================================
-    for clip_bb, res in CLIP_BACKBONES:
-        if clip_bb in clip_data: continue
-        if FUSE_ONLY_CACHED: continue
-        c.CLIP.WEIGHTS = clip_bb
-        c.CLIP.RESOLUTION = res
-        start = time.time()
-
-        print_vram_usage(f"Pre-CLIP: {clip_bb} | Res={res}")
-        try:
-            ranks, mAP = CLIP_tester.__main__(gnd, cfg)
-            print_vram_usage(f"Post-CLIP: {clip_bb} | Res={res}")
-            clip_data[clip_bb] = {'family': 'CLIP', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
-            save_ckpt(clip_data, clip_ckpt)
-        except Exception as e:
-            print(f"[!] Error on CLIP {clip_bb}: {e}")
-        finally:
-            print(f"Scanning for VRAM leaks after CLIP {clip_bb}...")
-            find_leaking_tensors()
-
-    # ====================================================================================
-    # PHASE 3B: SigLIP (Semantic Slot)
-    # ====================================================================================
-    for siglip_bb, res in SIGLIP_BACKBONES:
-        if siglip_bb in siglip_data: continue
-        if FUSE_ONLY_CACHED: continue
-        c.SigLIP.WEIGHTS = siglip_bb
-        c.SigLIP.RESOLUTION = res
-        start = time.time()
-
-        print_vram_usage(f"Pre-SigLIP: {siglip_bb} | Res={res}")
-        try:
-            ranks, mAP = SigLIP_tester.__main__(gnd, cfg)
-            print_vram_usage(f"Post-SigLIP: {siglip_bb} | Res={res}")
-            siglip_data[siglip_bb] = {'family': 'SigLIP', 'ranks': ranks, 'mAP': mAP, 'time': time.time() - start}
-            save_ckpt(siglip_data, siglip_ckpt)
-        except Exception as e:
-            print(f"[!] Error on SigLIP {siglip_bb}: {e}")
-        finally:
-            print(f"Scanning for VRAM leaks after SigLIP {siglip_bb}...")
-            find_leaking_tensors()
 
     # ====================================================================================
     # PHASE 4: OPTIMIZED DYNAMIC SLOT-BASED FUSION
@@ -368,15 +387,6 @@ def main():
 
     local_pool = dino_data
     semantic_pool = {**clip_data, **siglip_data}
-
-    total_combos = len(global_pool) * len(local_pool) * len(semantic_pool) * len(TOP_K_SEARCH) * len(MODES)
-
-    if total_combos == 0:
-        print(
-            "\n[!] Error: One or more pools are completely empty. Cannot run 3-way fusion without at least one model in each slot.")
-        return
-
-    print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
 
     print(">> Pre-calculating Top-K representations and stripping matrix bloat...")
     global_pool_cached = {}
@@ -412,9 +422,10 @@ def main():
     with open(cache_path, 'wb') as f:
         pickle.dump(cache_data, f)
 
-    g_base_keys = list(global_pool.keys())
-    l_base_keys = list(local_pool.keys())
-    s_base_keys = list(semantic_pool.keys())
+    # --- DYNAMIC COMBINATION GENERATOR ---
+    g_options = list(global_pool.keys()) + [None]
+    l_options = list(local_pool.keys()) + [None]
+    s_options = list(semantic_pool.keys()) + [None]
 
     # Fully clear main process RAM before spawning workers
     del cache_data
@@ -422,12 +433,33 @@ def main():
     gc.collect()
 
     combinations = []
-    for g_key in g_base_keys:
-        for l_key in l_base_keys:
-            for s_key in s_base_keys:
+    for g_key in g_options:
+        for l_key in l_options:
+            for s_key in s_options:
+                # Count how many slots are actively filled
+                valid_models = [x for x in [g_key, l_key, s_key] if x is not None]
+                num_models = len(valid_models)
+
+                # Skip 0-way configurations (no models)
+                if num_models == 0:
+                    continue
+
                 for k in TOP_K_SEARCH:
-                    for mode in MODES:
-                        combinations.append((g_key, l_key, s_key, k, mode))
+                    if num_models == 1:
+                        combinations.append((g_key, l_key, s_key, k, 'single'))
+                    elif num_models == 2:
+                        for mode in ['union', 'intersection']:
+                            combinations.append((g_key, l_key, s_key, k, mode))
+                    else:
+                        for mode in MODES:
+                            combinations.append((g_key, l_key, s_key, k, mode))
+
+    total_combos = len(combinations)
+    print(f"\n{'=' * 60}\nFINAL COMBINATORIAL ANALYSIS ({total_combos} combinations)\n{'=' * 60}")
+
+    if total_combos == 0:
+         print("[!] Error: No combinations generated. Pools may be empty.")
+         return
 
     system_cores = os.cpu_count() or 4
     num_workers = min(system_cores, 12)
@@ -443,7 +475,7 @@ def main():
     with ProcessPoolExecutor(max_workers=num_workers, initializer=init_worker, initargs=(cache_path,)) as executor:
         futures = [executor.submit(evaluate_combo_chunk, chunk) for chunk in chunks]
 
-        for future in tqdm(as_completed(futures), total=len(futures), desc="Fusing Ensembles (Parallelized)", unit="chunk"):
+        for future in tqdm(as_completed(futures), total=len(futures), desc="Evaluating Ensembles", unit="chunk"):
             ensemble_results.extend(future.result())
 
     print(f"\n{'*' * 40}\nCONFIGURATIONS MEETING TARGET (P>=0.20, R>=0.50)\n{'*' * 40}")
@@ -452,13 +484,12 @@ def main():
     if targets_met:
         sorted_targets = sorted(targets_met, key=lambda x: x['f3'], reverse=True)
         for res in sorted_targets[:20]:
-            g_short = os.path.splitext(os.path.basename(res['global_bb']))[0] \
-                if res['global_family'] == 'SuperGlobal' else res['global_bb']
-            l_short = res['local_bb']
-            s_short = res['sem_bb'].split('/')[-1]
+            g_str = f"{os.path.splitext(os.path.basename(res['global_bb']))[0]}({res['global_m']})" if res['global_family'] != 'None' else "None"
+            l_str = f"{res['local_bb']}({res['local_m']})" if res['local_family'] != 'None' else "None"
+            s_str = f"{res['sem_bb'].split('/')[-1]}" if res['sem_family'] != 'None' else "None"
 
             print(
-                f"[{res['mode'].upper()}] K:{res['top_k']} | G:{g_short}({res['global_m']}), L:{l_short}({res['local_m']}), S:{s_short} | "
+                f"[{res['combo_type']} | {res['mode'].upper()}] K:{res['top_k']} | G:{g_str}, L:{l_str}, S:{s_str} | "
                 f"P:{res['precision']:.2%}, R:{res['recall']:.2%}, F3:{res['f3']:.4f} | "
                 f"mAPs [G:{res['global_map']:.2f}, L:{res['local_map']:.2f}, S:{res['sem_map']:.2f}] | "
                 f"Time:{res['total_time']:.1f}s")
