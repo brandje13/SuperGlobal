@@ -1,2 +1,0 @@
-Streaming DB:   0%|          | 0/4 [00:00<?, ?it/s]/var/spool/slurm/slurmd/job24725594/slurm_script: line 36: 3505632 Killed                  python -u grid_search.py
-[2026-07-18T14:09:00.908] error: Detected 1 oom_kill event in StepId=24725594.batch. Some of the step tasks have been OOM Killed.

@@ -1,2 +1,0 @@
-Reranking:   0%|          | 0/1232 [00:00<?, ?it/s]/var/spool/slurm/slurmd/job24668646/slurm_script: line 27: 3758359 Killed                  python -u grid_search.py
-[2026-07-16T12:17:00.166] error: Detected 1 oom_kill event in StepId=24668646.batch. Some of the step tasks have been OOM Killed.

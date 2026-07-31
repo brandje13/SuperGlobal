@@ -1,4 +1,0 @@
-Reranking:   0%|          | 0/1232 [00:00<?, ?it/s]Reranking:   0%|          | 0/1232 [00:00<?, ?it/s]
-Reranking:   0%|          | 0/1232 [00:00<?, ?it/s]Reranking:   0%|          | 0/1232 [00:00<?, ?it/s]
-/var/spool/slurm/slurmd/job24669417/slurm_script: line 27: 1625528 Killed                  python -u grid_search.py
-[2026-07-16T12:49:56.261] error: Detected 1 oom_kill event in StepId=24669417.batch. Some of the step tasks have been OOM Killed.
