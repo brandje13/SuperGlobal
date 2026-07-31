@@ -142,7 +142,7 @@ def main():
     config.load_cfg_fom_args("Grid Search for Image Retrieval Ensemble")
     c.NUM_GPUS = 1
 
-    FUSE_ONLY_CACHED = True
+    FUSE_ONLY_CACHED = False
 
     # --- 1. SETUP GROUND TRUTH ---
     if c.TEST.DATASET in ['roxford5k', 'rparis6k']:
