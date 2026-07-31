@@ -12,7 +12,7 @@ def extract_SigLIP_features(model, processor, data_dir, dataset, gnd_fn, split):
 
     print(f"Extracting SigLIP features for {split}...")
 
-    for batch in tqdm(test_loader):
+    for batch in tqdm(test_loader, mininters=1000, maxinterval=1800.0, ascii=True):
         if split == 'query':
             batch_text = list(batch)
             # SigLIP tokenizer handles text identically to CLIP here

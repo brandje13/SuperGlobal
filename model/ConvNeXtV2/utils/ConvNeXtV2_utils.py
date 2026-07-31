@@ -12,7 +12,7 @@ def extract_ConvNeXtV2_features(model, data_dir, dataset, gnd_fn, split):
 
     print(f"Extracting ConvNeXt V2 features for {split}...")
 
-    for batch in tqdm(test_loader):
+    for batch in tqdm(test_loader, mininters=1000, maxinterval=1800.0, ascii=True):
         im = batch[0] if isinstance(batch, (list, tuple)) else batch
         im = im.to(device='cuda')
 

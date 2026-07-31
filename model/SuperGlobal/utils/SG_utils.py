@@ -13,7 +13,7 @@ def extract_feature(model, data_dir, dataset, gnd_fn, split, scale_list_fix, gem
         test_loader = loader.construct_loader(model.model, data_dir, dataset, gnd_fn, split, scale_list_fix)
         img_feats = [[] for _ in range(len(scale_list_fix))]
 
-        for im_list in tqdm(test_loader, mininterval=10.0):
+        for im_list in tqdm(test_loader, mininters=1000, maxinterval=1800.0, ascii=True):
             for idx in range(len(im_list)):
                 im_list[idx] = im_list[idx].cuda()
 
